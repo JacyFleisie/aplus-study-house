@@ -1,0 +1,72 @@
+# EditorConfig helps maintain consistent coding styles
+# https://editorconfig.org
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 120
+
+[*.{kt,kts}]
+indent_size = 4
+max_line_length = 120
+
+[*.{java}]
+indent_size = 4
+max_line_length = 120
+
+[*.{xml,json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{gradle,gradle.kts}]
+indent_size = 4
+
+# KTLint Rules
+[*.kt]
+# Rule: No wildcard imports
+ktlint_no-wildcard-imports = disabled
+
+# Rule: Max line length
+ktlint_standard_max-line-length = 120
+
+# Rule: No trailing commas
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+
+# Rule: Wildcard import
+ktlint_standard_no-wildcard-imports = disabled
+
+# Rule: KDoc
+ktlint_standard_kdoc = disabled
+
+# Rule: Final newline
+ktlint_standard_final-newline = enabled
+
+# Rule: No blank lines before rbrace
+ktlint_standard_no-blank-line-before-rbrace = enabled
+
+# Rule: No blank lines in class body
+ktlint_standard_no-blank-lines-in-class-body = enabled
+
+# Rule: No blank lines before rbrace
+ktlint_standard_no-blank-line-before-rbrace = enabled
+
+# Rule: No unnecessary semicolons
+ktlint_standard_no-unnecessary-semicolons = enabled
+
+# Rule: No unnecessary semicolons after right brace
+ktlint_standard_no-unnecessary-semicolons-after-right-brace = enabled
+
+# Rule: No unnecessary semicolons after right brace
+ktlint_standard_no-unnecessary-semicolons-after-right-brace = enabled
+
+# Rule: No unnecessary semicolons after right brace
+ktlint_standard_no-unnecessary-semicolons-after-right-brace = enabled

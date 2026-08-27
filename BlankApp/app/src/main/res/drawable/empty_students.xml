@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#FEF3C7"
+        android:pathData="M100,100m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+    <!-- Person 1 (center, larger) -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M100,60m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M100,76c-10,0 -18,8 -18,18v30c0,4 3,7 7,7h22c4,0 7,-3 7,-7V94c0,-10 -8,-18 -18,-18z" />
+    <!-- Person 2 (left, smaller) -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M60,80m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M60,92c-7,0 -13,6 -13,13v20c0,3 2,5 5,5h16c3,0 5,-2 5,-5v-20c0,-7 -6,-13 -13,-13z" />
+    <!-- Person 3 (right, smaller) -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M140,80m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M140,92c-7,0 -13,6 -13,13v20c0,3 2,5 5,5h16c3,0 5,-2 5,-5v-20c0,-7 -6,-13 -13,-13z" />
+    <!-- Desk/table -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M45,135h110c3,0 5,2 5,5v4c0,2 -2,4 -5,4H45c-3,0 -5,-2 -5,-4v-4c0,-3 2,-5 5,-5z" />
+    <!-- Book on desk -->
+    <path
+        android:fillColor="#FDE68A"
+        android:pathData="M85,125h30c2,0 4,2 4,4v6H81v-6c0,-2 2,-4 4,-4z" />
+    <!-- Sparkle 1 -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M150,50l3,7 7,3 -7,3 -3,7 -3,-7 -7,-3 7,-3z" />
+    <!-- Sparkle 2 -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M45,65l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z" />
+</vector>

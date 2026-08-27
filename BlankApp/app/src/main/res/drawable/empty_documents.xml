@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#E0E7FF"
+        android:pathData="M100,100m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+    <!-- Back paper -->
+    <path
+        android:fillColor="#C7D2FE"
+        android:pathData="M75,55h60c4,0 7,3 7,7v85c0,4 -3,7 -7,7H75c-4,0 -7,-3 -7,-7V62c0,-4 3,-7 7,-7z" />
+    <!-- Front paper -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M65,65h65c4,0 7,3 7,7v85c0,4 -3,7 -7,7H65c-4,0 -7,-3 -7,-7V72c0,-4 3,-7 7,-7z" />
+    <!-- Paper lines -->
+    <path
+        android:strokeColor="#E0E7FF"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M77,90h40 M77,98h35 M77,106h42 M77,114h28" />
+    <!-- Folder tab -->
+    <path
+        android:fillColor="#6366F1"
+        android:pathData="M55,60h25c3,0 5,2 5,5v5H50v-5c0,-3 2,-5 5,-5z" />
+    <!-- Folder body -->
+    <path
+        android:fillColor="#6366F1"
+        android:pathData="M50,70h100c4,0 7,3 7,7v70c0,4 -3,7 -7,7H50c-4,0 -7,-3 -7,-7V77c0,-4 3,-7 7,-7z" />
+    <!-- Upload arrow -->
+    <path
+        android:fillColor="#A5B4FC"
+        android:pathData="M100,85l-12,12h8v20h8v-20h8z" />
+    <!-- Cloud -->
+    <path
+        android:fillColor="#C7D2FE"
+        android:pathData="M80,125c-8,0 -14,-6 -14,-14 0,-7 5,-13 12,-14 1,-8 8,-14 17,-14 10,0 18,7 19,16 7,1 12,6 12,13 0,7 -5,13 -12,13z" />
+</vector>

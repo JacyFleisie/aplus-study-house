@@ -1,0 +1,55 @@
+# Android
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Keystore files (CRITICAL - never commit these)
+*.jks
+*.keystore
+keystore.properties
+
+# Environment / secrets
+.env
+.env.*
+*.env
+
+# Supabase credentials
+supabase.properties
+supabase/.temp
+
+# Node
+node_modules/
+
+# Build outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Kotlin
+*.kotlin_module
+
+# Generated
+BlankApp/app/build/
+BlankApp/build/
+BlankApp/.gradle/

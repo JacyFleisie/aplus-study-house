@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#FEF3C7"
+        android:pathData="M100,100m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+    <!-- Envelope body -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M50,85h100c4,0 7,3 7,7v45c0,4 -3,7 -7,7H50c-4,0 -7,-3 -7,-7V92c0,-4 3,-7 7,-7z" />
+    <!-- Envelope flap (open) -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M43,85L100,50L157,85z" />
+    <!-- Envelope inner shadow -->
+    <path
+        android:fillColor="#B45309"
+        android:pathData="M43,85L100,105L157,85z" />
+    <!-- Letter peeking out -->
+    <path
+        android:fillColor="#FEFCE8"
+        android:pathData="M70,75h60c3,0 5,2 5,5v40c0,3 -2,5 -5,5H70c-3,0 -5,-2 -5,-5V80c0,-3 2,-5 5,-5z" />
+    <!-- Letter lines -->
+    <path
+        android:strokeColor="#D97706"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M80,90h40 M80,98h30 M80,106h35" />
+    <!-- Chat bubble -->
+    <path
+        android:fillColor="#FCD34D"
+        android:pathData="M130,40c0,-8 6,-14 14,-14h20c8,0 14,6 14,14v16c0,8 -6,14 -14,14h-8l-8,10v-10h-12c-8,0 -14,-6 -14,-14z" />
+    <!-- Chat dots -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M145,50m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M155,50m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M165,50m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>

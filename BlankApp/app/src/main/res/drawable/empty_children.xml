@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#F3E8FF"
+        android:pathData="M100,100m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+    <!-- Parent figure -->
+    <path
+        android:fillColor="#9333EA"
+        android:pathData="M75,60m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+    <path
+        android:fillColor="#9333EA"
+        android:pathData="M75,75c-8,0 -14,6 -14,14v25c0,3 2,5 5,5h18c3,0 5,-2 5,-5v-25c0,-8 -6,-14 -14,-14z" />
+    <!-- Child figure -->
+    <path
+        android:fillColor="#C084FC"
+        android:pathData="M115,80m-9,0a9,9 0,1 1,18 0a9,9 0,1 1,-18 0" />
+    <path
+        android:fillColor="#C084FC"
+        android:pathData="M115,91c-6,0 -11,5 -11,11v18c0,2 2,4 4,4h14c2,0 4,-2 4,-4v-18c0,-6 -5,-11 -11,-11z" />
+    <!-- Connecting hand line -->
+    <path
+        android:strokeColor="#9333EA"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000"
+        android:pathData="M87,95 Q100,100 103,95" />
+    <!-- Plus sign -->
+    <path
+        android:strokeColor="#9333EA"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M140,70 L140,82 M134,76 L146,76" />
+    <!-- Circle around plus -->
+    <path
+        android:strokeColor="#C084FC"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M140,65 A12,12 0 1,1 139.99,65" />
+</vector>

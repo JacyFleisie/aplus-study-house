@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint baseline="2024-08-25" version="8.7.3">
+    <issue id="LongParameterList" severity="informational" message="Function has too many parameters" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/parent/registration/CollectionTransportScreen.kt" line="13"/>
+    </issue>
+    <issue id="LongParameterList" severity="informational" message="Function has too many parameters" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/parent/registration/MedicalInfoScreen.kt" line="13"/>
+    </issue>
+    <issue id="LongParameterList" severity="informational" message="Function has too many parameters" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/parent/registration/ParentDetailsScreen.kt" line="13"/>
+    </issue>
+    <issue id="LongParameterList" severity="informational" message="Function has too many parameters" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/parent/registration/ConsentSignatureScreen.kt" line="13"/>
+    </issue>
+    <issue id="LongMethod" severity="informational" message="Function is too long" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/navigation/AppNavigation.kt" line="24"/>
+    </issue>
+    <issue id="MagicNumber" severity="informational" message="Magic number detected" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/SplashScreen.kt" line="35"/>
+    </issue>
+    <issue id="MagicNumber" severity="informational" message="Magic number detected" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/auth/LoginScreen.kt" line="55"/>
+    </issue>
+    <issue id="MagicNumber" severity="informational" message="Magic number detected" confidence="low">
+        <location file="app/src/main/java/com/example/blankapp/screens/parent/ParentHomeScreen.kt" line="85"/>
+    </issue>
+</lint>
