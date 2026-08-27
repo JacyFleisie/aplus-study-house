@@ -1,0 +1,37 @@
+#!/bin/sh
+# Local pre-commit hook for A+ Study House (BlankApp)
+# Runs static analysis + unit tests before each commit so the quality gate
+# is automatic (no GitHub/CI needed). Aborts the commit if either fails.
+#
+# Installed by:  ./install-hooks.sh   (or copy manually to ../.git/hooks/pre-commit)
+
+set -e
+
+echo "🔍 Pre-commit: running quality gates..."
+
+# Resolve repo root (this hook lives in <repo>/.git/hooks, so root is one level up)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+APP_DIR="$REPO_ROOT/BlankApp"
+
+# Use the Android Studio bundled JDK so we don't pick up an old Java 8.
+if [ -d "/c/Program Files/Android/Android Studio/jbr" ]; then
+  export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+elif [ -d "/Applications/Android Studio.app/Contents/jbr" ]; then
+  export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr"
+fi
+
+cd "$APP_DIR"
+
+echo "→ detekt"
+./gradlew :app:detekt --console=plain || {
+  echo "❌ detekt failed. Commit aborted. Fix issues or run 'git commit --no-verify' to skip."
+  exit 1
+}
+
+echo "→ unit tests (testDebugUnitTest)"
+./gradlew :app:testDebugUnitTest --console=plain || {
+  echo "❌ unit tests failed. Commit aborted."
+  exit 1
+}
+
+echo "✅ Quality gates passed. Proceeding with commit."

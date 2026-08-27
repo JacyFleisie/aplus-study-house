@@ -1,21 +1,33 @@
 {
   "project": "A+ Study House (BlankApp) — Native Android (Kotlin/Compose) + Supabase",
+  "gate": "security",
+  "confidence": "medium",
+  "previous": {
+    "architecture": 72,
+    "code_quality": 70,
+    "security": 72,
+    "testing": 70,
+    "documentation": 30,
+    "deployment": 65,
+    "performance": 72,
+    "maintainability": 68
+  },
   "architecture": 72,
   "code_quality": 70,
   "security": 72,
-  "testing": 70,
-  "documentation": 30,
-  "deployment": 65,
+  "testing": 82,
+  "documentation": 85,
+  "deployment": 80,
   "performance": 72,
-  "maintainability": 68,
+  "maintainability": 70,
   "notes": {
-    "architecture": "MVVM + Hilt + type-safe Compose nav + custom Phoenix Realtime client. Clean separation; minor N+1 fixed this session. Acceptable.",
-    "code_quality": "Readable, but 1060 detekt issues pre-existing (now tracked via baseline). Mock* class names remain. Error handling improved this session (no more silent swallows).",
-    "security": "RLS recursion FIXED (is_admin SECURITY DEFINER). Storage buckets+policies applied. Mock/demo auth gated behind BuildConfig.DEBUG (verified hidden in release). Email verification behaviour still UNKNOWN. DB password + anon key shared in plaintext chat -> must rotate. Secret key never in client (verified).",
-    "testing": "6 unit-test files, 125 tests run: 123 pass, 2 fail due to test-env assuming unconfigured build while project IS configured (returns [] not null). 33 skipped by design. NO E2E/device test. No authz/RLS test in suite.",
-    "documentation": "NO README. setup/build/deploy undocumented. migrations self-documenting. Critical gap.",
-    "deployment": "Signed release APK built + installed on device, verified launching with no crashes, demo buttons hidden. keystore.properties gitignored but keystore file NOT backed up; no git history (no commits). No crash reporting wired. No CI.",
-    "performance": "N+1 invoices fixed (batched IN query). Realtime verified E2E (WS join ok). No profiling done; acceptable for prototype scale.",
-    "maintainability": "Static analysis restored (detekt+ktlint, on-demand). No git history. Mock* naming. Reasonable structure."
+    "architecture": "MVVM + Hilt + type-safe Compose nav + custom Phoenix Realtime client. Clean separation; N+1 fixed. Acceptable. (unchanged)",
+    "code_quality": "Readable; detekt baseline tracks ~1060 pre-existing issues. Mock* class names remain (cosmetic). Error handling surfaced via BaseViewModel. (unchanged)",
+    "security": "RLS recursion FIXED (is_admin SECURITY DEFINER, live-verified 42P17->[]). Storage buckets+policies applied. Mock/demo auth gated behind BuildConfig.DEBUG (verified hidden in release install). Secret role key never in client. BLOCKER REMAINS: DB password + anon key were shared in plaintext chat and are STILL unrotated (anon key in supabase.properties unchanged: sb_publishable_H_ljjwf2XA8C8M5PP0AXFg_rK_GJqx8). Owner must rotate.",
+    "testing": "6 unit-test files, full suite GREEN (was 123/125; 2 fixed this session to be config-independent). No E2E/device test; no authz/RLS test in suite.",
+    "documentation": "README.md added (prerequisites, env config, migration order 001->002->003, build/release, keystore backup). SETUP_GUIDE.md covers DB. Strong.",
+    "deployment": "Signed release APK v1.0.0 built + installed on device, verified launching crash-free, demo buttons hidden. Git history established (2 commits), keystore backed up locally (C:/Users/USER-PC/A+StudyHouse-KEYSTORE-BACKUP/). keystore.properties gitignored. NO CI, NO remote crash reporting yet.",
+    "performance": "N+1 invoices fixed (batched IN). Realtime verified E2E. No profiling; acceptable for prototype scale.",
+    "maintainability": "Static analysis restored (detekt+ktlint, on-demand). Git history now exists. Mock* naming. Reasonable."
   }
 }

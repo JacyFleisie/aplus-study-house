@@ -11,7 +11,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,6 +25,7 @@ import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ParentChildrenScreen(
     onChildClick: (String) -> Unit = {}
@@ -33,6 +37,22 @@ fun ParentChildrenScreen(
     var isLoading by remember { mutableStateOf(true) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var children by remember { mutableStateOf<List<MockStudent>>(emptyList()) }
+
+    // Pull-to-refresh state (manual fallback when Realtime WebSocket is down)
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            try {
+                children = getStudentsByParent(parentId)
+            } catch (e: Exception) {
+                loadError = e.toUserFriendlyMessage()
+            } finally {
+                isRefreshing = false
+            }
+        }
+    )
 
     // Load data with error handling
     LaunchedEffect(parentId) {
@@ -66,13 +86,14 @@ fun ParentChildrenScreen(
         return
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
         // Header
         Text(
             text = "My Children",
@@ -177,6 +198,13 @@ fun ParentChildrenScreen(
                 )
             }
         }
+    }
+
+    PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
