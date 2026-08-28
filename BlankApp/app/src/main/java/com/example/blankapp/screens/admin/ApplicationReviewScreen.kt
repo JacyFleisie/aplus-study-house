@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +47,7 @@ fun ApplicationReviewScreen(
     var showRejectDialog by remember { mutableStateOf(false) }
     var showChangesDialog by remember { mutableStateOf(false) }
     var decisionMade by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     if (isLoadingApplication) {
         Box(
@@ -434,6 +436,37 @@ fun ApplicationReviewScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
+
+                // Verify Payment Button (only when a POP has been uploaded and not yet verified)
+                if (!application.paymentProofUrl.isNullOrBlank() &&
+                    application.status != ApplicationStatus.PAYMENT_VERIFIED &&
+                    application.status != ApplicationStatus.APPROVED
+                ) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                SupabaseRepository.updateApplicationStatus(applicationId, "payment_verified")
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Primary,
+                            contentColor = OnPrimary
+                        )
+                    ) {
+                        Icon(Icons.Filled.Payment, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Verify Payment (POP received)",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
 
             // Decision Made Banner
@@ -487,6 +520,7 @@ fun ApplicationReviewScreen(
             onConfirm = {
                 showApproveDialog = false
                 decisionMade = true
+                scope.launch { SupabaseRepository.updateApplicationStatus(applicationId, "approved") }
                 onDecisionMade()
             },
             onDismiss = { showApproveDialog = false }
@@ -526,6 +560,7 @@ fun ApplicationReviewScreen(
                     onClick = {
                         showRejectDialog = false
                         decisionMade = true
+                        scope.launch { SupabaseRepository.updateApplicationStatus(applicationId, "rejected") }
                         onDecisionMade()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Error),
@@ -575,6 +610,7 @@ fun ApplicationReviewScreen(
                     onClick = {
                         showChangesDialog = false
                         decisionMade = true
+                        scope.launch { SupabaseRepository.updateApplicationStatus(applicationId, "changes_required") }
                         onDecisionMade()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Warning),

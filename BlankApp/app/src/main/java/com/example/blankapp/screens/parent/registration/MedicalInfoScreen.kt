@@ -23,6 +23,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun MedicalInfoScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onContinue: (
         doctorName: String, doctorLocation: String, doctorContact: String,
         medicalPlan: String, medicalAidNumber: String, allergies: String,
@@ -48,6 +49,11 @@ fun MedicalInfoScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface, titleContentColor = OnBackground)

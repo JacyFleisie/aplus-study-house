@@ -22,6 +22,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun ParentDetailsScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onContinue: (
         motherName: String, motherSurname: String, motherId: String,
         motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String,
@@ -52,6 +53,11 @@ fun ParentDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface, titleContentColor = OnBackground)

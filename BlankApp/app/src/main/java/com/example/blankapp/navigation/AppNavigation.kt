@@ -148,6 +148,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 RegistrationStartScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onStartRegistration = { navController.navigate(Screen.RegistrationStudentDetails.route) },
                     onCheckStatus = { navController.navigate(Screen.ApplicationStatus.route) }
                 )
@@ -158,6 +163,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 StudentDetailsScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _, _, _, _, _, _, _, _, _ -> navController.navigate(Screen.RegistrationSportsActivities.route) }
                 )
             }
@@ -167,6 +177,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 SportsActivitiesScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _ -> navController.navigate(Screen.RegistrationCollection.route) }
                 )
             }
@@ -176,6 +191,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 CollectionTransportScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _, _, _, _, _, _, _ -> navController.navigate(Screen.RegistrationMedical.route) }
                 )
             }
@@ -185,6 +205,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 MedicalInfoScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _, _, _, _, _, _, _, _, _, _, _ -> navController.navigate(Screen.RegistrationParentDetails.route) }
                 )
             }
@@ -194,6 +219,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 ParentDetailsScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _, _, _, _, _, _, _, _, _, _, _, _, _, _ -> navController.navigate(Screen.RegistrationConsent.route) }
                 )
             }
@@ -203,6 +233,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 ConsentSignatureScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onContinue = { _, _ -> navController.navigate(Screen.RegistrationPayment.route) }
                 )
             }
@@ -212,6 +247,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 RegistrationPaymentScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onPaymentComplete = { },
                     onContinue = { navController.navigate(Screen.RegistrationSubmit.route) }
                 )
@@ -222,6 +262,11 @@ fun AppNavigation(
             RequireParent(navController = navController) {
                 RegistrationSubmitScreen(
                     onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
+                        }
+                    },
                     onSubmit = { },
                     onContinue = { navController.navigate(Screen.ApplicationStatus.route) }
                 )

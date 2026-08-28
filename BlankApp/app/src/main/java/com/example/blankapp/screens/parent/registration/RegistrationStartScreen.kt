@@ -21,6 +21,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun RegistrationStartScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onStartRegistration: () -> Unit,
     onCheckStatus: () -> Unit
 ) {
@@ -31,6 +32,11 @@ fun RegistrationStartScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

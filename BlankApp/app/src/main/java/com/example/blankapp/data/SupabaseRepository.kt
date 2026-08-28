@@ -639,6 +639,75 @@ object SupabaseRepository {
     }
 
     // ============================================
+    // PROOF OF PAYMENT UPLOAD + APPLICATION STATUS
+    // ============================================
+
+    /**
+     * Upload a proof-of-payment file to the 'proof-of-payment' storage bucket.
+     * Path is scoped to the parent's auth uid so RLS keeps it private.
+     * @return the stored object path (e.g. "proof-of-payment/<uid>/<appId>.png") or null on failure.
+     */
+    suspend fun uploadProofOfPayment(
+        parentId: String,
+        applicationId: String,
+        bytes: ByteArray,
+        contentType: String
+    ): String? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext null
+        try {
+            SupabaseConfig.supabaseStorageUpload(
+                bucket = "proof-of-payment",
+                path = "$parentId/$applicationId.${contentTypeToExt(contentType)}",
+                bytes = bytes,
+                contentType = contentType,
+                authToken = authToken()
+            )
+        } catch (e: Exception) {
+            recordError("POP upload", e)
+            null
+        }
+    }
+
+    /**
+     * Persist an admin decision (status change) on an application, optionally
+     * recording the verified proof-of-payment path.
+     */
+    suspend fun updateApplicationStatus(
+        applicationId: String,
+        status: String,
+        paymentProofUrl: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("status", status)
+                if (status == "payment_verified" || status == "approved") {
+                    put("payment_verified_at", "now()")
+                }
+                if (status == "approved") {
+                    put("approved_at", "now()")
+                }
+                if (status == "rejected") {
+                    put("rejected_at", "now()")
+                }
+                if (paymentProofUrl != null) {
+                    put("payment_proof_url", paymentProofUrl)
+                }
+            }
+            val result = SupabaseConfig.supabasePatch(
+                table = "applications",
+                query = "id=eq.$applicationId",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Update application status", e)
+            false
+        }
+    }
+
+    // ============================================
     // MOCK DATA HELPERS
     // ============================================
 
@@ -662,6 +731,17 @@ object SupabaseRepository {
     private fun getMockMessagesForUser(userId: String): List<MockMessage> {
         return mockMessages.filter {
             it.senderId == userId || it.recipientId == userId || it.recipientId == "ALL"
+        }
+    }
+
+    /** Map a MIME type to a short file extension for storage object naming. */
+    private fun contentTypeToExt(contentType: String): String {
+        return when {
+            contentType.contains("png") -> "png"
+            contentType.contains("jpeg") || contentType.contains("jpg") -> "jpg"
+            contentType.contains("pdf") -> "pdf"
+            contentType.contains("webp") -> "webp"
+            else -> "bin"
         }
     }
 
@@ -714,7 +794,8 @@ object SupabaseRepository {
             lastUpdated = obj.optString("last_updated", ""),
             notes = obj.optString("notes", ""),
             registrationFeePaid = obj.optBoolean("registration_fee_paid", false),
-            documentsUploaded = obj.optBoolean("documents_uploaded", false)
+            documentsUploaded = obj.optBoolean("documents_uploaded", false),
+            paymentProofUrl = obj.optString("payment_proof_url").ifBlank { null }
         )
     }
 

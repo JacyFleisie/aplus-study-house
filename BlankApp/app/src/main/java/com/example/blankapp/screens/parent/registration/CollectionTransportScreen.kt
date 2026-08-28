@@ -22,6 +22,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun CollectionTransportScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onContinue: (
         collectionPerson1: String, contact1: String, vehicleReg1: String,
         collectionPerson2: String, contact2: String, vehicleReg2: String,
@@ -48,6 +49,11 @@ fun CollectionTransportScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface, titleContentColor = OnBackground)

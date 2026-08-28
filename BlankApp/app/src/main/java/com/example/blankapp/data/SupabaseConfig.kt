@@ -182,4 +182,45 @@ object SupabaseConfig {
             errorObj
         }
     }
+
+    /**
+     * Upload a file to a Supabase Storage bucket.
+     * @param bucket   e.g. "proof-of-payment"
+     * @param path     object path, e.g. "{parentId}/{applicationId}.png"
+     * @param bytes    raw file bytes
+     * @param contentType e.g. "image/png", "application/pdf"
+     * @param authToken user JWT (so RLS scoping to auth.uid() works)
+     * @return the public/storage path (Key) on success, or null on failure
+     */
+    suspend fun supabaseStorageUpload(
+        bucket: String,
+        path: String,
+        bytes: ByteArray,
+        contentType: String,
+        authToken: String? = null
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val url = "$SUPABASE_URL/storage/v1/object/$bucket/$path"
+            val mediaType = contentType.toMediaType()
+            val requestBody = bytes.toRequestBody(mediaType)
+            val builder = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .addHeader("apikey", SUPABASE_ANON_KEY)
+                .addHeader("Authorization", "Bearer ${authToken ?: SUPABASE_ANON_KEY}")
+                .addHeader("Content-Type", contentType)
+                .addHeader("x-upsert", "true")
+
+            val response = httpClient.newCall(builder.build()).execute()
+            val responseBody = response.body?.string()
+            if (response.isSuccessful && responseBody != null) {
+                val json = JSONObject(responseBody)
+                json.optString("Key").ifBlank { path }
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

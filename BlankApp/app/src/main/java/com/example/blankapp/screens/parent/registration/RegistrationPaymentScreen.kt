@@ -24,6 +24,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun RegistrationPaymentScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onPaymentComplete: () -> Unit,
     onContinue: () -> Unit
 ) {
@@ -37,6 +38,11 @@ fun RegistrationPaymentScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface, titleContentColor = OnBackground)

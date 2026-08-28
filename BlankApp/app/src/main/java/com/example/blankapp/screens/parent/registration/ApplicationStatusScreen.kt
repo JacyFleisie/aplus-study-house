@@ -9,15 +9,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.ApplicationStatus
+import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.data.getApplicationsByParent
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
+import android.net.Uri
+import android.provider.OpenableColumns
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,6 +113,14 @@ fun ApplicationStatusScreen(onBackClick: () -> Unit) {
                 }
             }
 
+            // Proof of Payment upload (parent side)
+            Spacer(modifier = Modifier.height(24.dp))
+            ProofOfPaymentUploadCard(
+                parentId = parentId,
+                applicationId = application?.id ?: "",
+                proofAlreadyUploaded = !application?.paymentProofUrl.isNullOrBlank()
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Text("Application Progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
@@ -164,6 +179,112 @@ fun ApplicationStatusScreen(onBackClick: () -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun ProofOfPaymentUploadCard(
+    parentId: String,
+    applicationId: String,
+    proofAlreadyUploaded: Boolean
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var uploading by remember { mutableStateOf(false) }
+    var uploaded by remember { mutableStateOf(proofAlreadyUploaded) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            uploading = true
+            errorMsg = null
+            try {
+                val cr = context.contentResolver
+                val mimeType = cr.getType(uri) ?: "application/octet-stream"
+                val bytes = cr.openInputStream(uri)?.use { it.readBytes() }
+                if (bytes == null) {
+                    errorMsg = "Could not read the selected file."
+                    uploading = false
+                    return@launch
+                }
+                if (applicationId.isBlank()) {
+                    errorMsg = "Application not found yet — submit the form first."
+                    uploading = false
+                    return@launch
+                }
+                val path = SupabaseRepository.uploadProofOfPayment(parentId, applicationId, bytes, mimeType)
+                if (path == null) {
+                    errorMsg = "Upload failed. Check your connection and try again."
+                    uploading = false
+                    return@launch
+                }
+                val saved = SupabaseRepository.updateApplicationStatus(
+                    applicationId = applicationId,
+                    status = "payment_verified",
+                    paymentProofUrl = path
+                )
+                if (saved) {
+                    uploaded = true
+                } else {
+                    errorMsg = "Uploaded, but we couldn't mark it verified. The office can still see it."
+                }
+            } catch (e: Exception) {
+                errorMsg = "Upload failed: ${e.message ?: "unknown error"}"
+            } finally {
+                uploading = false
+            }
+        }
+    }
+
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Payment, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Proof of Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                if (uploaded) "Your proof of payment has been uploaded and is awaiting verification."
+                else "Upload a photo or PDF of your EFT/cheque payment so the office can verify it.",
+                style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (uploaded) {
+                Surface(shape = RoundedCornerShape(8.dp), color = SuccessContainer) {
+                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = Success, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Proof uploaded", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Success)
+                    }
+                }
+            } else {
+                Button(
+                    onClick = { picker.launch("image/*,application/pdf") },
+                    enabled = !uploading && applicationId.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (uploading) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = OnPrimary)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Uploading…")
+                    } else {
+                        Icon(Icons.Filled.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Upload Proof of Payment")
+                    }
+                }
+            }
+
+            errorMsg?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(it, style = MaterialTheme.typography.bodySmall, color = Error)
+            }
         }
     }
 }

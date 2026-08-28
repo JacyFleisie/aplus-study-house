@@ -23,6 +23,7 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun StudentDetailsScreen(
     onBackClick: () -> Unit,
+    onExitFlow: () -> Unit,
     onContinue: (studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean) -> Unit
 ) {
     var firstName by rememberSaveable { mutableStateOf("") }
@@ -52,6 +53,11 @@ fun StudentDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onExitFlow) {
+                        Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Surface, titleContentColor = OnBackground)
