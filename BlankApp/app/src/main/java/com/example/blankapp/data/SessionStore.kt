@@ -2,16 +2,20 @@ package com.example.blankapp.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 
 /**
- * Persists the user's login session to SharedPreferences so the app can
+ * Persists the user's login session to EncryptedSharedPreferences so the app can
  * auto-login on next launch ("Remember Me").
  *
  * Stores the email (for pre-filling) and the Supabase refresh token (for
  * silently re-authenticating without asking for credentials again).
+ *
+ * Uses AES-256 encryption via Android Keystore for secure token storage.
  */
 object SessionStore {
-    private const val PREFS = "aplus_session"
+    private const val PREFS = "aplus_session_encrypted"
     private const val KEY_EMAIL = "remembered_email"
     private const val KEY_REFRESH_TOKEN = "refresh_token"
     private const val KEY_REMEMBER_ME = "remember_me"
@@ -19,8 +23,21 @@ object SessionStore {
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_USER_ROLE = "user_role"
 
-    private fun prefs(context: Context): SharedPreferences =
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private fun prefs(context: Context): SharedPreferences {
+        return try {
+            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+            EncryptedSharedPreferences.create(
+                PREFS,
+                masterKeyAlias,
+                context,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            // Fallback to regular SharedPreferences if encryption fails (e.g., on devices without keystore)
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        }
+    }
 
     fun save(context: Context, email: String, refreshToken: String, user: MockUser) {
         prefs(context).edit()
