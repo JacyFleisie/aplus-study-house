@@ -1,6 +1,7 @@
 package com.example.blankapp.data
 
 import com.example.blankapp.BuildConfig
+import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
@@ -46,7 +47,18 @@ object SupabaseConfig {
 
     val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
+    // Certificate pinning for Supabase URL
+    // Fingerprints obtained via: openssl s_client -connect <host>:443 | openssl x509 -fingerprint -sha256
+    // These pin the specific certificate(s) your app will trust
+    private val certificatePinner = CertificatePinner.Builder()
+        .add("lhybcueknuarolxjuoqi.supabase.co",
+            "sha256/yyBDqvMo9Jc2CwnVJBDj8TE8u5xHielbUS/+h7VM2xs=") // Primary
+        .add("lhybcueknuarolxjuoqi.supabase.co",
+            "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=") // Backup (replace with intermediate CA)
+        .build()
+
     val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .certificatePinner(certificatePinner)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)

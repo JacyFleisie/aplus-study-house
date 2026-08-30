@@ -14,7 +14,7 @@ class StudyHouseApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize crash reporter
+        // Initialize crash reporter (local file logging + uncaught exception handler)
         CrashReporter.init(this)
 
         // Log app initialization

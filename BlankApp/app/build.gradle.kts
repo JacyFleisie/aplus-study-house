@@ -136,6 +136,8 @@ dependencies {
     // Encrypted SharedPreferences (secure token storage)
     implementation("androidx.security:security-crypto:1.0.0")
 
+
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
