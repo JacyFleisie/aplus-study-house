@@ -520,7 +520,12 @@ fun ApplicationReviewScreen(
             onConfirm = {
                 showApproveDialog = false
                 decisionMade = true
-                scope.launch { SupabaseRepository.updateApplicationStatus(applicationId, "approved") }
+                scope.launch {
+                    SupabaseRepository.updateApplicationStatus(applicationId, "approved")
+                    applicationState?.let { app ->
+                        SupabaseRepository.createStudentFromApplication(app)
+                    }
+                }
                 onDecisionMade()
             },
             onDismiss = { showApproveDialog = false }

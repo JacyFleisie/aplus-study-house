@@ -35,11 +35,21 @@ fun RequireRegisteredChild(
     var hasChildren by remember(parentId) { mutableStateOf(false) }
 
     LaunchedEffect(parentId) {
-        hasChildren = try {
-            SupabaseRepository.getParentStudents(parentId).isNotEmpty()
+        val result = try {
+            val students = SupabaseRepository.getParentStudents(parentId)
+            if (students.isNotEmpty()) {
+                true
+            } else {
+                val applications = SupabaseRepository.getParentApplications(parentId)
+                applications.any {
+                    it.status == com.example.blankapp.data.ApplicationStatus.APPROVED ||
+                    it.status == com.example.blankapp.data.ApplicationStatus.PAYMENT_VERIFIED
+                }
+            }
         } catch (e: Exception) {
             false
         }
+        hasChildren = result
         isChecking = false
     }
 

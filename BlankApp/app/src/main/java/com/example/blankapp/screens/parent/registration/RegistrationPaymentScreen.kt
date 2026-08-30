@@ -63,7 +63,11 @@ fun RegistrationPaymentScreen(
                 val mimeType = ctx.contentResolver.getType(uri) ?: "image/*"
                 val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 if (bytes != null) {
-                    proofOfPayment = "proof_${System.currentTimeMillis()}.jpg"
+                    val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
+                    val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${System.currentTimeMillis()}", bytes, mimeType)
+                    if (path != null) {
+                        proofOfPayment = path
+                    }
                 }
             } catch (e: Exception) {
                 // Handle error
@@ -74,9 +78,26 @@ fun RegistrationPaymentScreen(
     }
 
     // Camera for PoP
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            proofOfPayment = "proof_${System.currentTimeMillis()}.jpg"
+        if (success && photoUri != null) {
+            scope.launch {
+                uploading = true
+                try {
+                    val bytes = ctx.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
+                    if (bytes != null) {
+                        val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
+                        val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${System.currentTimeMillis()}", bytes, "image/jpeg")
+                        if (path != null) {
+                            proofOfPayment = path
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Handle error
+                } finally {
+                    uploading = false
+                }
+            }
         }
     }
 
@@ -224,7 +245,13 @@ fun RegistrationPaymentScreen(
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                     // Take Photo button
                                     OutlinedButton(
-                                        onClick = { filePicker.launch("image/*") },
+                                        onClick = {
+                                            val photoFile = File(ctx.cacheDir, "pop_${System.currentTimeMillis()}.jpg")
+                                            photoUri = androidx.core.content.FileProvider.getUriForFile(
+                                                ctx, ctx.packageName + ".fileprovider", photoFile
+                                            )
+                                            cameraLauncher.launch(photoUri!!)
+                                        },
                                         modifier = Modifier.weight(1f).height(48.dp),
                                         shape = RoundedCornerShape(12.dp),
                                         enabled = !uploading

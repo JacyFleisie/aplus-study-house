@@ -728,6 +728,42 @@ object SupabaseRepository {
     }
 
     // ============================================
+    // ============================================
+    // STUDENT CREATION FROM APPLICATION
+    // ============================================
+
+    /**
+     * Create a student row from an approved application.
+     * Called when admin approves an application.
+     */
+    suspend fun createStudentFromApplication(app: MockApplication): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("parent_id", app.parentId)
+                put("first_name", app.studentFirstName)
+                put("last_name", app.studentLastName)
+                put("date_of_birth", app.studentDOB)
+                put("grade", app.studentGrade)
+                put("school", app.studentSchool)
+                put("address", app.studentAddress)
+                put("gender", app.studentGender)
+                put("class_number", app.studentClassNumber)
+                put("teacher_name", app.studentTeacherName)
+                put("lsen", app.studentLsen)
+                put("status", "active")
+            }
+            val result = SupabaseConfig.supabasePost(
+                table = "students",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Create student from application", e)
+            false
+        }
+    }
     // MOCK DATA HELPERS
     // ============================================
 
@@ -815,6 +851,12 @@ object SupabaseRepository {
             notes = obj.optString("admin_notes", ""),
             registrationFeePaid = obj.optBoolean("payment_amount", false),
             documentsUploaded = obj.optBoolean("documents_uploaded", false),
+            studentDOB = obj.optString("student_dob", ""),
+            studentAddress = obj.optString("student_address", ""),
+            studentGender = obj.optString("student_gender", ""),
+            studentClassNumber = obj.optString("student_class_number", ""),
+            studentTeacherName = obj.optString("student_teacher_name", ""),
+            studentLsen = obj.optString("student_lsen", ""),
             paymentProofUrl = obj.optString("payment_proof_url").ifBlank { null }
         )
     }
