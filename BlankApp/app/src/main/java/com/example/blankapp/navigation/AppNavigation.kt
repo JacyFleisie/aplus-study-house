@@ -407,7 +407,7 @@ fun AppNavigation(
                     onSubmit = { parentId ->
                         scope.launch {
                             val created = SupabaseRepository.createApplication(
-                                registrationDraft.toApplicationJson(), parentId
+                                registrationDraft.toApplicationJson(parentId), parentId
                             )
                             createdApplication = created
                             // Successful submission: clear the persisted draft so

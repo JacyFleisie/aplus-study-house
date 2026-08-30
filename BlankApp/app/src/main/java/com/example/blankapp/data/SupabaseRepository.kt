@@ -928,11 +928,12 @@ object SupabaseRepository {
  * (which reads those columns) displays the name; the DB trigger keeps them in
  * sync with `student_first_name`/`student_last_name`.
  */
-fun RegistrationDraft.toApplicationJson(): JSONObject {
+fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
     val parts = studentName.trim().split(Regex("\\s+"), limit = 2)
     val first = InputSanitizer.sanitizeName(parts.firstOrNull() ?: "")
     val last = InputSanitizer.sanitizeName(parts.getOrNull(1) ?: "")
     return JSONObject().apply {
+        put("parent_id", parentId)  // ← CRITICAL: RLS needs this
         put("student_first_name", first)
         put("student_last_name", last)
         put("child_first_name", first)
