@@ -1,6 +1,7 @@
 package com.example.blankapp.data
 
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -8,6 +9,20 @@ import org.junit.Test
  * Tests data consistency, relationships, and business rules
  */
 class MockDataTest {
+
+    @Before
+    fun resetMockState() {
+        // The mock seed lists are intentionally empty in the current app (real data lives in
+        // Supabase). Reset shared mutable lists before each test so integrity checks are not
+        // polluted by applications/students created elsewhere in the same test JVM.
+        mockApplications.clear()
+        mockStudents.clear()
+        mockInvoices.clear()
+        mockPayments.clear()
+        mockPermissions.clear()
+        mockMessages.clear()
+        mockDocuments.clear()
+    }
 
     // ============================================
     // USER DATA TESTS

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,15 +28,16 @@ fun CollectionTransportScreen(
         collectionPerson1: String, contact1: String, vehicleReg1: String,
         collectionPerson2: String, contact2: String, vehicleReg2: String,
         transportRequired: Boolean
-    ) -> Unit
+    ) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var collectionPerson1 by rememberSaveable { mutableStateOf("") }
-    var contact1 by rememberSaveable { mutableStateOf("") }
-    var vehicleReg1 by rememberSaveable { mutableStateOf("") }
-    var collectionPerson2 by rememberSaveable { mutableStateOf("") }
-    var contact2 by rememberSaveable { mutableStateOf("") }
-    var vehicleReg2 by rememberSaveable { mutableStateOf("") }
-    var transportRequired by rememberSaveable { mutableStateOf(false) }
+    var collectionPerson1 by rememberSaveable { mutableStateOf(draft?.collectionPerson1 ?: "") }
+    var contact1 by rememberSaveable { mutableStateOf(draft?.contact1 ?: "") }
+    var vehicleReg1 by rememberSaveable { mutableStateOf(draft?.vehicleReg1 ?: "") }
+    var collectionPerson2 by rememberSaveable { mutableStateOf(draft?.collectionPerson2 ?: "") }
+    var contact2 by rememberSaveable { mutableStateOf(draft?.contact2 ?: "") }
+    var vehicleReg2 by rememberSaveable { mutableStateOf(draft?.vehicleReg2 ?: "") }
+    var transportRequired by rememberSaveable { mutableStateOf(draft?.transportRequired ?: false) }
     var attemptedContinue by rememberSaveable { mutableStateOf(false) }
 
     val canContinue = collectionPerson1.isNotBlank() && contact1.isNotBlank()

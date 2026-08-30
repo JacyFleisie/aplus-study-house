@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,23 +29,24 @@ fun ParentDetailsScreen(
         motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String,
         fatherName: String, fatherSurname: String, fatherId: String,
         fatherEmployer: String, fatherWorkPhone: String, fatherCell: String, fatherEmail: String
-    ) -> Unit
+    ) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var motherName by rememberSaveable { mutableStateOf("") }
-    var motherSurname by rememberSaveable { mutableStateOf("") }
-    var motherId by rememberSaveable { mutableStateOf("") }
-    var motherEmployer by rememberSaveable { mutableStateOf("") }
-    var motherWorkPhone by rememberSaveable { mutableStateOf("") }
-    var motherCell by rememberSaveable { mutableStateOf("") }
-    var motherEmail by rememberSaveable { mutableStateOf("") }
+    var motherName by rememberSaveable { mutableStateOf(draft?.motherName ?: "") }
+    var motherSurname by rememberSaveable { mutableStateOf(draft?.motherSurname ?: "") }
+    var motherId by rememberSaveable { mutableStateOf(draft?.motherId ?: "") }
+    var motherEmployer by rememberSaveable { mutableStateOf(draft?.motherEmployer ?: "") }
+    var motherWorkPhone by rememberSaveable { mutableStateOf(draft?.motherWorkPhone ?: "") }
+    var motherCell by rememberSaveable { mutableStateOf(draft?.motherCell ?: "") }
+    var motherEmail by rememberSaveable { mutableStateOf(draft?.motherEmail ?: "") }
 
-    var fatherName by rememberSaveable { mutableStateOf("") }
-    var fatherSurname by rememberSaveable { mutableStateOf("") }
-    var fatherId by rememberSaveable { mutableStateOf("") }
-    var fatherEmployer by rememberSaveable { mutableStateOf("") }
-    var fatherWorkPhone by rememberSaveable { mutableStateOf("") }
-    var fatherCell by rememberSaveable { mutableStateOf("") }
-    var fatherEmail by rememberSaveable { mutableStateOf("") }
+    var fatherName by rememberSaveable { mutableStateOf(draft?.fatherName ?: "") }
+    var fatherSurname by rememberSaveable { mutableStateOf(draft?.fatherSurname ?: "") }
+    var fatherId by rememberSaveable { mutableStateOf(draft?.fatherId ?: "") }
+    var fatherEmployer by rememberSaveable { mutableStateOf(draft?.fatherEmployer ?: "") }
+    var fatherWorkPhone by rememberSaveable { mutableStateOf(draft?.fatherWorkPhone ?: "") }
+    var fatherCell by rememberSaveable { mutableStateOf(draft?.fatherCell ?: "") }
+    var fatherEmail by rememberSaveable { mutableStateOf(draft?.fatherEmail ?: "") }
 
     Scaffold(
         topBar = {

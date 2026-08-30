@@ -1,5 +1,7 @@
 package com.example.blankapp.data
 
+import kotlinx.serialization.Serializable
+
 /**
  * Data structures for A+ Study House App
  * Mock data removed — app now uses Supabase for real data.
@@ -131,6 +133,118 @@ enum class ApplicationStatus {
 }
 
 val mockApplications = mutableListOf<MockApplication>()
+
+// ============================================
+// REGISTRATION DRAFT
+// Holds the data entered across the 9-step flow so the
+// submit screen can persist a real application row (instead of
+// discarding it). Each step's onContinue data is captured here.
+// ============================================
+
+@Serializable
+data class RegistrationDraft(
+    // Step 1 - Student details
+    var studentName: String = "",
+    var grade: Int = 0,
+    var school: String = "",
+    var dob: String = "",
+    var address: String = "",
+    var gender: String = "",
+    var classNr: String = "",
+    var teacherName: String = "",
+    var lsen: Boolean = false,
+    // Step 2 - Sports & activities
+    var sports: List<String> = emptyList(),
+    // Step 3 - Collection & transport
+    var collectionPerson1: String = "",
+    var contact1: String = "",
+    var vehicleReg1: String = "",
+    var collectionPerson2: String = "",
+    var contact2: String = "",
+    var vehicleReg2: String = "",
+    var transportRequired: Boolean = false,
+    // Step 4 - Medical information
+    var doctorName: String = "",
+    var doctorLocation: String = "",
+    var doctorContact: String = "",
+    var medicalPlan: String = "",
+    var medicalAidNumber: String = "",
+    var allergies: String = "",
+    var epilepsy: Boolean = false,
+    var diabetic: Boolean = false,
+    var asthma: Boolean = false,
+    var noseBleeder: Boolean = false,
+    var hasAllergies: Boolean = false,
+    // Step 5 - Parent details
+    var motherName: String = "",
+    var motherSurname: String = "",
+    var motherId: String = "",
+    var motherEmployer: String = "",
+    var motherWorkPhone: String = "",
+    var motherCell: String = "",
+    var motherEmail: String = "",
+    var fatherName: String = "",
+    var fatherSurname: String = "",
+    var fatherId: String = "",
+    var fatherEmployer: String = "",
+    var fatherWorkPhone: String = "",
+    var fatherCell: String = "",
+    var fatherEmail: String = "",
+    // Step 6 - Consent & signature
+    var photoConsent: Boolean = false,
+    var parentSignature: String = "",
+    // Step 7 - Payment
+    var paymentMethod: String = "eft"
+) {
+    /** Copies all step fields from [other] into this draft (used to resume a saved draft). */
+    fun copyFrom(other: RegistrationDraft) {
+        studentName = other.studentName
+        grade = other.grade
+        school = other.school
+        dob = other.dob
+        address = other.address
+        gender = other.gender
+        classNr = other.classNr
+        teacherName = other.teacherName
+        lsen = other.lsen
+        sports = other.sports
+        collectionPerson1 = other.collectionPerson1
+        contact1 = other.contact1
+        vehicleReg1 = other.vehicleReg1
+        collectionPerson2 = other.collectionPerson2
+        contact2 = other.contact2
+        vehicleReg2 = other.vehicleReg2
+        transportRequired = other.transportRequired
+        doctorName = other.doctorName
+        doctorLocation = other.doctorLocation
+        doctorContact = other.doctorContact
+        medicalPlan = other.medicalPlan
+        medicalAidNumber = other.medicalAidNumber
+        allergies = other.allergies
+        epilepsy = other.epilepsy
+        diabetic = other.diabetic
+        asthma = other.asthma
+        noseBleeder = other.noseBleeder
+        hasAllergies = other.hasAllergies
+        motherName = other.motherName
+        motherSurname = other.motherSurname
+        motherId = other.motherId
+        motherEmployer = other.motherEmployer
+        motherWorkPhone = other.motherWorkPhone
+        motherCell = other.motherCell
+        motherEmail = other.motherEmail
+        fatherName = other.fatherName
+        fatherSurname = other.fatherSurname
+        fatherId = other.fatherId
+        fatherEmployer = other.fatherEmployer
+        fatherWorkPhone = other.fatherWorkPhone
+        fatherCell = other.fatherCell
+        fatherEmail = other.fatherEmail
+        photoConsent = other.photoConsent
+        parentSignature = other.parentSignature
+        paymentMethod = other.paymentMethod
+    }
+}
 
 // ============================================
 // INVOICE DATA

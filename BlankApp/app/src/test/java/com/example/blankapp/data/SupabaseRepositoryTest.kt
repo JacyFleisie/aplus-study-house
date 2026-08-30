@@ -1,174 +1,85 @@
 package com.example.blankapp.data
 
+import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 /**
- * Unit tests for SupabaseRepository
- * Tests data access patterns using mock fallback
+ * Unit tests for SupabaseRepository (mock mode).
+ *
+ * In mock mode the seed lists are intentionally empty (the app uses Supabase for real
+ * data); these tests verify the repository's contract:
+ *  - queries for an unknown parent return empty lists (no cross-tenant leakage)
+ *  - createApplication persists into the parent's own scope and stays isolated
+ *  - the global getters reflect what was created
  */
 class SupabaseRepositoryTest {
 
     @Before
     fun setup() {
-        // Skip tests if Supabase is configured (use mock mode for unit tests)
-        assumeTrue("Skipping mock repository tests when Supabase is configured", !SupabaseConfig.isConfigured())
+        // Force mock mode so tests run deterministically regardless of supabase.properties.
+        SupabaseConfig.forceMockMode = true
         AuthRepository.signOut()
+        mockApplications.clear()
+        mockStudents.clear()
+        mockInvoices.clear()
+        mockPermissions.clear()
+        mockMessages.clear()
     }
 
     // ============================================
-    // STUDENT QUERIES
+    // ISOLATION (no cross-tenant data)
     // ============================================
 
     @Test
-    fun `getParentStudents returns students for parent P001`() = kotlinx.coroutines.runBlocking {
-        val students = SupabaseRepository.getParentStudents("P001")
-        assertTrue("P001 should have students", students.isNotEmpty())
-        students.forEach { student ->
-            assertEquals("All students should belong to P001", "P001", student.parentId)
+    fun `unknown parent has no students, applications, invoices, or messages`() = kotlinx.coroutines.runBlocking {
+        assertTrue("No students for unknown parent", SupabaseRepository.getParentStudents("NONEXISTENT").isEmpty())
+        assertTrue("No applications for unknown parent", SupabaseRepository.getParentApplications("NONEXISTENT").isEmpty())
+        assertTrue("No invoices for unknown parent", SupabaseRepository.getParentInvoices("NONEXISTENT").isEmpty())
+        assertTrue("No messages for unknown parent", SupabaseRepository.getUserMessages("NONEXISTENT").isEmpty())
+    }
+
+    @Test
+    fun `unknown student lookup returns null`() = kotlinx.coroutines.runBlocking {
+        assertNull("Unknown student id returns null", SupabaseRepository.getStudent("NONEXISTENT"))
+    }
+
+    // ============================================
+    // CREATE + ISOLATION ROUND-TRIP
+    // ============================================
+
+    @Test
+    fun `createApplication is isolated to its parent and invisible to others`() = kotlinx.coroutines.runBlocking {
+        val json = JSONObject().apply {
+            put("student_first_name", "Iso")
+            put("student_last_name", "Late")
+            put("grade", "Grade 3")
+            put("school", "Iso Primary")
         }
+        val created = SupabaseRepository.createApplication(json, "P001")
+        assertNotNull("createApplication returns the persisted app", created)
+        assertEquals("P001", created?.parentId)
+
+        val p001Apps = SupabaseRepository.getParentApplications("P001")
+        val p002Apps = SupabaseRepository.getParentApplications("P002")
+        assertTrue("Owner sees their application", p001Apps.any { it.id == created?.id })
+        assertTrue("Other parent must NOT see it", p002Apps.none { it.id == created?.id })
+        assertTrue("Global list reflects the new submission", SupabaseRepository.getAllApplications().any { it.id == created?.id })
     }
 
     @Test
-    fun `getParentStudents returns empty for non-existent parent`() = kotlinx.coroutines.runBlocking {
-        val students = SupabaseRepository.getParentStudents("NONEXISTENT")
-        assertTrue("Non-existent parent should have 0 students", students.isEmpty())
-    }
-
-    @Test
-    fun `getAllStudents returns all mock students`() = kotlinx.coroutines.runBlocking {
-        val students = SupabaseRepository.getAllStudents()
-        assertEquals("Should return all mock students", mockStudents.size, students.size)
-    }
-
-    @Test
-    fun `getStudent returns correct student by ID`() = kotlinx.coroutines.runBlocking {
-        val student = SupabaseRepository.getStudent("S001")
-        assertNotNull("S001 should exist", student)
-        assertEquals("Oliver", student?.firstName)
-        assertEquals("Johnson", student?.lastName)
-    }
-
-    @Test
-    fun `getStudent returns null for non-existent ID`() = kotlinx.coroutines.runBlocking {
-        val student = SupabaseRepository.getStudent("NONEXISTENT")
-        assertNull("Non-existent student should return null", student)
-    }
-
-    // ============================================
-    // APPLICATION QUERIES
-    // ============================================
-
-    @Test
-    fun `getParentApplications returns applications for parent P002`() = kotlinx.coroutines.runBlocking {
-        val apps = SupabaseRepository.getParentApplications("P002")
-        assertTrue("P002 should have applications", apps.isNotEmpty())
-        apps.forEach { app ->
-            assertEquals("All apps should belong to P002", "P002", app.parentId)
-        }
-    }
-
-    @Test
-    fun `getParentApplications returns empty for non-existent parent`() = kotlinx.coroutines.runBlocking {
-        val apps = SupabaseRepository.getParentApplications("NONEXISTENT")
-        assertTrue("Non-existent parent should have 0 apps", apps.isEmpty())
-    }
-
-    @Test
-    fun `getAllApplications returns all mock applications`() = kotlinx.coroutines.runBlocking {
-        val apps = SupabaseRepository.getAllApplications()
-        assertEquals("Should return all mock applications", mockApplications.size, apps.size)
-    }
-
-    // ============================================
-    // INVOICE QUERIES
-    // ============================================
-
-    @Test
-    fun `getParentInvoices returns invoices for parent P001`() = kotlinx.coroutines.runBlocking {
-        val invoices = SupabaseRepository.getParentInvoices("P001")
-        assertTrue("P001 should have invoices", invoices.isNotEmpty())
-    }
-
-    @Test
-    fun `getParentInvoices returns empty for non-existent parent`() = kotlinx.coroutines.runBlocking {
-        val invoices = SupabaseRepository.getParentInvoices("NONEXISTENT")
-        assertTrue("Non-existent parent should have 0 invoices", invoices.isEmpty())
-    }
-
-    @Test
-    fun `getAllInvoices returns all mock invoices`() = kotlinx.coroutines.runBlocking {
-        val invoices = SupabaseRepository.getAllInvoices()
-        assertEquals("Should return all mock invoices", mockInvoices.size, invoices.size)
-    }
-
-    // ============================================
-    // PERMISSION QUERIES
-    // ============================================
-
-    @Test
-    fun `getParentPermissions returns permissions for parent P001`() = kotlinx.coroutines.runBlocking {
-        val perms = SupabaseRepository.getParentPermissions("P001")
-        assertTrue("P001 should have permissions", perms.isNotEmpty())
-    }
-
-    @Test
-    fun `getAllPermissions returns all mock permissions`() = kotlinx.coroutines.runBlocking {
-        val perms = SupabaseRepository.getAllPermissions()
-        assertEquals("Should return all mock permissions", mockPermissions.size, perms.size)
-    }
-
-    // ============================================
-    // MESSAGE QUERIES
-    // ============================================
-
-    @Test
-    fun `getUserMessages returns messages for user P002`() = kotlinx.coroutines.runBlocking {
-        val msgs = SupabaseRepository.getUserMessages("P002")
-        assertTrue("P002 should have messages", msgs.isNotEmpty())
-    }
-
-    @Test
-    fun `getUserMessages includes ALL announcements`() = kotlinx.coroutines.runBlocking {
-        val msgs = SupabaseRepository.getUserMessages("P001")
-        val announcements = msgs.filter { it.isAnnouncement }
-        assertTrue("Should include announcements", announcements.isNotEmpty())
-    }
-
-    // ============================================
-    // NOTIFICATION QUERIES
-    // ============================================
-
-    @Test
-    fun `getUserNotifications returns notifications for user`() = kotlinx.coroutines.runBlocking {
-        val notifs = SupabaseRepository.getUserNotifications("P001")
-        // Mock notifications don't have user_id filtering, so just check it doesn't crash
-        assertNotNull("Should return notifications", notifs)
-    }
-
-    // ============================================
-    // DATA INTEGRITY TESTS
-    // ============================================
-
-    @Test
-    fun `student parent IDs match user IDs`() = kotlinx.coroutines.runBlocking {
-        val students = SupabaseRepository.getAllStudents()
-        val userIds = mockUsers.map { it.id }.toSet()
-        students.forEach { student ->
-            assertTrue("Student ${student.id} parent ${student.parentId} should exist in users",
-                userIds.contains(student.parentId))
-        }
-    }
-
-    @Test
-    fun `invoice student IDs match student IDs`() = kotlinx.coroutines.runBlocking {
-        val invoices = SupabaseRepository.getAllInvoices()
-        val studentIds = mockStudents.map { it.id }.toSet()
-        invoices.forEach { invoice ->
-            assertTrue("Invoice ${invoice.id} student ${invoice.studentId} should exist in students",
-                studentIds.contains(invoice.studentId))
-        }
+    fun `students created for one parent stay isolated`() = kotlinx.coroutines.runBlocking {
+        mockStudents.add(
+            MockStudent(
+                id = "S_TEST", firstName = "Test", lastName = "Child",
+                dateOfBirth = "2018-01-01", grade = 3, school = "Test School",
+                address = "1 Test Rd", parentId = "P001", status = StudentStatus.ACTIVE
+            )
+        )
+        val p001 = SupabaseRepository.getParentStudents("P001")
+        val p002 = SupabaseRepository.getParentStudents("P002")
+        assertTrue("P001 sees the student", p001.any { it.id == "S_TEST" })
+        assertTrue("P002 sees no student", p002.isEmpty())
     }
 }

@@ -1,5 +1,6 @@
 package com.example.blankapp.data
 
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -22,6 +23,7 @@ object AuthRepository {
     // Current logged-in user
     private var currentUser: MockUser? = null
     private var currentAuthToken: String? = null
+    private var currentRefreshToken: String? = null
 
     private fun isUsingBackend(): Boolean = SupabaseConfig.isConfigured()
 
@@ -84,6 +86,7 @@ object AuthRepository {
             }
 
             val accessToken = response.optString("access_token", "")
+            val refreshToken = response.optString("refresh_token", "")
             val userId = response.optJSONObject("user")?.optString("id", "") ?: ""
 
             if (accessToken.isEmpty() || userId.isEmpty()) {
@@ -92,6 +95,7 @@ object AuthRepository {
 
             // Fetch profile from database
             currentAuthToken = accessToken
+            currentRefreshToken = refreshToken
             val profileResult = SupabaseConfig.supabaseGet(
                 table = "profiles",
                 query = "id=eq.$userId&select=*",
@@ -99,7 +103,48 @@ object AuthRepository {
             )
 
             if (profileResult == null || profileResult == "[]") {
-                return AuthResult(false, "Profile not found. Please contact the office.")
+                // Auto-create profile if it doesn't exist
+                val userEmail = response.optJSONObject("user")?.optString("email", email) ?: email
+                val userMetadata = response.optJSONObject("user")?.optString("user_metadata", "{}")
+                val fullName = try {
+                    JSONObject(userMetadata).optString("full_name", userEmail.substringBefore("@"))
+                } catch (e: Exception) { userEmail.substringBefore("@") }
+                
+                val createProfile = JSONObject().apply {
+                    put("id", userId)
+                    put("email", userEmail)
+                    put("full_name", fullName)
+                    put("role", "parent")
+                }
+                SupabaseConfig.supabasePost("profiles", createProfile.toString(), accessToken)
+                
+                // Re-fetch the profile
+                val retryResult = SupabaseConfig.supabaseGet(
+                    table = "profiles",
+                    query = "id=eq.$userId&select=*",
+                    authToken = accessToken
+                )
+                if (retryResult == null || retryResult == "[]") {
+                    return AuthResult(false, "Profile not found. Please contact the office.")
+                }
+                val profilesArray = org.json.JSONArray(retryResult)
+                val profile = profilesArray.getJSONObject(0)
+                val role = profile.optString("role", "parent")
+                val user = MockUser(
+                    id = profile.optString("id"),
+                    fullName = profile.optString("full_name"),
+                    email = profile.optString("email"),
+                    phone = profile.optString("phone", ""),
+                    password = "",
+                    role = if (role == "admin") UserRole.ADMIN else UserRole.PARENT,
+                    createdAt = profile.optString("created_at", ""),
+                    surname = profile.optString("surname", ""),
+                    idNumber = profile.optString("id_number", ""),
+                    employer = profile.optString("employer", ""),
+                    workPhone = profile.optString("work_phone", "")
+                )
+                currentUser = user
+                return AuthResult(true, "Login successful", user, accessToken)
             }
 
             val profilesArray = org.json.JSONArray(profileResult)
@@ -278,21 +323,76 @@ object AuthRepository {
     // ============================================
     // SESSION MANAGEMENT
     // ============================================
-    suspend fun restoreSession(): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    // SESSION RESTORE (Remember Me)
+    // ============================================
 
-        return@withContext try {
-            // Check if we have a stored auth token
-            // In a real app, this would be stored in EncryptedSharedPreferences
-            false
+    /**
+     * Attempts to restore a previously saved session (Remember Me).
+     * Returns true if a valid session was restored.
+     */
+    suspend fun restoreSession(context: Context): Boolean = withContext(Dispatchers.IO) {
+        if (!SessionStore.isRememberMeEnabled(context)) return@withContext false
+
+        val cachedUser = SessionStore.getCachedUser(context) ?: return@withContext false
+
+        if (isUsingBackend()) {
+            // Try to refresh the token silently
+            val refreshToken = SessionStore.getRefreshToken(context)
+            if (refreshToken.isNullOrEmpty()) return@withContext false
+
+            return@withContext try {
+                val refreshed = refreshAccessToken(refreshToken)
+                if (refreshed) {
+                    currentUser = cachedUser
+                    true
+                } else {
+                    // Refresh failed — clear stale session
+                    SessionStore.clear(context)
+                    false
+                }
+            } catch (e: Exception) {
+                SessionStore.clear(context)
+                false
+            }
+        } else {
+            // Mock mode — restore cached user directly
+            currentUser = cachedUser
+            true
+        }
+    }
+
+    /** Refreshes the access token using the stored refresh token. */
+    private suspend fun refreshAccessToken(refreshToken: String): Boolean {
+        return try {
+            val body = JSONObject().apply {
+                put("refresh_token", refreshToken)
+            }
+            val response = SupabaseConfig.supabaseAuth("token?grant_type=refresh_token", body.toString())
+                ?: return false
+
+            if (response.has("error")) return false
+
+            val newAccessToken = response.optString("access_token", "")
+            val newRefreshToken = response.optString("refresh_token", "")
+
+            if (newAccessToken.isEmpty()) return false
+
+            currentAuthToken = newAccessToken
+            if (newRefreshToken.isNotEmpty()) {
+                currentRefreshToken = newRefreshToken
+            }
+            true
         } catch (e: Exception) {
             false
         }
     }
 
-    fun signOut() {
+    fun signOut(context: Context? = null) {
         currentUser = null
         currentAuthToken = null
+        currentRefreshToken = null
+        // Clear remember-me session if context provided
+        context?.let { SessionStore.clear(it) }
     }
 
     /** Replace the in-memory current user (after an in-app profile edit). */
@@ -303,4 +403,11 @@ object AuthRepository {
     fun getCurrentUser(): MockUser? = currentUser
     fun getCurrentAuthToken(): String? = currentAuthToken
     fun isLoggedIn(): Boolean = currentUser != null
+
+    /** Saves the current session for Remember Me (call after successful login). */
+    fun saveSession(context: Context, email: String) {
+        val user = currentUser ?: return
+        val token = currentRefreshToken ?: currentAuthToken ?: return
+        SessionStore.save(context, email, token, user)
+    }
 }

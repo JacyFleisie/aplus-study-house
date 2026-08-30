@@ -18,14 +18,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.ui.theme.*
+import com.example.blankapp.data.AuthRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationSubmitScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
-    onSubmit: () -> Unit,
-    onContinue: () -> Unit
+    onSubmit: (parentId: String) -> Unit,
+    onContinue: () -> Unit,
+    registrationDraft: com.example.blankapp.data.RegistrationDraft? = null
 ) {
     var submitted by rememberSaveable { mutableStateOf(false) }
     var agreedToTerms by rememberSaveable { mutableStateOf(false) }
@@ -102,7 +104,7 @@ fun RegistrationSubmitScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(onClick = { submitted = true; onSubmit() },
+                Button(onClick = { submitted = true; onSubmit(AuthRepository.getCurrentUser()?.id ?: "") },
                     modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = if (agreedToTerms) Success else OnSurfaceVariant, contentColor = OnPrimary),
                     enabled = agreedToTerms) {
@@ -119,7 +121,7 @@ fun RegistrationSubmitScreen(
                         Spacer(modifier = Modifier.height(20.dp))
                         Text("Application Submitted!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Success)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Application ID: APP-${(100..999).random()}", style = MaterialTheme.typography.bodyLarge, color = OnBackground, fontWeight = FontWeight.SemiBold)
+                        Text("Application ID: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "PENDING"}", style = MaterialTheme.typography.bodyLarge, color = OnBackground, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Your application has been submitted successfully. You will be notified once it's reviewed.",
                             style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant, textAlign = TextAlign.Center)

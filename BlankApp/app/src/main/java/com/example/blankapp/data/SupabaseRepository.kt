@@ -622,19 +622,38 @@ object SupabaseRepository {
     // CREATE APPLICATION
     // ============================================
 
-    suspend fun createApplication(app: JSONObject): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext true
+    /**
+     * Persist a registration as a real application row.
+     * Returns the created [MockApplication] (with its DB id + status) on success,
+     * or null on failure. When the backend is not configured it returns a local
+     * mock record so the flow can continue in demo mode.
+     */
+    suspend fun createApplication(app: JSONObject, parentId: String): MockApplication? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) {
+            val mock = parseApplication(app).copy(
+                id = "APP-${(1000..9999).random()}",
+                parentId = parentId,
+                status = ApplicationStatus.SUBMITTED
+            )
+            mockApplications.add(mock)
+            return@withContext mock
+        }
 
         try {
             val result = SupabaseConfig.supabasePost(
                 table = "applications",
                 body = app.toString(),
                 authToken = authToken()
-            )
-            result != null
+            ) ?: return@withContext null
+            val arr = JSONArray(result)
+            if (arr.length() > 0) {
+                parseApplication(arr.getJSONObject(0))
+            } else {
+                null
+            }
         } catch (e: Exception) {
             recordError("Backend query", e)
-            false
+            null
         }
     }
 
@@ -777,11 +796,11 @@ object SupabaseRepository {
             id = obj.optString("id"),
             parentId = obj.optString("parent_id"),
             parentName = obj.optString("parent_name", ""),
-            childFirstName = obj.optString("child_first_name", ""),
-            childLastName = obj.optString("child_last_name", ""),
-            grade = obj.optInt("grade", 0),
-            school = obj.optString("school", ""),
-            submittedDate = obj.optString("submitted_date", ""),
+            childFirstName = obj.optString("student_first_name", ""),
+            childLastName = obj.optString("student_last_name", ""),
+            grade = obj.optInt("student_grade", 0),
+            school = obj.optString("student_school", ""),
+            submittedDate = obj.optString("submitted_at", ""),
             status = when (obj.optString("status")) {
                 "submitted" -> ApplicationStatus.SUBMITTED
                 "under_review" -> ApplicationStatus.UNDER_REVIEW
@@ -791,9 +810,9 @@ object SupabaseRepository {
                 "rejected" -> ApplicationStatus.REJECTED
                 else -> ApplicationStatus.SUBMITTED
             },
-            lastUpdated = obj.optString("last_updated", ""),
-            notes = obj.optString("notes", ""),
-            registrationFeePaid = obj.optBoolean("registration_fee_paid", false),
+            lastUpdated = obj.optString("updated_at", ""),
+            notes = obj.optString("admin_notes", ""),
+            registrationFeePaid = obj.optBoolean("payment_amount", false),
             documentsUploaded = obj.optBoolean("documents_uploaded", false),
             paymentProofUrl = obj.optString("payment_proof_url").ifBlank { null }
         )
@@ -898,5 +917,70 @@ object SupabaseRepository {
             },
             relatedId = obj.optString("related_id", "")
         )
+    }
+}
+
+/**
+ * Build the JSON body for an applications insert from a [RegistrationDraft],
+ * mapping the collected UI fields onto the real database columns.
+ * `child_first_name`/`child_last_name` are included so the app's status screen
+ * (which reads those columns) displays the name; the DB trigger keeps them in
+ * sync with `student_first_name`/`student_last_name`.
+ */
+fun RegistrationDraft.toApplicationJson(): JSONObject {
+    val parts = studentName.trim().split(Regex("\\s+"), limit = 2)
+    val first = parts.firstOrNull() ?: ""
+    val last = parts.getOrNull(1) ?: ""
+    return JSONObject().apply {
+        put("student_first_name", first)
+        put("student_last_name", last)
+        put("child_first_name", first)
+        put("child_last_name", last)
+        put("student_grade", grade)
+        put("student_dob", dob)
+        put("student_school", school)
+        put("student_address", address)
+        put("student_gender", gender)
+        put("student_class_number", classNr)
+        put("student_teacher_name", teacherName)
+        put("student_lsen", lsen)
+        put("sports", sports.joinToString(","))
+        put("collection_person_1", collectionPerson1)
+        put("collection_contact_1", contact1)
+        put("collection_vehicle_1", vehicleReg1)
+        put("collection_person_2", collectionPerson2)
+        put("collection_contact_2", contact2)
+        put("collection_vehicle_2", vehicleReg2)
+        put("transport_required", transportRequired)
+        put("doctor_name", doctorName)
+        put("doctor_location", doctorLocation)
+        put("doctor_contact", doctorContact)
+        put("medical_plan", medicalPlan)
+        put("medical_aid_number", medicalAidNumber)
+        put("allergies", allergies)
+        put("has_allergies", hasAllergies)
+        put("epilepsy", epilepsy)
+        put("diabetic", diabetic)
+        put("asthma", asthma)
+        put("nose_bleeder", noseBleeder)
+        put("parent_mother_name", motherName)
+        put("parent_mother_surname", motherSurname)
+        put("parent_mother_id", motherId)
+        put("parent_mother_employer", motherEmployer)
+        put("parent_mother_work_phone", motherWorkPhone)
+        put("parent_mother_cell", motherCell)
+        put("parent_mother_email", motherEmail)
+        put("parent_father_name", fatherName)
+        put("parent_father_surname", fatherSurname)
+        put("parent_father_id", fatherId)
+        put("parent_father_employer", fatherEmployer)
+        put("parent_father_work_phone", fatherWorkPhone)
+        put("parent_father_cell", fatherCell)
+        put("parent_father_email", fatherEmail)
+        put("photo_consent", photoConsent)
+        put("signature_data", parentSignature)
+        put("payment_method", paymentMethod)
+        put("payment_amount", 450.00)
+        put("status", "submitted")
     }
 }

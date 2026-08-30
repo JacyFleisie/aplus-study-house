@@ -1,0 +1,74 @@
+{
+  "project": "A+ Study House Android App (BlankApp)",
+  "stack": "Native Android (Kotlin + Jetpack Compose), MVVM + Hilt DI, Supabase (Postgres + Auth + Realtime + Storage)",
+  "stage": "Pre-release / internal distribution (signed APK sideload, no Play Store)",
+  "categories": {
+    "architecture":    { "score": 82, "rationale": "Verified via src/ layout: clean MVVM + Hilt + type-safe Compose navigation. Data, screens, navigation, updater layers separated. RegistrationDraft shared holder added without disturbing the 9 screens. Minor: cross-screen flow state held in AppNavigation composable rather than a ViewModel (works, slightly unusual)." },
+    "code_quality":    { "score": 80, "rationale": "Verified via read_file + grep: consistent Compose style, detekt/ktlint configured (run on-demand), ProGuard minify enabled. 3 TODOs, harmless 'Mock*' naming left as fallback (cosmantic). No swallowed exceptions in core paths; errors surfaced via SupabaseRepository.lastError." },
+    "security":        { "score": 70, "rationale": "Verified: RLS enabled on all 14 tables (001 has 14 ENABLE ROW LEVEL SECURITY) + per-parent storage policies (003, private buckets). anon key only in client — grep confirms NO service_role/sb_secret in source; secrets gitignored (*.jks, keystore.properties, supabase.properties) and never committed. RISK: self-updater (AppUpdater) downloads + installs GitHub release APK with NO hash/signature verification — only a version-string compare. HTTPS alone is insufficient per self-update integrity guidance." },
+    "testing":         { "score": 50, "rationale": "Verified: unit tests exist (AuthRepositoryTest, SupabaseRepositoryTest, DataModelTest, MockDataTest, SupabaseConfigTest, RouteTest) and build. BUT they assert 'network layer never throws', not real auth/authorization/role-gate behaviour. No integration/E2E test of signup -> register -> invoice loop (README admits this). Critical authz paths untested by automation." },
+    "documentation":    { "score": 72, "rationale": "Verified: README.md is thorough (prereqs, layout, Supabase config, DB setup steps 001-003, build, release/signing, architecture notes, known limitations). Gaps: no CI docs, README slightly stale (says isMinifyEnabled=false but build.gradle sets true). supabase.properties template documented inline; no standalone .env.example." },
+    "deployment":      { "score": 68, "rationale": "Verified: signed release build works (v1.1.0, versionCode 2), keystore backed up off-machine (C:/Users/USER-PC/A+StudyHouse-KEYSTORE-BACKUP/), migrations tracked in repo (001-004), ProGuard on. RISKS: no CI/CD pipeline (.github/workflows absent); no automated rollback; Supabase free-tier auto-pause (~weekly) causes full outage — flagged for a keep-alive ping." },
+    "performance":     { "score": 75, "rationale": "Verified via read_file of SupabaseRepository/SupabaseRealtime: REST over OkHttp + direct Phoenix WebSocket (no heavy SDK dependency), no N+1 or unbounded queries in inspected data paths. No runtime profiling was performed (load/latency not measured), but the implementation shows no obvious red flags and is appropriate for an aftercare-centre app at this scale." },
+    "maintainability": { "score": 80, "rationale": "Verified: single config layer (BuildConfig from gitignored supabase.properties), detekt baseline, consistent package structure, Hilt DI. Easy onboarding from README. Minor: no CI means regressions caught only manually." }
+  },
+  "issues": {
+    "critical": [],
+    "important": [
+      {
+        "title": "Self-updater installs APK without integrity verification",
+        "category": "security",
+        "problem": "AppUpdater.downloadApk() fetches the GitHub release asset and installIntent() launches it with only a semver compare (isNewer). No SHA-256/hash or signing-certificate pin check before install.",
+        "impact": "If the GitHub repo or release asset is compromised, a malicious APK installs silently with the app's own permissions (full data access). HTTPS does not prevent a tampered release asset.",
+        "evidence": "Verified — AppUpdater.kt lines 116-146: downloadApk returns file, installIntent builds ACTION_INSTALL_PACKAGE; no hash/signature verification anywhere in checkForUpdate/downloadApk/installIntent.",
+        "action": "Before install, verify a pinned SHA-256 of the downloaded APK (store the expected hash per release tag, or sign releases with a fixed cert and compare the APK signing-certificate). Reject on mismatch."
+      },
+      {
+        "title": "No automated tests for auth, role-gating, or the core registration->payment flow",
+        "category": "testing",
+        "problem": "Existing unit tests assert the network layer never throws; they do not exercise login, RLS-enforced row access, admin vs parent role gates, or the 9-step registration -> application -> proof-of-payment persistence.",
+        "impact": "An authz regression (e.g. a parent seeing another family's data, or a broken submit) could ship undetected. This is the highest-risk untested path.",
+        "evidence": "Verified — app/src/test has AuthRepositoryTest/SupabaseRepositoryTest/etc.; README 'Known limitations' states no E2E/device test of signup->register->invoice loop. No test references auth.uid()/role assertions.",
+        "action": "Add at least: (1) a Supabase auth login/logout test, (2) a role-gate test asserting a parent cannot read another parent's application row via RLS, (3) a happy-path registration submit test against a test project."
+      },
+      {
+        "title": "No CI/CD pipeline; Supabase free tier auto-pauses",
+        "category": "deployment",
+        "problem": "Builds are manual (./gradlew assembleRelease). The Supabase project is free tier, which pauses after ~1 week idle, causing every network call to fail until manually resumed.",
+        "impact": "No automated quality gate on push; a paused DB reads as a full app outage to users (login, registration, payments all fail) until someone notices and resumes it.",
+        "evidence": "Verified — no .github/workflows in repo; README 'Known limitations' lists no CI. Supabase free-tier pause behaviour confirmed earlier this session (521/fetch-failed until dashboard resume).",
+        "action": "Add a GitHub Action that runs detekt + unit tests on push, and a daily keep-alive ping (simple authenticated SELECT) to stop the DB pausing; document recovery steps in README."
+      }
+    ],
+    "improvements": [
+      { "title": "Update README to match reality", "action": "Fix isMinifyEnabled note (it is true) and add a CI/keep-alive section." },
+      { "title": "Add MFA for admin role", "action": "Enable TOTP in Supabase Auth for admin@aplusstudy.co.za." },
+      { "title": "Add remote crash reporting", "action": "Wire Logcat-only errors to a reporter (e.g. Supabase edge fn or Sentry) for prod visibility." },
+      { "title": "Rename Mock* data classes", "action": "Cosmetic: drop the 'Mock' prefix now that they are the real models." }
+    ]
+  },
+  "top5": [
+    "Add SHA-256/signature verification to the self-updater before installing any APK (AppUpdater.kt)",
+    "Add auth + role-gate + registration-submit automated tests for the core flow",
+    "Add a CI workflow (detekt + unit tests) and a daily Supabase keep-alive ping to prevent free-tier pause outages",
+    "Back up the rotated Supabase keys in the dashboard and confirm supabase.properties still matches the live anon key",
+    "Refresh README (minify=true, CI/recovery docs) and consider admin MFA"
+  ],
+  "blocked": false,
+  "gate": null,
+  "confidence": "medium",
+  "checklist": [
+    "RLS enabled on all 14 tables",
+    "Storage buckets private with per-parent policies",
+    "anon key only in client; service_role never shipped",
+    "Secrets gitignored and never committed",
+    "Signed release APK builds and installs (v1.1.0)",
+    "Keystore backed up off-machine",
+    "Migrations tracked in repo (001-004)",
+    "Unit tests present and compile",
+    "Self-updater integrity check MISSING",
+    "No CI/CD pipeline",
+    "Core auth/role path untested by automation"
+  ],
+  "previous": null
+}

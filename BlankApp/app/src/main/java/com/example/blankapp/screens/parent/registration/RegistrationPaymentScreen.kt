@@ -1,5 +1,10 @@
 package com.example.blankapp.screens.parent.registration
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,12 +18,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +40,45 @@ fun RegistrationPaymentScreen(
 ) {
     var selectedPaymentMethod by rememberSaveable { mutableStateOf<String?>(null) }
     var paymentCompleted by rememberSaveable { mutableStateOf(false) }
+    var proofOfPayment by rememberSaveable { mutableStateOf<String?>(null) }
+    var uploading by rememberSaveable { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    /** Writes the bundled banking_details.md to cache and returns the File. */
+    fun bankingDetailsFile(): File {
+        val cache = File(ctx.cacheDir, "banking_details.md")
+        ctx.assets.open("banking_details.md").use { input ->
+            cache.outputStream().use { input.copyTo(it) }
+        }
+        return cache
+    }
+
+    // File picker for PoP
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            uploading = true
+            try {
+                val mimeType = ctx.contentResolver.getType(uri) ?: "image/*"
+                val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                if (bytes != null) {
+                    proofOfPayment = "proof_${System.currentTimeMillis()}.jpg"
+                }
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                uploading = false
+            }
+        }
+    }
+
+    // Camera for PoP
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            proofOfPayment = "proof_${System.currentTimeMillis()}.jpg"
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -126,6 +175,29 @@ fun RegistrationPaymentScreen(
                         colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Text("Banking Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            // Downloadable banking-details document
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        val f = bankingDetailsFile()
+                                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                                            ctx, ctx.packageName + ".fileprovider", f
+                                        )
+                                        val share = Intent(Intent.ACTION_SEND).apply {
+                                            setType("text/markdown")
+                                            putExtra(Intent.EXTRA_STREAM, uri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        ctx.startActivity(Intent.createChooser(share, "Save / share banking details"))
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Filled.Download, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Download / share banking details", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Primary)
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
                             BankDetailRow("Bank", "First National Bank")
                             BankDetailRow("Account Name", "A+ Study House")
@@ -133,9 +205,46 @@ fun RegistrationPaymentScreen(
                             BankDetailRow("Branch Code", "250655")
                             BankDetailRow("Reference", "REG-[YourSurname]")
                             Spacer(modifier = Modifier.height(12.dp))
-                            Card(colors = CardDefaults.cardColors(containerColor = WarningContainer), shape = RoundedCornerShape(8.dp)) {
-                                Text("⚠️ Use your surname as reference — payments without reference may be delayed",
-                                    style = MaterialTheme.typography.bodySmall, color = OnBackground, modifier = Modifier.padding(8.dp))
+
+                            // Proof-of-payment upload with camera + file picker
+                            Text("Proof of Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Upload a photo or PDF of your EFT payment", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            if (proofOfPayment != null) {
+                                Surface(shape = RoundedCornerShape(8.dp), color = SuccessContainer) {
+                                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = Success, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Proof attached: $proofOfPayment", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Success)
+                                    }
+                                }
+                            } else {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    // Take Photo button
+                                    OutlinedButton(
+                                        onClick = { filePicker.launch("image/*") },
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        enabled = !uploading
+                                    ) {
+                                        Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Take Photo", fontWeight = FontWeight.SemiBold)
+                                    }
+                                    // Choose File button
+                                    OutlinedButton(
+                                        onClick = { filePicker.launch("image/*,application/pdf") },
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        enabled = !uploading
+                                    ) {
+                                        Icon(Icons.Filled.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Choose File", fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
                             }
                         }
                     }

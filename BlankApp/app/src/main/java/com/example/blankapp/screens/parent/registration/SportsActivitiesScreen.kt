@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,9 +25,10 @@ import com.example.blankapp.ui.theme.*
 fun SportsActivitiesScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
-    onContinue: (sports: List<String>) -> Unit
+    onContinue: (sports: List<String>) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var selectedSports by rememberSaveable { mutableStateOf(setOf<String>()) }
+    var selectedSports by rememberSaveable { mutableStateOf(draft?.sports?.toSet() ?: setOf<String>()) }
 
     Scaffold(
         topBar = {

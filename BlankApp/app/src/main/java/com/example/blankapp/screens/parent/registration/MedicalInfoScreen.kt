@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,19 +29,20 @@ fun MedicalInfoScreen(
         doctorName: String, doctorLocation: String, doctorContact: String,
         medicalPlan: String, medicalAidNumber: String, allergies: String,
         epilepsy: Boolean, diabetic: Boolean, asthma: Boolean, noseBleeder: Boolean, hasAllergies: Boolean
-    ) -> Unit
+    ) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var doctorName by rememberSaveable { mutableStateOf("") }
-    var doctorLocation by rememberSaveable { mutableStateOf("") }
-    var doctorContact by rememberSaveable { mutableStateOf("") }
-    var medicalPlan by rememberSaveable { mutableStateOf("") }
-    var medicalAidNumber by rememberSaveable { mutableStateOf("") }
-    var allergies by rememberSaveable { mutableStateOf("") }
-    var epilepsy by rememberSaveable { mutableStateOf(false) }
-    var diabetic by rememberSaveable { mutableStateOf(false) }
-    var asthma by rememberSaveable { mutableStateOf(false) }
-    var noseBleeder by rememberSaveable { mutableStateOf(false) }
-    var hasAllergies by rememberSaveable { mutableStateOf(false) }
+    var doctorName by rememberSaveable { mutableStateOf(draft?.doctorName ?: "") }
+    var doctorLocation by rememberSaveable { mutableStateOf(draft?.doctorLocation ?: "") }
+    var doctorContact by rememberSaveable { mutableStateOf(draft?.doctorContact ?: "") }
+    var medicalPlan by rememberSaveable { mutableStateOf(draft?.medicalPlan ?: "") }
+    var medicalAidNumber by rememberSaveable { mutableStateOf(draft?.medicalAidNumber ?: "") }
+    var allergies by rememberSaveable { mutableStateOf(draft?.allergies ?: "") }
+    var epilepsy by rememberSaveable { mutableStateOf(draft?.epilepsy ?: false) }
+    var diabetic by rememberSaveable { mutableStateOf(draft?.diabetic ?: false) }
+    var asthma by rememberSaveable { mutableStateOf(draft?.asthma ?: false) }
+    var noseBleeder by rememberSaveable { mutableStateOf(draft?.noseBleeder ?: false) }
+    var hasAllergies by rememberSaveable { mutableStateOf(draft?.hasAllergies ?: false) }
 
     Scaffold(
         topBar = {

@@ -23,7 +23,9 @@ fun RegistrationStartScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
     onStartRegistration: () -> Unit,
-    onCheckStatus: () -> Unit
+    onLogout: () -> Unit,
+    onResumeDraft: (() -> Unit)? = null,
+    hasSavedDraft: () -> Boolean = { false }
 ) {
     Scaffold(
         topBar = {
@@ -37,6 +39,9 @@ fun RegistrationStartScreen(
                 actions = {
                     IconButton(onClick = onExitFlow) {
                         Icon(Icons.Filled.Close, contentDescription = "Exit registration")
+                    }
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Filled.Logout, contentDescription = "Logout")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -140,6 +145,24 @@ fun RegistrationStartScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Resume saved draft (if any)
+            if (onResumeDraft != null && hasSavedDraft()) {
+                OutlinedButton(
+                    onClick = { onResumeDraft() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
+                ) {
+                    Icon(Icons.Filled.ArrowRight, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Continue Saved Registration", style = MaterialTheme.typography.titleMedium)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // Start Button
             Button(
                 onClick = onStartRegistration,
@@ -155,21 +178,6 @@ fun RegistrationStartScreen(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Check Status Button
-            OutlinedButton(
-                onClick = onCheckStatus,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
-            ) {
-                Icon(Icons.Filled.TrackChanges, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Check Application Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            }
 
             Spacer(modifier = Modifier.height(24.dp))
         }

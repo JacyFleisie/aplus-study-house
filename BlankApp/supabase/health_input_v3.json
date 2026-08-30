@@ -1,0 +1,70 @@
+{
+  "project": "A+ Study House Android App (BlankApp)",
+  "stack": "Native Android (Kotlin + Jetpack Compose), MVVM + Hilt DI, Supabase (Postgres + Auth + Realtime + Storage)",
+  "stage": "Pre-release",
+  "categories": {
+    "architecture": { "score": 85, "rationale": "Verified via read_file: clear MVVM/Hilt/Compose nav separation. RegistrationDraft shared holder accumulates fields across 9-step flow. SessionStore handles persistence. Self-updater isolated in updater/ package." },
+    "code_quality": { "score": 82, "rationale": "Verified via read_file: consistent naming, detekt/ktlint config present, ProGuard minify enabled. RegistrationDraft.copyFrom() for resumption. Date picker for DOB. PoP upload with file picker + camera." },
+    "security": { "score": 82, "rationale": "Verified via read_file: RLS on all 14 tables (59 policies). Self-updater verifies APK signature before install (AppUpdater.verifyApkIntegrity). anon key only, service_role never in client. Secrets gitignored. SessionStore persists session locally." },
+    "testing": { "score": 78, "rationale": "Verified via terminal: 86 unit tests green, forceMockMode makes them actually execute (was previously all-skipped). New ApplicationSubmitTest covers submit-persists + row-isolation. AuthRepositoryTest covers role-gating." },
+    "documentation": { "score": 75, "rationale": "Verified via read_file: README with setup, DB, release steps. Local CI + keep-alive documented. Self-updater release process documented." },
+    "deployment": { "score": 72, "rationale": "Verified via terminal: signed release APK builds. GitHub releases with APK asset for self-updater. Daily keep-alive cronjob (e8948672eb59) prevents Supabase pause. Local CI cronjob (1f72cdda7a56) runs tests daily. NOTE: profiles table empty breaks registration save." },
+    "performance": { "score": 78, "rationale": "Verified via read_file: REST over OkHttp + direct Phoenix WebSocket. No N+1 queries. Registration draft persisted to internal storage (fast)." },
+    "maintainability": { "score": 82, "rationale": "Verified via read_file: one config layer (SupabaseConfig), detekt config, consistent patterns. RegistrationDraft centralizes flow state." }
+  },
+  "issues": {
+    "critical": [
+      {
+        "title": "profiles table empty — registration does not save",
+        "category": "deployment",
+        "problem": "The profiles table in Supabase is empty. The applications table has a foreign key parent_id REFERENCES profiles(id), so INSERT into applications fails silently. Admin RLS policies also require a profile with role='admin'.",
+        "impact": "Parents cannot submit registrations. Admins cannot view or approve applications.",
+        "evidence": "Verified via terminal: query to profiles returns []. Query to applications returns []. FK constraint violation on insert.",
+        "action": "Run the SQL in supabase/fix_all.sql in Supabase SQL Editor to create profiles for existing auth users."
+      }
+    ],
+    "important": [
+      {
+        "title": "Supabase free-tier auto-pause",
+        "category": "deployment",
+        "problem": "Free Supabase tier pauses after ~7 days idle, causing full app outage.",
+        "impact": "All network calls fail until manually resumed.",
+        "evidence": "Verified — daily keep-alive cronjob created (e8948672eb59) but depends on this machine running.",
+        "action": "Keep keep-alive running; consider upgrading to paid tier for production."
+      },
+      {
+        "title": "No CI/CD pipeline",
+        "category": "deployment",
+        "problem": "Builds and tests are manual local jobs, not automated on push.",
+        "impact": "Regressions can ship unnoticed.",
+        "evidence": "Verified — local cronjob runs tests but no GitHub Actions workflow.",
+        "action": "Add GitHub Actions workflow (detekt + tests on push) if repo is ever hosted."
+      }
+    ],
+    "improvements": [
+      { "title": "Add MFA for admin account", "action": "Enable TOTP in Supabase Auth for admin role." },
+      { "title": "Rename leftover Mock* data classes", "action": "Cosmetic — MockData, MockUser, etc." },
+      { "title": "Add remote crash reporting", "action": "Integrate Firebase Crashlytics or similar." }
+    ]
+  },
+  "top5": [
+    "Run SQL to populate profiles table — registration is broken until this is done",
+    "Keep Supabase keep-alive running to prevent DB pause",
+    "Add GitHub Actions CI workflow for automated testing",
+    "Add MFA for admin account",
+    "Add remote crash reporting"
+  ],
+  "blocked": false,
+  "gate": null,
+  "confidence": "high",
+  "previous": {
+    "architecture": 85,
+    "code_quality": 82,
+    "security": 82,
+    "testing": 78,
+    "documentation": 75,
+    "deployment": 78,
+    "performance": 78,
+    "maintainability": 82
+  }
+}

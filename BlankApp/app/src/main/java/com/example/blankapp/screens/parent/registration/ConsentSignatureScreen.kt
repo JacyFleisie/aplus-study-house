@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,10 +25,11 @@ import com.example.blankapp.ui.theme.*
 fun ConsentSignatureScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
-    onContinue: (photoConsent: Boolean, parentSignature: String) -> Unit
+    onContinue: (photoConsent: Boolean, parentSignature: String) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var photoConsent by rememberSaveable { mutableStateOf(false) }
-    var parentName by rememberSaveable { mutableStateOf("") }
+    var photoConsent by rememberSaveable { mutableStateOf(draft?.photoConsent ?: false) }
+    var parentName by rememberSaveable { mutableStateOf(draft?.parentSignature ?: "") }
     val canContinue = parentName.isNotBlank()
 
     Scaffold(

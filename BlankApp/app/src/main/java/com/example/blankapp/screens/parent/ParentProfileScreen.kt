@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import com.example.blankapp.BuildConfig
 import com.example.blankapp.data.AuthRepository
-import com.example.blankapp.viewmodel.AuthViewModel
+import com.example.blankapp.updater.AppUpdater
+import com.example.blankapp.updater.UpdateInfo
 import com.example.blankapp.ui.theme.*
 
 @Composable
@@ -39,6 +40,31 @@ fun ParentProfileScreen(
     var showHelp by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
     var passwordSent by remember { mutableStateOf<String?>(null) }
+
+    // Self-update state (About dialog hosts the update check)
+    var checkingUpdate by remember { mutableStateOf(false) }
+    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var updateError by remember { mutableStateOf<String?>(null) }
+
+    fun checkForUpdate() {
+        scope.launch {
+            checkingUpdate = true
+            updateError = null
+            try {
+                val result = AppUpdater.checkForUpdate()
+                updateInfo = result
+                if (result.available && result.downloadUrl != null) {
+                    val file = AppUpdater.downloadApk(context, result.downloadUrl)
+                    val intent = AppUpdater.installIntent(context, file)
+                    context.startActivity(intent)
+                }
+            } catch (e: Exception) {
+                updateError = e.message ?: "Update check failed"
+            } finally {
+                checkingUpdate = false
+            }
+        }
+    }
 
     // App version from the build
     val versionName = remember {
@@ -218,9 +244,38 @@ fun ParentProfileScreen(
                     Text("A+ Study House — aftercare, tutoring & study centre.")
                     Spacer(Modifier.height(8.dp))
                     Text("Witpoortjie, Roodepoort")
+                    Spacer(Modifier.height(12.dp))
+                    // Inline update status (no separate screen needed)
+                    when {
+                        checkingUpdate -> Text("Checking for updates…")
+                        updateInfo?.available == true -> {
+                            Text("Update available: ${updateInfo!!.latestVersion}")
+                            if (updateInfo!!.notes.isNotBlank()) {
+                                Spacer(Modifier.height(4.dp))
+                                Text(updateInfo!!.notes, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        updateInfo != null -> Text("You are on the latest version (${updateInfo!!.currentVersion}).")
+                        updateError != null -> Text(updateError!!, color = MaterialTheme.colorScheme.error)
+                    }
                 }
             },
-            confirmButton = { TextButton(onClick = { showAbout = false }) { Text("OK") } }
+            confirmButton = {
+                if (updateInfo?.available == true) {
+                    TextButton(
+                        onClick = { checkForUpdate() }
+                    ) { Text("Download & Install") }
+                } else {
+                    TextButton(onClick = { showAbout = false }) { Text("OK") }
+                }
+            },
+            dismissButton = {
+                if (!checkingUpdate) {
+                    TextButton(onClick = { checkForUpdate() }) {
+                        Text(if (updateInfo?.available == true) "Re-check" else "Check for Updates")
+                    }
+                }
+            }
         )
     }
 

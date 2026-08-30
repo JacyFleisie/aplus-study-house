@@ -140,10 +140,11 @@ network layer never throws, not on a specific return value).
 
 - Signing is configured in `app/build.gradle.kts` (`signingConfigs.release` ←
   `keystore.properties` + `aplus-study-house.jks`).
-- `versionCode` / `versionName` live in `defaultConfig` (currently `1` / `1.0.0`).
+- `versionCode` / `versionName` live in `defaultConfig` (currently `2` / `1.1.0`).
   Bump `versionCode` on every published update.
-- `isMinifyEnabled = false` today — enable ProGuard for production hardening/size
-  once a clean mapping file is validated.
+- `isMinifyEnabled = true` — ProGuard minification is enabled for production
+  hardening and APK size. Keep `app/proguard-rules.pro` in sync if adding
+  reflection-based libraries.
 - **Back up `aplus-study-house.jks` + its passwords to a password manager.** Losing
   the keystore makes future updates impossible (Google/Play will reject a different
   key). The keystore is git-ignored and exists only on this machine.
@@ -168,7 +169,13 @@ network layer never throws, not on a specific return value).
 
 ## 8. Known limitations / TODO
 
-- No README-driven CI yet (detekt + unit tests should run on push).
+- **Local CI (not GitHub Actions).** The project is not hosted on GitHub, so CI runs
+  as a scheduled local job instead: `scripts/blankapp_ci.py` runs `./gradlew test`
+  daily and WhatsApps the owner on failure. Add a GitHub Actions workflow
+  (`detekt` + unit tests on push) if the repo is ever hosted.
+- **Supabase free-tier keep-alive.** The DB auto-pauses after idle periods, which
+  would outage the app. `scripts/supabase_keepalive.py` pings the project daily
+  (anon key only) to keep it warm. Run it as a daily scheduled job.
 - No remote crash reporting (Logcat only today).
 - Email-verification enforcement behaviour should be confirmed in the Supabase project.
 - `Mock*` data classes remain as fallback names (cosmetic).

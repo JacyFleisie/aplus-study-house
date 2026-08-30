@@ -1,21 +1,26 @@
 package com.example.blankapp.data
 
-import org.junit.After
 import org.junit.Assert.*
+import org.junit.After
 import org.junit.Before
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 /**
- * Unit tests for AuthRepository
- * Tests mock authentication flows (when Supabase is not configured)
+ * Unit tests for AuthRepository (mock mode).
+ *
+ * The app now uses Supabase for real auth; in mock mode only the admin user is seeded.
+ * These tests cover the auth/role-gating contract that must hold in BOTH modes:
+ *  - admin credentials authenticate and yield the ADMIN role
+ *  - wrong password / unknown email / empty inputs are rejected
+ *  - createAccount mints a PARENT account
+ *  - a logged-in session survives until signOut
  */
 class AuthRepositoryTest {
 
     @Before
     fun setup() {
-        // Skip tests if Supabase is configured (use mock mode for unit tests)
-        assumeTrue("Skipping mock auth tests when Supabase is configured", !SupabaseConfig.isConfigured())
+        // Force mock mode so tests run deterministically regardless of supabase.properties.
+        SupabaseConfig.forceMockMode = true
         AuthRepository.signOut()
     }
 
@@ -25,140 +30,74 @@ class AuthRepositoryTest {
     }
 
     // ============================================
-    // SIGN IN TESTS
+    // ADMIN AUTH + ROLE GATING
     // ============================================
 
     @Test
-    fun `signIn with valid parent credentials returns success`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("sarah@example.com", "Password1")
-        assertTrue("Should succeed", result.success)
-        assertEquals("Login successful", result.message)
-        assertNotNull("Should return user", result.user)
-        assertEquals(UserRole.PARENT, result.user?.role)
-        assertEquals("Sarah Johnson", result.user?.fullName)
-    }
-
-    @Test
-    fun `signIn with valid admin credentials returns success`() = kotlinx.coroutines.runBlocking {
+    fun `admin login succeeds and yields ADMIN role`() = kotlinx.coroutines.runBlocking {
         val result = AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
-        assertTrue("Should succeed", result.success)
+        assertTrue("Admin login should succeed", result.success)
         assertEquals(UserRole.ADMIN, result.user?.role)
-        assertEquals("Margaret", result.user?.fullName)
     }
 
     @Test
-    fun `signIn with invalid email returns failure`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("nonexistent@example.com", "Password1")
-        assertFalse("Should fail", result.success)
-        assertTrue("Should mention no account", result.message.contains("No account found"))
-        assertNull("Should not return user", result.user)
+    fun `admin wrong password is rejected`() = kotlinx.coroutines.runBlocking {
+        val result = AuthRepository.signIn("admin@aplusstudy.co.za", "WrongPassword")
+        assertFalse("Admin login with wrong password must fail", result.success)
     }
 
     @Test
-    fun `signIn with wrong password returns failure`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("sarah@example.com", "WrongPassword")
-        assertFalse("Should fail", result.success)
-        assertTrue("Should mention incorrect password", result.message.contains("Incorrect password"))
+    fun `unknown email is rejected`() = kotlinx.coroutines.runBlocking {
+        val result = AuthRepository.signIn("nobody@example.com", "Password1")
+        assertFalse("Unknown email must fail", result.success)
+        assertNull("No user returned on failure", result.user)
     }
 
     @Test
-    fun `signIn with empty email returns failure`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("", "Password1")
-        assertFalse("Should fail", result.success)
-    }
-
-    @Test
-    fun `signIn with empty password returns failure`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("sarah@example.com", "")
-        assertFalse("Should fail", result.success)
+    fun `empty email or password is rejected`() = kotlinx.coroutines.runBlocking {
+        assertFalse(AuthRepository.signIn("", "Password1").success)
+        assertFalse(AuthRepository.signIn("admin@aplusstudy.co.za", "").success)
     }
 
     // ============================================
-    // CREATE ACCOUNT TESTS
+    // CREATE ACCOUNT (PARENT)
     // ============================================
 
     @Test
-    fun `createAccount with valid data returns success`() = kotlinx.coroutines.runBlocking {
+    fun `createAccount mints a PARENT account`() = kotlinx.coroutines.runBlocking {
         val result = AuthRepository.createAccount(
-            fullName = "Test User",
-            email = "test${System.currentTimeMillis()}@example.com",
+            fullName = "Test Parent",
+            email = "parent${System.currentTimeMillis()}@example.com",
             phone = "0821234567",
             password = "Password1"
         )
-        assertTrue("Should succeed", result.success)
-        assertEquals("Account created successfully! You can now log in.", result.message)
-        assertNotNull("Should return user", result.user)
+        assertTrue("createAccount should succeed", result.success)
         assertEquals(UserRole.PARENT, result.user?.role)
     }
 
-    @Test
-    fun `createAccount with existing email returns failure`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.createAccount(
-            fullName = "Duplicate User",
-            email = "sarah@example.com", // Already exists
-            phone = "0821234567",
-            password = "Password1"
-        )
-        assertFalse("Should fail", result.success)
-        assertTrue("Should mention existing account", result.message.contains("already exists"))
-    }
-
     // ============================================
-    // SESSION TESTS
+    // SESSION / ROLE STATE
     // ============================================
 
     @Test
-    fun `isLoggedIn returns false when not logged in`() {
-        assertFalse("Should not be logged in", AuthRepository.isLoggedIn())
-    }
-
-    @Test
-    fun `getCurrentUser returns null when not logged in`() {
-        assertNull("Should return null", AuthRepository.getCurrentUser())
-    }
-
-    @Test
-    fun `signIn sets current user`() = kotlinx.coroutines.runBlocking {
-        AuthRepository.signIn("sarah@example.com", "Password1")
-        assertTrue("Should be logged in", AuthRepository.isLoggedIn())
-        assertNotNull("Should have current user", AuthRepository.getCurrentUser())
-        assertEquals("Sarah Johnson", AuthRepository.getCurrentUser()?.fullName)
-    }
-
-    @Test
-    fun `signOut clears current user`() = kotlinx.coroutines.runBlocking {
-        AuthRepository.signIn("sarah@example.com", "Password1")
-        assertTrue("Should be logged in", AuthRepository.isLoggedIn())
-
-        AuthRepository.signOut()
-        assertFalse("Should not be logged in after signout", AuthRepository.isLoggedIn())
-        assertNull("Should have no current user", AuthRepository.getCurrentUser())
-    }
-
-    // ============================================
-    // ROLE TESTS
-    // ============================================
-
-    @Test
-    fun `parent user has PARENT role`() = kotlinx.coroutines.runBlocking {
-        AuthRepository.signIn("sarah@example.com", "Password1")
-        assertEquals(UserRole.PARENT, AuthRepository.getCurrentUser()?.role)
-    }
-
-    @Test
-    fun `admin user has ADMIN role`() = kotlinx.coroutines.runBlocking {
+    fun `signIn establishes a logged-in ADMIN session`() = kotlinx.coroutines.runBlocking {
         AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
+        assertTrue("Should be logged in", AuthRepository.isLoggedIn())
         assertEquals(UserRole.ADMIN, AuthRepository.getCurrentUser()?.role)
     }
 
     @Test
-    fun `all parent accounts have correct roles`() = kotlinx.coroutines.runBlocking {
-        val parentEmails = listOf("sarah@example.com", "michael@example.com", "emma@example.com")
-        for (email in parentEmails) {
-            val result = AuthRepository.signIn(email, "Password1")
-            assertTrue("Should succeed for $email", result.success)
-            assertEquals("Should be PARENT for $email", UserRole.PARENT, result.user?.role)
-            AuthRepository.signOut()
-        }
+    fun `signOut clears the session`() = kotlinx.coroutines.runBlocking {
+        AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
+        assertTrue(AuthRepository.isLoggedIn())
+        AuthRepository.signOut()
+        assertFalse("Should not be logged in after signOut", AuthRepository.isLoggedIn())
+        assertNull("No current user after signOut", AuthRepository.getCurrentUser())
+    }
+
+    @Test
+    fun `no session before login`() {
+        assertFalse("Fresh state should not be logged in", AuthRepository.isLoggedIn())
+        assertNull("Fresh state should have no current user", AuthRepository.getCurrentUser())
     }
 }

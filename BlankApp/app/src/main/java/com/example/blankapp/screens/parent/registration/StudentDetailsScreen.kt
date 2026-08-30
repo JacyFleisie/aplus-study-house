@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,20 +25,22 @@ import com.example.blankapp.ui.theme.*
 fun StudentDetailsScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
-    onContinue: (studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean) -> Unit
+    onContinue: (studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean) -> Unit,
+    draft: RegistrationDraft? = null
 ) {
-    var firstName by rememberSaveable { mutableStateOf("") }
-    var lastName by rememberSaveable { mutableStateOf("") }
-    var dob by rememberSaveable { mutableStateOf("") }
-    var grade by rememberSaveable { mutableStateOf("") }
-    var school by rememberSaveable { mutableStateOf("") }
-    var address by rememberSaveable { mutableStateOf("") }
-    var gender by rememberSaveable { mutableStateOf("") }
-    var classNr by rememberSaveable { mutableStateOf("") }
-    var teacherName by rememberSaveable { mutableStateOf("") }
-    var lsen by rememberSaveable { mutableStateOf(false) }
+    var firstName by rememberSaveable { mutableStateOf(draft?.studentName?.substringBefore(" ") ?: "") }
+    var lastName by rememberSaveable { mutableStateOf(draft?.studentName?.substringAfter(" ", "") ?: "") }
+    var dob by rememberSaveable { mutableStateOf(draft?.dob ?: "") }
+    var grade by rememberSaveable { mutableStateOf(if (draft?.grade != 0) draft?.grade?.toString() ?: "" else "") }
+    var school by rememberSaveable { mutableStateOf(draft?.school ?: "") }
+    var address by rememberSaveable { mutableStateOf(draft?.address ?: "") }
+    var gender by rememberSaveable { mutableStateOf(draft?.gender ?: "") }
+    var classNr by rememberSaveable { mutableStateOf(draft?.classNr ?: "") }
+    var teacherName by rememberSaveable { mutableStateOf(draft?.teacherName ?: "") }
+    var lsen by rememberSaveable { mutableStateOf(draft?.lsen ?: false) }
     var gradeExpanded by rememberSaveable { mutableStateOf(false) }
     var attemptedContinue by rememberSaveable { mutableStateOf(false) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
     val canContinue = firstName.isNotBlank() && lastName.isNotBlank() && grade.isNotBlank() && school.isNotBlank()
     val showFirstNameError = attemptedContinue && firstName.isBlank()
@@ -114,10 +117,26 @@ fun StudentDetailsScreen(
                         ))
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = dob, onValueChange = { dob = it }, label = { Text("Date of Birth") },
-                        placeholder = { Text("DD/MM/YYYY") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    // Date of Birth - Date Picker
+                    OutlinedTextField(
+                        value = dob,
+                        onValueChange = {},
+                        label = { Text("Date of Birth") },
+                        placeholder = { Text("Select date") },
+                        readOnly = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showDatePicker = true },
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledBorderColor = Outline,
+                            disabledLabelColor = OnSurfaceVariant,
+                            disabledTextColor = OnBackground
+                        ),
+                        trailingIcon = {
+                            Icon(Icons.Filled.CalendarMonth, contentDescription = "Pick date", tint = Primary)
+                        }
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     ExposedDropdownMenuBox(expanded = gradeExpanded, onExpandedChange = { gradeExpanded = !gradeExpanded }) {
@@ -224,6 +243,29 @@ fun StudentDetailsScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+
+    // Date Picker Dialog
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val instant = java.time.Instant.ofEpochMilli(millis)
+                        val localDate = instant.atZone(java.time.ZoneId.of("UTC")).toLocalDate()
+                        dob = String.format("%02d/%02d/%04d", localDate.dayOfMonth, localDate.monthValue, localDate.year)
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

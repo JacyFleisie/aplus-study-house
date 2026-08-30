@@ -36,6 +36,14 @@ object SupabaseConfig {
     // ⚠️ DO NOT ADD SECRET KEY TO CLIENT CODE
     // ============================================
 
+    /**
+     * Test-only override. When true, [isConfigured] reports false so the data layer
+     * uses mock data instead of hitting Supabase. Unit tests set this in @Before so
+     * they run deterministically regardless of whether supabase.properties exists.
+     */
+    @Volatile
+    var forceMockMode: Boolean = false
+
     val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
     val httpClient: OkHttpClient = OkHttpClient.Builder()
@@ -48,6 +56,7 @@ object SupabaseConfig {
      * Check if Supabase is configured
      */
     fun isConfigured(): Boolean {
+        if (forceMockMode) return false
         return SUPABASE_URL.isNotBlank() &&
                SUPABASE_ANON_KEY.isNotBlank() &&
                SUPABASE_URL.startsWith("https://")

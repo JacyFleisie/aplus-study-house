@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.UserRole
+import com.example.blankapp.data.SessionStore
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.viewmodel.AuthViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,12 +55,19 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var rememberMe by rememberSaveable { mutableStateOf(false) }
 
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     val focusManager = LocalFocusManager.current
     val passwordFocusRequester = remember { FocusRequester() }
+
+    val ctx = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        SessionStore.getRememberedEmail(ctx)?.let { email = it }
+    }
 
     LaunchedEffect(email, password) {
         viewModel.clearError()
@@ -246,6 +255,9 @@ fun LoginScreen(
                                         val user = result.user
                                         val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT
                                         onLoginClick(email, password, role)
+                                        if (rememberMe) {
+                                            AuthRepository.saveSession(ctx, email)
+                                        }
                                     }
                                 }
                             }
@@ -263,6 +275,20 @@ fun LoginScreen(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // Remember Me
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = rememberMe,
+                            onCheckedChange = { rememberMe = it },
+                            colors = CheckboxDefaults.colors(checkedColor = Primary)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Remember me", style = MaterialTheme.typography.bodyMedium, color = OnBackground)
+                    }
 
                     // Forgot Password
                     Row(
@@ -290,6 +316,9 @@ fun LoginScreen(
                                     val user = result.user
                                     val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT
                                     onLoginClick(email, password, role)
+                                        if (rememberMe) {
+                                            AuthRepository.saveSession(ctx, email)
+                                        }
                                 }
                             }
                         },
@@ -397,6 +426,9 @@ fun LoginScreen(
                 onClick = {
                     viewModel.demoSignIn("admin@aplusstudy.co.za", "Admin123", UserRole.ADMIN) { email, password, role ->
                         onLoginClick(email, password, role)
+                                        if (rememberMe) {
+                                            AuthRepository.saveSession(ctx, email)
+                                        }
                     }
                 },
                 modifier = Modifier
@@ -438,6 +470,9 @@ fun LoginScreen(
                 onClick = {
                     viewModel.demoSignIn("sarah@example.com", "Password1", UserRole.PARENT) { email, password, role ->
                         onLoginClick(email, password, role)
+                                        if (rememberMe) {
+                                            AuthRepository.saveSession(ctx, email)
+                                        }
                     }
                 },
                 modifier = Modifier
