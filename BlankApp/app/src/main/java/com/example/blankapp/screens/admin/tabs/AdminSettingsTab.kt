@@ -28,6 +28,7 @@ fun AdminSettingsTab(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
+    var downloading by remember { mutableStateOf(false) }
     var info by remember { mutableStateOf<UpdateInfo?>(null) }
     var showAbout by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
@@ -40,6 +41,20 @@ fun AdminSettingsTab(
                 val result = AppUpdater.checkForUpdate()
                 info = result
                 showAbout = true
+            } catch (e: Exception) {
+                errorMsg = e.message ?: "Update failed"
+            } finally {
+                checking = false
+            }
+        }
+    }
+
+    fun runDownloadAndInstall() {
+        scope.launch {
+            downloading = true
+            errorMsg = null
+            try {
+                val result = info ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
                     val file = AppUpdater.downloadApk(context, result.downloadUrl)
                     val intent = AppUpdater.installIntent(context, file)
@@ -48,7 +63,7 @@ fun AdminSettingsTab(
             } catch (e: Exception) {
                 errorMsg = e.message ?: "Update failed"
             } finally {
-                checking = false
+                downloading = false
             }
         }
     }
@@ -60,16 +75,16 @@ fun AdminSettingsTab(
                 if (info?.available == true) {
                     TextButton(onClick = {
                         showAbout = false
-                        runCheck()
-                    }) {
-                        Text("Download & Install")
+                        runDownloadAndInstall()
+                    }, enabled = !downloading) {
+                        Text(if (downloading) "Downloading..." else "Download & Install")
                     }
                 } else {
                     TextButton(onClick = { showAbout = false }) { Text("OK") }
                 }
             },
             dismissButton = {
-                if (!checking && info?.available != true) {
+                if (!checking && !downloading && info?.available != true) {
                     TextButton(onClick = { runCheck() }) { Text("Check for Updates") }
                 }
             },
@@ -84,6 +99,7 @@ fun AdminSettingsTab(
                     Spacer(Modifier.height(12.dp))
                     when {
                         checking -> Text("Checking for updates…")
+                        downloading -> Text("Downloading update…")
                         info?.available == true -> {
                             Text("Update available: ${info!!.latestVersion}")
                             Spacer(Modifier.height(4.dp))

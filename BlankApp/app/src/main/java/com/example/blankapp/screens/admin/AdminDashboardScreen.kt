@@ -19,6 +19,7 @@ enum class AdminTab(
     HOME("Home", Icons.Filled.Home, Icons.Outlined.Home),
     APPLICATIONS("Applications", Icons.Filled.Assignment, Icons.Outlined.Assignment),
     STUDENTS("Students", Icons.Filled.School, Icons.Outlined.School),
+    MESSAGES("Messages", Icons.Filled.Mail, Icons.Outlined.Mail),
     FINANCE("Finance", Icons.Filled.AccountBalance, Icons.Outlined.AccountBalance),
     SETTINGS("Settings", Icons.Filled.Settings, Icons.Outlined.Settings)
 }
@@ -32,13 +33,7 @@ fun AdminDashboardScreen(
     onNavigateToFinance: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(AdminTab.HOME) }
-    var showMessages by remember { mutableStateOf(false) }
     var showCrashLogs by remember { mutableStateOf(false) }
-
-    if (showMessages) {
-        AdminMessagesScreen(onBack = { showMessages = false })
-        return
-    }
 
     if (showCrashLogs) {
         CrashLogScreen(onBackClick = { showCrashLogs = false })
@@ -54,6 +49,7 @@ fun AdminDashboardScreen(
                             AdminTab.HOME -> "Admin Dashboard"
                             AdminTab.APPLICATIONS -> "Applications"
                             AdminTab.STUDENTS -> "Students"
+                            AdminTab.MESSAGES -> "Messages"
                             AdminTab.FINANCE -> "Finance"
                             AdminTab.SETTINGS -> "Settings"
                         },
@@ -61,13 +57,7 @@ fun AdminDashboardScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = { showMessages = true }) {
-                        Icon(
-                            Icons.Filled.Mail,
-                            contentDescription = "Messages",
-                            tint = OnBackground
-                        )
-                    }
+                    // No inbox icon in top bar - messages are now a tab
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
@@ -114,6 +104,7 @@ fun AdminDashboardScreen(
                 )
                 AdminTab.APPLICATIONS -> AdminApplicationsTab(onNavigateToApplication = onNavigateToApplication)
                 AdminTab.STUDENTS -> AdminStudentsTab(onNavigateToStudent = onNavigateToStudent)
+                AdminTab.MESSAGES -> AdminMessagesScreen(onBack = { selectedTab = AdminTab.HOME })
                 AdminTab.FINANCE -> AdminFinanceTab(onNavigateToFinance = onNavigateToFinance)
                 AdminTab.SETTINGS -> AdminSettingsTab(
                     onLogout = onLogout,
