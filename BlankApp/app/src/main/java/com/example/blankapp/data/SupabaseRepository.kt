@@ -536,9 +536,10 @@ object SupabaseRepository {
         if (!isUsingBackend()) return@withContext mockUsers.filter { it.role == UserRole.PARENT }
 
         try {
+            // Only count parents who have at least one approved application or active student
             val result = SupabaseConfig.supabaseGet(
                 table = "profiles",
-                query = "role=eq.parent&select=*",
+                query = "role=eq.parent&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
                 authToken = authToken()
             ) ?: return@withContext emptyList()
 
@@ -546,17 +547,48 @@ object SupabaseRepository {
             val parents = mutableListOf<MockUser>()
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
-                parents.add(
-                    MockUser(
-                        id = obj.optString("id"),
-                        fullName = obj.optString("full_name", ""),
-                        email = obj.optString("email", ""),
-                        phone = obj.optString("phone", ""),
-                        password = "",
-                        role = UserRole.PARENT,
-                        surname = obj.optString("surname", "")
+                val parentId = obj.optString("id")
+                
+                // Check if this parent has any approved applications
+                val approvedApps = try {
+                    val appsResult = SupabaseConfig.supabaseGet(
+                        table = "applications",
+                        query = "parent_id=eq.$parentId&status=eq.approved&select=id",
+                        authToken = authToken()
                     )
-                )
+                    if (appsResult != null && appsResult != "[]") {
+                        JSONArray(appsResult).length() > 0
+                    } else false
+                } catch (e: Exception) { false }
+                
+                // Check if this parent has any active students
+                val activeStudents = if (!approvedApps) {
+                    try {
+                        val studentsResult = SupabaseConfig.supabaseGet(
+                            table = "students",
+                            query = "parent_id=eq.$parentId&status=eq.active&select=id",
+                            authToken = authToken()
+                        )
+                        if (studentsResult != null && studentsResult != "[]") {
+                            JSONArray(studentsResult).length() > 0
+                        } else false
+                    } catch (e: Exception) { false }
+                } else true
+                
+                // Only include parents with approved applications or active students
+                if (approvedApps || activeStudents) {
+                    parents.add(
+                        MockUser(
+                            id = parentId,
+                            fullName = obj.optString("full_name", ""),
+                            email = obj.optString("email", ""),
+                            phone = obj.optString("phone", ""),
+                            password = "",
+                            role = UserRole.PARENT,
+                            surname = obj.optString("surname", "")
+                        )
+                    )
+                }
             }
             parents
         } catch (e: Exception) {
