@@ -57,8 +57,7 @@ fun AdminSettingsTab(
                 val result = info ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
                     val file = AppUpdater.downloadApk(context, result.downloadUrl)
-                    val intent = AppUpdater.installIntent(context, file)
-                    context.startActivity(intent)
+                    AppUpdater.installApk(context, file)
                 }
             } catch (e: Exception) {
                 errorMsg = e.message ?: "Update failed"

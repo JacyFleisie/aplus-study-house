@@ -2,6 +2,7 @@ package com.example.blankapp.updater
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
@@ -16,6 +17,7 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import android.app.PendingIntent
 import java.security.MessageDigest
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
@@ -137,18 +139,23 @@ object AppUpdater {
         outFile
     }
 
-    /** Builds the install intent for a downloaded APK (caller must startActivity it). */
-    fun installIntent(context: Context, apkFile: File): Intent {
-        verifyApkIntegrity(context, apkFile) // throws SecurityException if tampered / wrong key
-        val uri = FileProvider.getUriForFile(
-            context,
-            context.packageName + ".fileprovider",
-            apkFile
-        )
-        return Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-            setDataAndType(uri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    /** Installs the APK using PackageInstaller API (works on API 26+). */
+    fun installApk(context: Context, apkFile: File) {
+        verifyApkIntegrity(context, apkFile)
+        val installer = context.packageManager.packageInstaller
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        params.setAppPackageName(context.packageName)
+        val session = installer.openSession(installer.createSession(params))
+        session.use { s ->
+            FileInputStream(apkFile).use { input ->
+                s.openWrite("apk", 0, apkFile.length()).use { output ->
+                    input.copyTo(output)
+                    s.fsync(output)
+                }
+            }
+            val intent = Intent(context, context.javaClass)
+            val pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            s.commit(pi.intentSender)
         }
     }
 

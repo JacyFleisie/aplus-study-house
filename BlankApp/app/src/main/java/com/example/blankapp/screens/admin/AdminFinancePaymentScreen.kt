@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,8 +32,9 @@ fun AdminFinancePaymentScreen(
     var showProofDialog by remember { mutableStateOf(false) }
     var selectedPayment by remember { mutableStateOf<MockPayment?>(null) }
     var rejectionReason by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     
-    // Mock cash payment data
+    // Cash payment data
     var cashStudentName by remember { mutableStateOf("") }
     var cashAmount by remember { mutableStateOf("") }
     var cashDescription by remember { mutableStateOf("") }
@@ -146,7 +148,11 @@ fun AdminFinancePaymentScreen(
                 Button(
                     onClick = {
                         showVerifyDialog = false
-                        // TODO: Update payment status to verified
+                        scope.launch {
+                            selectedPayment?.let { payment ->
+                                SupabaseRepository.updatePaymentStatus(payment.id, "verified")
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Success)
                 ) {
@@ -185,7 +191,11 @@ fun AdminFinancePaymentScreen(
                 Button(
                     onClick = {
                         showRejectDialog = false
-                        // TODO: Update payment status to rejected
+                        scope.launch {
+                            selectedPayment?.let { payment ->
+                                SupabaseRepository.updatePaymentStatus(payment.id, "rejected")
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Error)
                 ) {
@@ -211,29 +221,26 @@ fun AdminFinancePaymentScreen(
             },
             text = {
                 Column {
-                    // Mock proof preview (a stylized POP image placeholder)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                            .background(PrimaryContainer, RoundedCornerShape(12.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Filled.Receipt,
-                                contentDescription = "POP Preview",
-                                tint = Primary,
-                                modifier = Modifier.size(56.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "POP_${selectedPayment!!.reference}.jpg",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                    // Show real POP URL
+                    if (selectedPayment?.proofUrl != null) {
+                        Text("Payment proof:", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = selectedPayment!!.proofUrl!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Primary
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = { /* Open URL in browser */ },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Open in Browser")
                         }
+                    } else {
+                        Text("No proof of payment uploaded.", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -314,10 +321,12 @@ fun AdminFinancePaymentScreen(
                 Button(
                     onClick = {
                         showRecordCashDialog = false
-                        cashStudentName = ""
-                        cashAmount = ""
-                        cashDescription = ""
-                        // TODO: Save cash payment
+                        scope.launch {
+                            SupabaseRepository.saveCashPayment(cashStudentName, cashAmount, cashDescription)
+                            cashStudentName = ""
+                            cashAmount = ""
+                            cashDescription = ""
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Secondary)
                 ) {

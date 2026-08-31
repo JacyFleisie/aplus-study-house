@@ -760,6 +760,60 @@ object SupabaseRepository {
     }
 
     // ============================================
+    /**
+     * Update payment status (verified/rejected).
+     */
+    suspend fun updatePaymentStatus(paymentId: String, status: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("status", status)
+                if (status == "verified") {
+                    put("verified_at", "now()")
+                }
+                if (status == "rejected") {
+                    put("rejected_at", "now()")
+                }
+            }
+            val result = SupabaseConfig.supabasePatch(
+                table = "payments",
+                query = "id=eq.$paymentId",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Update payment status", e)
+            false
+        }
+    }
+
+    /**
+     * Save a cash payment record.
+     */
+    suspend fun saveCashPayment(studentName: String, amount: String, description: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("student_name", InputSanitizer.sanitizeName(studentName))
+                put("amount", amount.toDoubleOrNull() ?: 0.0)
+                put("description", InputSanitizer.sanitizeText(description))
+                put("payment_method", "cash")
+                put("status", "verified")
+                put("created_at", "now()")
+            }
+            val result = SupabaseConfig.supabasePost(
+                table = "payments",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Save cash payment", e)
+            false
+        }
+    }
+
     // ============================================
     // STUDENT CREATION FROM APPLICATION
     // ============================================
