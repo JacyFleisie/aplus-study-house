@@ -46,6 +46,8 @@ fun ApplicationReviewScreen(
     var showApproveDialog by remember { mutableStateOf(false) }
     var showRejectDialog by remember { mutableStateOf(false) }
     var showChangesDialog by remember { mutableStateOf(false) }
+    var showPopViewer by remember { mutableStateOf(false) }
+    var popViewed by remember { mutableStateOf(false) }
     var decisionMade by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -370,25 +372,51 @@ fun ApplicationReviewScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Approve Button
-                Button(
-                    onClick = { showApproveDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Success,
-                        contentColor = OnPrimary
-                    )
-                ) {
-                    Icon(Icons.Filled.CheckCircle, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Approve Application",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                // View POP Button (if payment proof exists)
+                if (!application.paymentProofUrl.isNullOrBlank()) {
+                    OutlinedButton(
+                        onClick = { showPopViewer = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Primary
+                        )
+                    ) {
+                        Icon(Icons.Filled.Visibility, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "View Proof of Payment",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                // Approve Button (only after viewing POP)
+                if (popViewed || application.paymentProofUrl.isNullOrBlank()) {
+                    Button(
+                        onClick = { showApproveDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Success,
+                            contentColor = OnPrimary
+                        )
+                    ) {
+                        Icon(Icons.Filled.CheckCircle, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Approve Application",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -529,6 +557,48 @@ fun ApplicationReviewScreen(
                 onDecisionMade()
             },
             onDismiss = { showApproveDialog = false }
+        )
+    }
+
+    // POP Viewer Dialog
+    if (showPopViewer) {
+        AlertDialog(
+            onDismissRequest = { showPopViewer = false },
+            title = { Text("Proof of Payment", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text("Payment proof has been uploaded for this application.", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("URL: ${application.paymentProofUrl}", style = MaterialTheme.typography.bodySmall, color = Primary)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = {
+                            // Open URL in browser
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(application.paymentProofUrl))
+                                // context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Handle error
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Open in Browser")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showPopViewer = false
+                        popViewed = true
+                    }
+                ) {
+                    Text("Done")
+                }
+            }
         )
     }
 

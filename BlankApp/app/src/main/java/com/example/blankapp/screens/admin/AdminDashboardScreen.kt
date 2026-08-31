@@ -62,19 +62,11 @@ fun AdminDashboardScreen(
                 },
                 actions = {
                     IconButton(onClick = { showMessages = true }) {
-                        BadgedBox(
-                            badge = {
-                                Badge {
-                                    Text("3")
-                                }
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.Mail,
-                                contentDescription = "Messages",
-                                tint = OnBackground
-                            )
-                        }
+                        Icon(
+                            Icons.Filled.Mail,
+                            contentDescription = "Messages",
+                            tint = OnBackground
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

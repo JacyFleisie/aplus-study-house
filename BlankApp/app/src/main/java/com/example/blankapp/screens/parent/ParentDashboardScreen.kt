@@ -96,19 +96,11 @@ fun ParentDashboardScreen(
                         )
                     }
                     IconButton(onClick = { showNotifications = true }) {
-                        BadgedBox(
-                            badge = {
-                                Badge {
-                                    Text("2")
-                                }
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.Notifications,
-                                contentDescription = "Notifications",
-                                tint = OnBackground
-                            )
-                        }
+                        Icon(
+                            Icons.Filled.Notifications,
+                            contentDescription = "Notifications",
+                            tint = OnBackground
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
