@@ -156,65 +156,70 @@ fun AdminSettingsTab(
     }
 }
 
+enum class UpdateState {
+    IDLE,
+    CHECKING,
+    DOWNLOADING,
+    INSTALLED,
+    ERROR
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var checking by remember { mutableStateOf(false) }
-    var downloading by remember { mutableStateOf(false) }
+    
+    var updateState by remember { mutableStateOf(UpdateState.IDLE) }
     var downloadProgress by remember { mutableStateOf(0f) }
-    var info by remember { mutableStateOf<UpdateInfo?>(null) }
-    var errorMsg by remember { mutableStateOf<String?>(null) }
-    var installLaunched by remember { mutableStateOf(false) }
+    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val animatedProgress by animateFloatAsState(
         targetValue = downloadProgress,
         label = "progress"
     )
 
-    fun runCheck() {
+    fun checkForUpdates() {
         scope.launch {
-            checking = true
-            errorMsg = null
+            updateState = UpdateState.CHECKING
+            errorMessage = null
             try {
-                info = AppUpdater.checkForUpdate()
+                updateInfo = AppUpdater.checkForUpdate()
+                updateState = UpdateState.IDLE
             } catch (e: Exception) {
-                errorMsg = e.message ?: "Update check failed"
-            } finally {
-                checking = false
+                Log.e(TAG, "Check failed", e)
+                errorMessage = e.message ?: "Update check failed"
+                updateState = UpdateState.ERROR
             }
         }
     }
 
-    fun runDownloadAndInstall() {
+    fun downloadAndInstall() {
         scope.launch {
-            downloading = true
+            updateState = UpdateState.DOWNLOADING
             downloadProgress = 0f
-            errorMsg = null
+            errorMessage = null
             try {
-                val result = info ?: AppUpdater.checkForUpdate()
+                val result = updateInfo ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
                     Log.d(TAG, "Starting download from: ${result.downloadUrl}")
                     val file = AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
                         downloadProgress = progress
                     }
-                    downloadProgress = 0.9f
+                    downloadProgress = 0.95f
                     Log.d(TAG, "Download complete, launching installer")
                     AppUpdater.installApk(context, file)
                     downloadProgress = 1f
-                    // Mark install as launched so UI updates
-                    installLaunched = true
-                    // Clear info to prevent showing "Download & Install" again
-                    info = null
+                    updateState = UpdateState.INSTALLED
                 } else {
-                    errorMsg = "No download URL available"
+                    errorMessage = "No download URL available"
+                    updateState = UpdateState.ERROR
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Update failed", e)
-                errorMsg = e.message ?: "Update failed"
-            } finally {
-                downloading = false
+                errorMessage = e.message ?: "Update failed"
+                updateState = UpdateState.ERROR
             }
         }
     }
@@ -298,8 +303,61 @@ fun AboutScreen(onBack: () -> Unit) {
 
             // Update Section
             InfoSection(title = "Updates") {
-                when {
-                    checking -> {
+                when (updateState) {
+                    UpdateState.IDLE -> {
+                        if (updateInfo?.available == true) {
+                            Column {
+                                Text(
+                                    "Update available: ${updateInfo!!.latestVersion}",
+                                    color = Success,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                if (updateInfo!!.apkSizeBytes > 0) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        "Size: %.1f MB".format(updateInfo!!.apkSizeBytes / (1024.0 * 1024.0)),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = OnSurfaceVariant
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = { downloadAndInstall() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Download, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Download & Install")
+                                }
+                            }
+                        } else if (updateInfo != null) {
+                            Column {
+                                Text(
+                                    "You're on the latest version",
+                                    color = OnSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                OutlinedButton(
+                                    onClick = { checkForUpdates() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Check Again")
+                                }
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check for Updates")
+                            }
+                        }
+                    }
+                    UpdateState.CHECKING -> {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
@@ -309,7 +367,7 @@ fun AboutScreen(onBack: () -> Unit) {
                             Text("Checking for updates...")
                         }
                     }
-                    downloading -> {
+                    UpdateState.DOWNLOADING -> {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Text("Downloading update… ${(animatedProgress * 100).toInt()}%")
                             Spacer(modifier = Modifier.height(8.dp))
@@ -319,7 +377,7 @@ fun AboutScreen(onBack: () -> Unit) {
                             )
                         }
                     }
-                    installLaunched -> {
+                    UpdateState.INSTALLED -> {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Install launched!",
@@ -335,8 +393,8 @@ fun AboutScreen(onBack: () -> Unit) {
                             Spacer(modifier = Modifier.height(12.dp))
                             OutlinedButton(
                                 onClick = { 
-                                    installLaunched = false
-                                    runCheck()
+                                    updateState = UpdateState.IDLE
+                                    checkForUpdates()
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -346,55 +404,21 @@ fun AboutScreen(onBack: () -> Unit) {
                             }
                         }
                     }
-                    info?.available == true -> {
-                        Column {
+                    UpdateState.ERROR -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                "Update available: ${info!!.latestVersion}",
-                                color = Success,
-                                fontWeight = FontWeight.SemiBold
+                                errorMessage ?: "An error occurred",
+                                color = Error
                             )
-                            if (info!!.apkSizeBytes > 0) {
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    "Size: %.1f MB".format(info!!.apkSizeBytes / (1024.0 * 1024.0)),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = OnSurfaceVariant
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Button(
-                                onClick = { runDownloadAndInstall() },
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(Icons.Filled.Download, contentDescription = null)
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Download & Install")
-                            }
-                        }
-                    }
-                    info != null -> {
-                        Text(
-                            "You're on the latest version",
-                            color = OnSurfaceVariant
-                        )
-                    }
-                    errorMsg != null -> {
-                        Column {
-                            Text(errorMsg!!, color = Error)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedButton(onClick = { runCheck() }) {
                                 Text("Retry")
                             }
-                        }
-                    }
-                    else -> {
-                        OutlinedButton(
-                            onClick = { runCheck() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(Icons.Filled.Refresh, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Check for Updates")
                         }
                     }
                 }
