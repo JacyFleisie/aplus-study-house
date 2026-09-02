@@ -35,11 +35,18 @@ fun ParentDashboardScreen(
     var showNotifications by remember { mutableStateOf(false) }
     var showDocuments by remember { mutableStateOf(false) }
     var showCompose by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
 
     // Gate: Require at least one registered child
     com.example.blankapp.navigation.RequireRegisteredChild(
         onRegisterChild = onNavigateToRegistration
     ) {
+
+    // About screen has its own top bar - hide bottom nav
+    if (showAbout) {
+        ParentAboutScreen(onBack = { showAbout = false })
+        return@RequireRegisteredChild
+    }
 
     if (showNotifications) {
         ParentNotificationsScreen(
@@ -158,6 +165,7 @@ fun ParentDashboardScreen(
                 ParentTab.MESSAGES -> ParentMessagesScreen()
                 ParentTab.PROFILE -> ParentProfileScreen(
                     onLogout = onLogout,
+                    onNavigateToAbout = { showAbout = true },
                     onNavigateToNotifications = { showNotifications = true }
                 )
             }

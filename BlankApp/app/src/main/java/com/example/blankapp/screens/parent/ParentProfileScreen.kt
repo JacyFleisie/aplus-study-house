@@ -1,8 +1,9 @@
 package com.example.blankapp.screens.parent
 
-import android.content.pm.PackageManager
-import androidx.compose.foundation.background
+import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -10,77 +11,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import com.example.blankapp.BuildConfig
 import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.ui.theme.*
 import com.example.blankapp.updater.AppUpdater
 import com.example.blankapp.updater.UpdateInfo
-import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
+
+private const val TAG = "ParentProfile"
 
 @Composable
 fun ParentProfileScreen(
     onLogout: () -> Unit,
+    onNavigateToAbout: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser = AuthRepository.getCurrentUser()
     val scope = rememberCoroutineScope()
-
-    var showAbout by remember { mutableStateOf(false) }
-    var showEditProfile by remember { mutableStateOf(false) }
-    var showPrivacy by remember { mutableStateOf(false) }
-    var showHelp by remember { mutableStateOf(false) }
-    var showPasswordDialog by remember { mutableStateOf(false) }
-    var passwordSent by remember { mutableStateOf<String?>(null) }
-
-    // Self-update state (About dialog hosts the update check)
-    var checkingUpdate by remember { mutableStateOf(false) }
-    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
-    var updateError by remember { mutableStateOf<String?>(null) }
-
-    fun checkForUpdate() {
-        scope.launch {
-            checkingUpdate = true
-            updateError = null
-            try {
-                val result = AppUpdater.checkForUpdate()
-                updateInfo = result
-                if (result.available && result.downloadUrl != null) {
-                    val file = AppUpdater.downloadApk(context, result.downloadUrl)
-                    AppUpdater.installApk(context, file)
-                }
-            } catch (e: Exception) {
-                updateError = e.message ?: "Update check failed"
-            } finally {
-                checkingUpdate = false
-            }
-        }
-    }
-
-    // App version from the build
-    val versionName = remember {
-        try {
-            val pm = context.packageManager
-            val info = pm.getPackageInfo(context.packageName, 0)
-            info.versionName ?: BuildConfig.VERSION_NAME
-        } catch (_: PackageManager.NameNotFoundException) {
-            BuildConfig.VERSION_NAME
-        }
-    }
-    val versionCode = remember {
-        try {
-            @Suppress("DEPRECATION")
-            context.packageManager.getPackageInfo(context.packageName, 0).versionCode
-        } catch (_: PackageManager.NameNotFoundException) { BuildConfig.VERSION_CODE }
-    }
 
     Column(
         modifier = Modifier
@@ -137,23 +93,12 @@ fun ParentProfileScreen(
                 Text(text = currentUser?.email ?: "", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = currentUser?.phone ?: "", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
-
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedButton(
-                    onClick = { showEditProfile = true },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
-                ) {
-                    Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Edit Profile")
-                }
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Settings Section
         Text(
             text = "Settings",
             style = MaterialTheme.typography.titleMedium,
@@ -170,44 +115,31 @@ fun ParentProfileScreen(
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                 SettingsItem(
-                    icon = Icons.Outlined.Notifications,
+                    icon = Icons.Filled.Notifications,
                     title = "Notifications",
                     subtitle = "Manage notification preferences",
                     onClick = onNavigateToNotifications
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
                 SettingsItem(
-                    icon = Icons.Outlined.Lock,
+                    icon = Icons.Filled.Lock,
                     title = "Change Password",
                     subtitle = "Email yourself a reset link",
-                    onClick = { showPasswordDialog = true }
+                    onClick = { /* TODO */ }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
                 SettingsItem(
-                    icon = Icons.Outlined.Security,
-                    title = "Privacy & Security",
-                    subtitle = "How your data is protected",
-                    onClick = { showPrivacy = true }
-                )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
-                SettingsItem(
-                    icon = Icons.Outlined.Help,
-                    title = "Help & Support",
-                    subtitle = "Get help or contact support",
-                    onClick = { showHelp = true }
-                )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
-                SettingsItem(
-                    icon = Icons.Outlined.Info,
+                    icon = Icons.Filled.Info,
                     title = "About",
-                    subtitle = "App version $versionName",
-                    onClick = { showAbout = true }
+                    subtitle = "App version ${AppUpdater.currentVersion()}",
+                    onClick = onNavigateToAbout
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Logout Button
         Button(
             onClick = onLogout,
             modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -219,157 +151,355 @@ fun ParentProfileScreen(
             Text(text = "Log Out", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "A+ Study House v$versionName (build $versionCode)",
-            style = MaterialTheme.typography.bodySmall,
-            color = OnSurfaceVariant,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
         Spacer(modifier = Modifier.height(24.dp))
     }
+}
 
-    // ---- Dialogs ----
+enum class UpdateState {
+    IDLE,
+    CHECKING,
+    DOWNLOADING,
+    INSTALLED,
+    ERROR
+}
 
-    if (showAbout) {
-        AlertDialog(
-            onDismissRequest = { showAbout = false },
-            title = { Text("About A+ Study House") },
-            text = {
-                Column {
-                    Text("Version: $versionName (build $versionCode)")
-                    Spacer(Modifier.height(8.dp))
-                    Text("A+ Study House — aftercare, tutoring & study centre.")
-                    Spacer(Modifier.height(8.dp))
-                    Text("Witpoortjie, Roodepoort")
-                    Spacer(Modifier.height(12.dp))
-                    // Inline update status (no separate screen needed)
-                    when {
-                        checkingUpdate -> Text("Checking for updates…")
-                        updateInfo?.available == true -> {
-                            Text("Update available: ${updateInfo!!.latestVersion}")
-                            if (updateInfo!!.notes.isNotBlank()) {
-                                Spacer(Modifier.height(4.dp))
-                                Text(updateInfo!!.notes, style = MaterialTheme.typography.bodySmall)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ParentAboutScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    
+    var updateState by remember { mutableStateOf(UpdateState.IDLE) }
+    var downloadProgress by remember { mutableStateOf(0f) }
+    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = downloadProgress,
+        label = "progress"
+    )
+
+    fun checkForUpdates() {
+        scope.launch {
+            updateState = UpdateState.CHECKING
+            errorMessage = null
+            try {
+                updateInfo = AppUpdater.checkForUpdate()
+                updateState = UpdateState.IDLE
+            } catch (e: Exception) {
+                Log.e(TAG, "Check failed", e)
+                errorMessage = e.message ?: "Update check failed"
+                updateState = UpdateState.ERROR
+            }
+        }
+    }
+
+    fun downloadAndInstall() {
+        scope.launch {
+            updateState = UpdateState.DOWNLOADING
+            downloadProgress = 0f
+            errorMessage = null
+            try {
+                val result = updateInfo ?: AppUpdater.checkForUpdate()
+                if (result.available && result.downloadUrl != null) {
+                    Log.d(TAG, "Starting download from: ${result.downloadUrl}")
+                    val file = AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
+                        downloadProgress = progress
+                    }
+                    downloadProgress = 0.9f
+                    AppUpdater.installApk(context, file)
+                    downloadProgress = 1f
+                    updateState = UpdateState.INSTALLED
+                } else {
+                    errorMessage = "No download URL available"
+                    updateState = UpdateState.ERROR
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Update failed", e)
+                errorMessage = e.message ?: "Update failed"
+                updateState = UpdateState.ERROR
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("About") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Surface,
+                    titleContentColor = OnBackground
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Hero Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Primary, PrimaryContainer)
+                        )
+                    )
+                    .padding(vertical = 48.dp, horizontal = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // App Icon
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(Surface),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.School,
+                            contentDescription = null,
+                            tint = Primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "A+ Study House",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Version ${AppUpdater.currentVersion()}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = OnPrimary.copy(alpha = 0.8f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // App Info Section
+            InfoSection(title = "App Information") {
+                InfoRow(label = "Version", value = AppUpdater.currentVersion())
+                InfoRow(label = "Build Type", value = if (com.example.blankapp.BuildConfig.DEBUG) "Debug" else "Release")
+                InfoRow(label = "Package", value = context.packageName)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Update Section
+            InfoSection(title = "Updates") {
+                when (updateState) {
+                    UpdateState.IDLE -> {
+                        if (updateInfo?.available == true) {
+                            Column {
+                                Text(
+                                    "Update available: ${updateInfo!!.latestVersion}",
+                                    color = Success,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                if (updateInfo!!.apkSizeBytes > 0) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        "Size: %.1f MB".format(updateInfo!!.apkSizeBytes / (1024.0 * 1024.0)),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = OnSurfaceVariant
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = { downloadAndInstall() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Download, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Download & Install")
+                                }
+                            }
+                        } else if (updateInfo != null) {
+                            Column {
+                                Text(
+                                    "You're on the latest version",
+                                    color = OnSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                OutlinedButton(
+                                    onClick = { checkForUpdates() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Check Again")
+                                }
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check for Updates")
                             }
                         }
-                        updateInfo != null -> Text("You are on the latest version (${updateInfo!!.currentVersion}).")
-                        updateError != null -> Text(updateError!!, color = MaterialTheme.colorScheme.error)
                     }
-                }
-            },
-            confirmButton = {
-                if (updateInfo?.available == true) {
-                    TextButton(
-                        onClick = { checkForUpdate() }
-                    ) { Text("Download & Install") }
-                } else {
-                    TextButton(onClick = { showAbout = false }) { Text("OK") }
-                }
-            },
-            dismissButton = {
-                if (!checkingUpdate) {
-                    TextButton(onClick = { checkForUpdate() }) {
-                        Text(if (updateInfo?.available == true) "Re-check" else "Check for Updates")
+                    UpdateState.CHECKING -> {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Checking for updates...")
+                        }
+                    }
+                    UpdateState.DOWNLOADING -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text("Downloading update… ${(animatedProgress * 100).toInt()}%")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { animatedProgress },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                    UpdateState.INSTALLED -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "Install launched!",
+                                color = Success,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "Check your notifications or open the installer to complete the update.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = { 
+                                    updateState = UpdateState.IDLE
+                                    checkForUpdates()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check Again")
+                            }
+                        }
+                    }
+                    UpdateState.ERROR -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                errorMessage ?: "An error occurred",
+                                color = Error
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Retry")
+                            }
+                        }
                     }
                 }
             }
-        )
-    }
 
-    if (showPrivacy) {
-        AlertDialog(
-            onDismissRequest = { showPrivacy = false },
-            title = { Text("Privacy & Security") },
-            text = {
-                Text(
-                    "Your account is protected by Supabase authentication. Records are " +
-                    "access-controlled per family — parents see only their own children's data, " +
-                    "and administrators see operational records needed to run the centre. " +
-                    "Passwords are never stored in the app."
-                )
-            },
-            confirmButton = { TextButton(onClick = { showPrivacy = false }) { Text("OK") } }
-        )
-    }
+            Spacer(modifier = Modifier.height(16.dp))
 
-    if (showHelp) {
-        AlertDialog(
-            onDismissRequest = { showHelp = false },
-            title = { Text("Help & Support") },
-            text = {
-                Text(
-                    "For help with your account, registrations, invoices or payments, " +
-                    "email admin@aplusstudy.co.za or message the office through the Messages tab."
-                )
-            },
-            confirmButton = { TextButton(onClick = { showHelp = false }) { Text("OK") } }
-        )
-    }
+            // Credits Section
+            InfoSection(title = "Credits") {
+                InfoRow(label = "Developer", value = "A+ Study House")
+                InfoRow(label = "Location", value = "Witpoortjie, Roodepoort")
+                InfoRow(label = "Contact", value = "admin@aplusstudy.co.za")
+            }
 
-    if (showPasswordDialog) {
-        AlertDialog(
-            onDismissRequest = { showPasswordDialog = false },
-            title = { Text("Change Password") },
-            text = {
-                Column {
-                    Text("We'll email a password reset link to ${currentUser?.email ?: "your address"}.")
-                    passwordSent?.let {
-                        Spacer(Modifier.height(8.dp))
-                        Text(it, color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val email = currentUser?.email ?: ""
-                    if (email.isNotBlank()) {
-                        scope.launch {
-                            AuthRepository.resetPassword(email)
-                            passwordSent = "Reset link sent. Check your inbox."
-                        }
-                    }
-                    showPasswordDialog = false
-                }) { Text("Send link") }
-            },
-            dismissButton = { TextButton(onClick = { showPasswordDialog = false }) { Text("Cancel") } }
-        )
-    }
+            Spacer(modifier = Modifier.height(24.dp))
 
-    if (showEditProfile) {
-        var name by remember { mutableStateOf(currentUser?.fullName ?: "") }
-        var phone by remember { mutableStateOf(currentUser?.phone ?: "") }
-        AlertDialog(
-            onDismissRequest = { showEditProfile = false },
-            title = { Text("Edit Profile") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text("Full name") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+            // Description
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "About",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
                     )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
-                        label = { Text("Phone") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "A+ Study House is an aftercare, tutoring and study centre dedicated to helping students achieve their academic potential.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
                     )
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val updated = currentUser?.copy(fullName = name, phone = phone)
-                    updated?.let { AuthRepository.updateCurrentUser(it) }
-                    showEditProfile = false
-                }) { Text("Save") }
-            },
-            dismissButton = { TextButton(onClick = { showEditProfile = false }) { Text("Cancel") } }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun InfoSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = OnBackground
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            content()
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = OnSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = OnBackground
         )
     }
 }
