@@ -47,12 +47,6 @@ fun AdminDashboardScreen(
         return
     }
 
-    // Messages tab has its own top bar - hide bottom nav
-    if (selectedTab == AdminTab.MESSAGES) {
-        AdminMessagesScreen(onBack = { selectedTab = AdminTab.HOME })
-        return
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(

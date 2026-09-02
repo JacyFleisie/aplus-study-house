@@ -45,33 +45,22 @@ fun AdminMessagesScreen(onBack: () -> Unit) {
             onBack = { selectedParent = null }
         )
     } else {
-        // Contacts list
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Messages") },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Surface,
-                        titleContentColor = OnBackground
-                    )
-                )
-            }
-        ) { paddingValues ->
+        // Contacts list - content fills available space (parent Scaffold provides padding)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Background)
+        ) {
             if (isLoading) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Primary)
                 }
             } else if (parents.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -98,7 +87,6 @@ fun AdminMessagesScreen(onBack: () -> Unit) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
                         .background(Background)
                 ) {
                     items(parents) { parent ->
