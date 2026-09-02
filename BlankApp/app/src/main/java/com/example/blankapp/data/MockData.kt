@@ -336,6 +336,15 @@ enum class DocumentCategory {
 
 val mockDocuments = mutableListOf<MockDocument>()
 
+// Helper functions
+fun getDocumentsByParent(parentId: String): List<MockDocument> {
+    return mockDocuments.filter { it.parentId == parentId }
+}
+
+fun getDocumentsByStudent(studentId: String): List<MockDocument> {
+    return mockDocuments.filter { it.studentId == studentId }
+}
+
 // ============================================
 // PERMISSION DATA
 // ============================================
@@ -480,14 +489,6 @@ fun getStudentsByParent(parentId: String): List<MockStudent> {
 
 fun getInvoicesByStudent(studentId: String): List<MockInvoice> {
     return mockInvoices.filter { it.studentId == studentId }
-}
-
-fun getDocumentsByParent(parentId: String): List<MockDocument> {
-    return mockDocuments.filter { it.parentId == parentId }
-}
-
-fun getDocumentsByStudent(studentId: String): List<MockDocument> {
-    return mockDocuments.filter { it.studentId == studentId }
 }
 
 fun getApplicationsByParent(parentId: String): List<MockApplication> {

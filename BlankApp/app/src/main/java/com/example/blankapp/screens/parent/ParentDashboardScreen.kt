@@ -33,7 +33,6 @@ fun ParentDashboardScreen(
 ) {
     var selectedTab by remember { mutableStateOf(ParentTab.HOME) }
     var showNotifications by remember { mutableStateOf(false) }
-    var showDocuments by remember { mutableStateOf(false) }
     var showCompose by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
 
@@ -51,13 +50,6 @@ fun ParentDashboardScreen(
     if (showNotifications) {
         ParentNotificationsScreen(
             onBack = { showNotifications = false }
-        )
-        return@RequireRegisteredChild
-    }
-
-    if (showDocuments) {
-        ParentDocumentsScreen(
-            onBack = { showDocuments = false }
         )
         return@RequireRegisteredChild
     }
@@ -94,13 +86,6 @@ fun ParentDashboardScreen(
                                 tint = OnBackground
                             )
                         }
-                    }
-                    IconButton(onClick = { showDocuments = true }) {
-                        Icon(
-                            Icons.Filled.Folder,
-                            contentDescription = "Documents",
-                            tint = OnBackground
-                        )
                     }
                     IconButton(onClick = { showNotifications = true }) {
                         Icon(
@@ -153,7 +138,6 @@ fun ParentDashboardScreen(
                 ParentTab.HOME -> ParentHomeScreen(
                     onNavigateToChildren = { selectedTab = ParentTab.CHILDREN },
                     onNavigateToFinance = { selectedTab = ParentTab.FINANCE },
-                    onNavigateToDocuments = { showDocuments = true },
                     onNavigateToRegistration = onNavigateToRegistration
                 )
                 ParentTab.CHILDREN -> ParentChildrenScreen(

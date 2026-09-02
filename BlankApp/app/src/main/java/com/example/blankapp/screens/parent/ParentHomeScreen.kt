@@ -30,13 +30,11 @@ import androidx.compose.runtime.collectAsState
 fun ParentHomeScreen(
     onNavigateToChildren: () -> Unit,
     onNavigateToFinance: () -> Unit,
-    onNavigateToDocuments: () -> Unit,
     onNavigateToRegistration: () -> Unit = {},
     viewModel: ParentHomeViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
     val children by viewModel.children.collectAsState()
-    val documents by viewModel.documents.collectAsState()
     val balance by viewModel.balance.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -112,19 +110,6 @@ fun ParentHomeScreen(
                     }
                     Column {
                         Text(
-                            text = "Documents",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = OnPrimary.copy(alpha = 0.7f)
-                        )
-                        Text(
-                            text = documents.size.toString(),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = OnPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Column {
-                        Text(
                             text = "Balance",
                             style = MaterialTheme.typography.bodySmall,
                             color = OnPrimary.copy(alpha = 0.7f)
@@ -191,13 +176,6 @@ fun ParentHomeScreen(
                 label = "Finance",
                 color = Success,
                 onClick = onNavigateToFinance,
-                modifier = Modifier.weight(1f)
-            )
-            QuickActionButton(
-                icon = Icons.Filled.Description,
-                label = "Documents",
-                color = Secondary,
-                onClick = onNavigateToDocuments,
                 modifier = Modifier.weight(1f)
             )
         }
