@@ -1,5 +1,6 @@
 package com.example.blankapp.navigation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -36,17 +37,23 @@ fun RequireRegisteredChild(
 
     LaunchedEffect(parentId) {
         val result = try {
+            // Check if parent has active students (means registration was approved)
             val students = SupabaseRepository.getParentStudents(parentId)
             if (students.isNotEmpty()) {
+                Log.d("RegistrationGate", "Parent $parentId has ${students.size} students")
                 true
             } else {
+                // Also check for approved/payment_verified applications (in case student creation failed but app is approved)
                 val applications = SupabaseRepository.getParentApplications(parentId)
-                applications.any {
+                val hasApprovedApp = applications.any {
                     it.status == com.example.blankapp.data.ApplicationStatus.APPROVED ||
                     it.status == com.example.blankapp.data.ApplicationStatus.PAYMENT_VERIFIED
                 }
+                Log.d("RegistrationGate", "Parent $parentId has approved app: $hasApprovedApp")
+                hasApprovedApp
             }
         } catch (e: Exception) {
+            Log.e("RegistrationGate", "Error checking children", e)
             false
         }
         hasChildren = result

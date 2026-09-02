@@ -1,5 +1,6 @@
 package com.example.blankapp.data
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -12,6 +13,7 @@ import com.example.blankapp.utils.InputSanitizer
  * RLS policies enforce access control at the database level
  */
 object SupabaseRepository {
+    private const val TAG = "SupabaseRepository"
 
     private fun isUsingBackend(): Boolean = SupabaseConfig.isConfigured()
     private fun authToken(): String? = AuthRepository.getCurrentAuthToken()
@@ -39,20 +41,20 @@ object SupabaseRepository {
         try {
             val result = SupabaseConfig.supabaseGet(
                 table = "students",
-                query = "parent_id=eq.$parentId&select=*,student_sports(*),collection_persons(*),medical_info(*)",
+                query = "parent_id=eq.$parentId&select=*",
                 authToken = authToken()
-            ) ?: return@withContext getMockStudentsForParent(parentId)
+            ) ?: return@withContext emptyList()
 
             val arr = JSONArray(result)
             val students = mutableListOf<MockStudent>()
             for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                students.add(parseStudent(obj))
+                students.add(parseStudent(arr.getJSONObject(i)))
             }
+            Log.d(TAG, "getParentStudents for $parentId: Found ${students.size} students")
             students
         } catch (e: Exception) {
-            recordError("Backend query", e)
-            getMockStudentsForParent(parentId)
+            recordError("getParentStudents", e)
+            emptyList()
         }
     }
 
@@ -64,17 +66,18 @@ object SupabaseRepository {
                 table = "students",
                 query = "select=*",
                 authToken = authToken()
-            ) ?: return@withContext mockStudents.toList()
+            ) ?: return@withContext emptyList()
 
             val arr = JSONArray(result)
             val students = mutableListOf<MockStudent>()
             for (i in 0 until arr.length()) {
                 students.add(parseStudent(arr.getJSONObject(i)))
             }
+            Log.d(TAG, "getAllStudents: Found ${students.size} students")
             students
         } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockStudents.toList()
+            recordError("getAllStudents", e)
+            emptyList()
         }
     }
 
@@ -648,9 +651,10 @@ object SupabaseRepository {
                     )
                 }
             }
+            Log.d(TAG, "getAllParents: Found ${parents.size} valid parents out of ${arr.length()} profiles")
             parents
         } catch (e: Exception) {
-            recordError("Backend query", e)
+            recordError("getAllParents", e)
             emptyList()
         }
     }
@@ -883,26 +887,60 @@ object SupabaseRepository {
     suspend fun createStudentFromApplication(app: MockApplication): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
         try {
+            // Validate required fields
+            if (app.studentFirstName.isBlank() || app.studentLastName.isBlank()) {
+                recordError("Create student from application", Exception("First name and last name are required"))
+                return@withContext false
+            }
+
+            // Ensure grade is within valid range (1-7)
+            val validGrade = if (app.studentGrade in 1..7) app.studentGrade else 1
+
+            // Parse date_of_birth - table expects DATE format (YYYY-MM-DD)
+            val dobValue = if (app.studentDOB.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+                app.studentDOB
+            } else {
+                null // Let database use default if invalid format
+            }
+
             val body = JSONObject().apply {
                 put("parent_id", app.parentId)
-                put("first_name", app.studentFirstName)
-                put("last_name", app.studentLastName)
-                put("date_of_birth", app.studentDOB)
-                put("grade", app.studentGrade)
-                put("school", app.studentSchool)
-                put("address", app.studentAddress)
-                put("gender", app.studentGender)
-                put("class_number", app.studentClassNumber)
-                put("teacher_name", app.studentTeacherName)
-                put("lsen", app.studentLsen)
+                put("first_name", app.studentFirstName.trim())
+                put("last_name", app.studentLastName.trim())
+                // date_of_birth is optional, only include if valid
+                if (dobValue != null) {
+                    put("date_of_birth", dobValue)
+                }
+                put("grade", validGrade)
+                // school and address are optional
+                if (app.studentSchool.isNotBlank()) put("school", app.studentSchool.trim())
+                if (app.studentAddress.isNotBlank()) put("address", app.studentAddress.trim())
+                // gender is optional with check constraint
+                if (app.studentGender.isNotBlank()) put("gender", app.studentGender)
+                // class_number is optional
+                if (app.studentClassNumber.isNotBlank()) put("class_number", app.studentClassNumber.trim())
+                // teacher_name is optional
+                if (app.studentTeacherName.isNotBlank()) put("teacher_name", app.studentTeacherName.trim())
+                // lsen is BOOLEAN in table - convert from string
+                put("lsen", app.studentLsen.equals("true", ignoreCase = true) || app.studentLsen == "Yes")
                 put("status", "active")
             }
+
+            Log.d(TAG, "Creating student from application: ${body.toString()}")
+
             val result = SupabaseConfig.supabasePost(
                 table = "students",
                 body = body.toString(),
                 authToken = authToken()
             )
-            result != null
+
+            if (result == null) {
+                Log.e(TAG, "Create student failed: null result from API")
+                return@withContext false
+            }
+
+            Log.d(TAG, "Student created successfully: $result")
+            true
         } catch (e: Exception) {
             recordError("Create student from application", e)
             false
