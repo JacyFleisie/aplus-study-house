@@ -16,10 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.screens.admin.components.SettingsItem
 import com.example.blankapp.ui.theme.*
@@ -35,9 +33,6 @@ fun AdminSettingsTab(
     onNavigateToCrashLogs: () -> Unit = {},
     onNavigateToAbout: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -171,6 +166,7 @@ fun AboutScreen(onBack: () -> Unit) {
     var downloadProgress by remember { mutableStateOf(0f) }
     var info by remember { mutableStateOf<UpdateInfo?>(null) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
+    var installLaunched by remember { mutableStateOf(false) }
 
     val animatedProgress by animateFloatAsState(
         targetValue = downloadProgress,
@@ -204,8 +200,13 @@ fun AboutScreen(onBack: () -> Unit) {
                         downloadProgress = progress
                     }
                     downloadProgress = 0.9f
+                    Log.d(TAG, "Download complete, launching installer")
                     AppUpdater.installApk(context, file)
                     downloadProgress = 1f
+                    // Mark install as launched so UI updates
+                    installLaunched = true
+                    // Clear info to prevent showing "Download & Install" again
+                    info = null
                 } else {
                     errorMsg = "No download URL available"
                 }
@@ -316,6 +317,33 @@ fun AboutScreen(onBack: () -> Unit) {
                                 progress = { animatedProgress },
                                 modifier = Modifier.fillMaxWidth()
                             )
+                        }
+                    }
+                    installLaunched -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "Install launched!",
+                                color = Success,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "Check your notifications or open the installer to complete the update.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = { 
+                                    installLaunched = false
+                                    runCheck()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check Again")
+                            }
                         }
                     }
                     info?.available == true -> {
