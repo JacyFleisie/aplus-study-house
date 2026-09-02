@@ -532,6 +532,64 @@ object SupabaseRepository {
         }
     }
 
+    /**
+     * Send a simple text message between two users.
+     */
+    suspend fun sendMessage(senderId: String, recipientId: String, content: String, type: String = "message"): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+
+        try {
+            val sender = AuthRepository.getCurrentUser()
+            val recipient = getAllParents().find { it.id == recipientId }
+            val body = JSONObject().apply {
+                put("thread_id", "thread_${minOf(senderId.hashCode(), recipientId.hashCode())}_${maxOf(senderId.hashCode(), recipientId.hashCode())}")
+                put("sender_id", senderId)
+                put("sender_name", sender?.fullName ?: "Admin")
+                put("recipient_id", recipientId)
+                put("recipient_name", recipient?.fullName ?: "Parent")
+                put("subject", "Message")
+                put("content", InputSanitizer.sanitizeText(content))
+                put("category", type)
+                put("is_read", false)
+            }
+            val result = SupabaseConfig.supabasePost(
+                table = "messages",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Send message", e)
+            false
+        }
+    }
+
+    /**
+     * Get conversation messages between two users.
+     */
+    suspend fun getConversation(userId: String, otherUserId: String): List<MockMessage> = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext emptyList()
+
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "messages",
+                query = "or=(sender_id=eq.$userId,sender_id=eq.$otherUserId)&recipient_id=eq.$otherUserId&order=created_at.asc",
+                authToken = authToken()
+            ) ?: return@withContext emptyList()
+
+            val arr = JSONArray(result)
+            val messages = mutableListOf<MockMessage>()
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                messages.add(parseMessage(obj))
+            }
+            messages
+        } catch (e: Exception) {
+            recordError("Get conversation", e)
+            emptyList()
+        }
+    }
+
     suspend fun getAllParents(): List<MockUser> = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext mockUsers.filter { it.role == UserRole.PARENT }
 
