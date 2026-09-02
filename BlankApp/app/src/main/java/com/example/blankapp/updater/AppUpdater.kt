@@ -1,9 +1,12 @@
 package com.example.blankapp.updater
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.content.FileProvider
 import com.example.blankapp.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +55,7 @@ private data class GithubRelease(
 )
 
 object AppUpdater {
+    private const val TAG = "AppUpdater"
     private const val OWNER = "JacyFleisie"
     private const val REPO = "aplus-study-house"
     private const val RELEASES_URL = "https://api.github.com/repos/$OWNER/$REPO/releases/latest"
@@ -71,6 +75,7 @@ object AppUpdater {
     suspend fun checkForUpdate(): UpdateInfo = withContext(Dispatchers.IO) {
         val cur = currentVersion()
         try {
+            Log.d(TAG, "Checking for updates from: $RELEASES_URL")
             val req = Request.Builder().url(RELEASES_URL)
                 .header("Accept", "application/vnd.github+json")
                 .header("User-Agent", "aplus-study-house-app")
@@ -78,6 +83,7 @@ object AppUpdater {
             val resp = client.newCall(req).execute()
             val bodyStr = resp.body?.string()
             if (!resp.isSuccessful || bodyStr == null) {
+                Log.e(TAG, "Update check failed: HTTP ${resp.code}")
                 return@withContext UpdateInfo(
                     available = false, currentVersion = cur, latestVersion = "",
                     releaseUrl = "", downloadUrl = null, apkSizeBytes = 0,
@@ -88,6 +94,7 @@ object AppUpdater {
             val latest = release.tag_name.removePrefix("v").removePrefix("V")
             val apkAsset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
             val available = isNewer(latest, cur)
+            Log.d(TAG, "Current: $cur, Latest: $latest, Available: $available")
             UpdateInfo(
                 available = available,
                 currentVersion = cur,
@@ -103,6 +110,7 @@ object AppUpdater {
                 }
             )
         } catch (e: Exception) {
+            Log.e(TAG, "Update check failed", e)
             UpdateInfo(
                 available = false, currentVersion = cur, latestVersion = "",
                 releaseUrl = "", downloadUrl = null, apkSizeBytes = 0,
@@ -131,18 +139,18 @@ object AppUpdater {
         // Delete any existing file
         if (outFile.exists()) outFile.delete()
         
-        android.util.Log.d("AppUpdater", "Starting download from: $downloadUrl")
+        Log.d(TAG, "Starting download from: $downloadUrl")
         val req = Request.Builder().url(downloadUrl)
             .header("User-Agent", "aplus-study-house-app")
             .build()
         val resp = client.newCall(req).execute()
-        android.util.Log.d("AppUpdater", "Response code: ${resp.code}")
+        Log.d(TAG, "Response code: ${resp.code}")
         if (!resp.isSuccessful) {
             throw IllegalStateException("Download failed (HTTP ${resp.code})")
         }
         val body = resp.body ?: throw IllegalStateException("Download failed (no body)")
         val contentLength = body.contentLength()
-        android.util.Log.d("AppUpdater", "Content length: $contentLength")
+        Log.d(TAG, "Content length: $contentLength")
         
         body.byteStream().use { input ->
             FileOutputStream(outFile).use { output ->
@@ -154,7 +162,7 @@ object AppUpdater {
                     totalRead += read
                 }
                 output.flush()
-                android.util.Log.d("AppUpdater", "Download complete: $totalRead bytes")
+                Log.d(TAG, "Download complete: $totalRead bytes")
             }
         }
         outFile
@@ -162,19 +170,19 @@ object AppUpdater {
 
     /** Installs the APK using the standard installer intent. */
     fun installApk(context: Context, apkFile: File) {
-        android.util.Log.d("AppUpdater", "Starting install: ${apkFile.absolutePath}")
-        android.util.Log.d("AppUpdater", "File exists: ${apkFile.exists()}, size: ${apkFile.length()}")
+        Log.d(TAG, "Starting install: ${apkFile.absolutePath}")
+        Log.d(TAG, "File exists: ${apkFile.exists()}, size: ${apkFile.length()}")
         
         try {
             verifyApkIntegrity(context, apkFile)
-            android.util.Log.d("AppUpdater", "Integrity check passed")
+            Log.d(TAG, "Integrity check passed")
             
             val uri = FileProvider.getUriForFile(
                 context,
                 context.packageName + ".fileprovider",
                 apkFile
             )
-            android.util.Log.d("AppUpdater", "FileProvider URI: $uri")
+            Log.d(TAG, "FileProvider URI: $uri")
             
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
@@ -186,10 +194,11 @@ object AppUpdater {
             // Check if there's an app to handle this intent
             val packageManager = context.packageManager
             val activities = packageManager.queryIntentActivities(intent, 0)
-            android.util.Log.d("AppUpdater", "Activities that can handle install: ${activities.size}")
+            Log.d(TAG, "Activities that can handle install: ${activities.size}")
             
             if (activities.isEmpty()) {
                 // Fallback: try with ACTION_INSTALL_PACKAGE
+                Log.d(TAG, "No activities for ACTION_VIEW, trying ACTION_INSTALL_PACKAGE")
                 val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
                     data = uri
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -200,9 +209,9 @@ object AppUpdater {
                 context.startActivity(intent)
             }
             
-            android.util.Log.d("AppUpdater", "Install intent launched successfully")
+            Log.d(TAG, "Install intent launched successfully")
         } catch (e: Exception) {
-            android.util.Log.e("AppUpdater", "Install failed", e)
+            Log.e(TAG, "Install failed", e)
             throw e
         }
     }
