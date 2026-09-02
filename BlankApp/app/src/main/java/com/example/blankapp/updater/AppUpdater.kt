@@ -1,10 +1,8 @@
 package com.example.blankapp.updater
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
@@ -16,10 +14,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.security.MessageDigest
-import java.security.cert.Certificate
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 
@@ -94,7 +90,7 @@ object AppUpdater {
             val latest = release.tag_name.removePrefix("v").removePrefix("V")
             val apkAsset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
             val available = isNewer(latest, cur)
-            Log.d(TAG, "Current: $cur, Latest: $latest, Available: $available")
+            Log.d(TAG, "Current: $cur, Latest: $latest, Available: $available, URL: ${apkAsset?.browser_download_url}")
             UpdateInfo(
                 available = available,
                 currentVersion = cur,
@@ -133,13 +129,15 @@ object AppUpdater {
     }
 
     /** Downloads the APK into the app's cache dir and returns the file. */
-    suspend fun downloadApk(context: Context, downloadUrl: String): File = withContext(Dispatchers.IO) {
+    suspend fun downloadApk(context: Context, downloadUrl: String, onProgress: (Float) -> Unit = {}): File = withContext(Dispatchers.IO) {
         val dir = context.cacheDir
         val outFile = File(dir, APK_NAME)
         // Delete any existing file
         if (outFile.exists()) outFile.delete()
         
         Log.d(TAG, "Starting download from: $downloadUrl")
+        onProgress(0.05f)
+        
         val req = Request.Builder().url(downloadUrl)
             .header("User-Agent", "aplus-study-house-app")
             .build()
@@ -151,6 +149,7 @@ object AppUpdater {
         val body = resp.body ?: throw IllegalStateException("Download failed (no body)")
         val contentLength = body.contentLength()
         Log.d(TAG, "Content length: $contentLength")
+        onProgress(0.1f)
         
         body.byteStream().use { input ->
             FileOutputStream(outFile).use { output ->
@@ -160,11 +159,17 @@ object AppUpdater {
                 while (input.read(buf).also { read = it } != -1) {
                     output.write(buf, 0, read)
                     totalRead += read
+                    // Update progress every 100KB
+                    if (contentLength > 0 && totalRead % (100 * 1024) < 8192) {
+                        val progress = 0.1f + (0.7f * totalRead / contentLength)
+                        onProgress(progress)
+                    }
                 }
                 output.flush()
                 Log.d(TAG, "Download complete: $totalRead bytes")
             }
         }
+        onProgress(0.8f)
         outFile
     }
 
@@ -266,7 +271,7 @@ object AppUpdater {
     /** SHA-256 hex of a file (fallback integrity check for API < 28). */
     private fun sha256(file: File): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        FileInputStream(file).use { fis ->
+        file.inputStream().use { fis ->
             val buf = ByteArray(8192)
             var read: Int
             while (fis.read(buf).also { read = it } != -1) {

@@ -1,5 +1,6 @@
 package com.example.blankapp.screens.admin.tabs
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,8 @@ import com.example.blankapp.ui.theme.*
 import com.example.blankapp.updater.AppUpdater
 import com.example.blankapp.updater.UpdateInfo
 import kotlinx.coroutines.launch
+
+private const val TAG = "AdminSettings"
 
 @Composable
 fun AdminSettingsTab(
@@ -50,7 +53,6 @@ fun AdminSettingsTab(
         }
     }
 
-    // Don't auto-close dialog - keep it open to show download progress
     fun runDownloadAndInstall() {
         scope.launch {
             downloading = true
@@ -59,20 +61,20 @@ fun AdminSettingsTab(
             try {
                 val result = info ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
-                    // Keep dialog open - show download progress
-                    downloadProgress = 0.1f
-                    android.util.Log.d("AdminSettings", "Starting download from: ${result.downloadUrl}")
-                    val file = AppUpdater.downloadApk(context, result.downloadUrl)
-                    downloadProgress = 0.8f
-                    android.util.Log.d("AdminSettings", "Download complete, starting install")
+                    Log.d(TAG, "Starting download from: ${result.downloadUrl}")
+                    val file = AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
+                        downloadProgress = progress
+                    }
+                    downloadProgress = 0.9f
+                    Log.d(TAG, "Download complete, starting install")
                     AppUpdater.installApk(context, file)
                     downloadProgress = 1f
-                    android.util.Log.d("AdminSettings", "Install launched successfully")
+                    Log.d(TAG, "Install launched successfully")
                 } else {
                     errorMsg = "No download URL available"
                 }
             } catch (e: Exception) {
-                android.util.Log.e("AdminSettings", "Update failed", e)
+                Log.e(TAG, "Update failed", e)
                 errorMsg = e.message ?: "Update failed"
             } finally {
                 downloading = false
@@ -103,7 +105,6 @@ fun AdminSettingsTab(
             dismissButton = {
                 when {
                     downloading -> {
-                        // Show progress instead of cancel during download
                         TextButton(enabled = false, onClick = {}) {
                             LinearProgressIndicator(
                                 progress = { downloadProgress },
