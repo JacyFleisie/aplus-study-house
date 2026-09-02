@@ -466,17 +466,29 @@ fun UploadDocumentDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    if (uploaded) onUpload() else onDismiss()
-                },
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (uploaded) Success else Primary,
-                    contentColor = OnPrimary
-                )
-            ) {
-                Text(if (uploaded) "Done" else "Cancel")
+            if (!uploaded) {
+                Button(
+                    onClick = { uploaded = true },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Primary,
+                        contentColor = OnPrimary
+                    ),
+                    enabled = documentName.isNotBlank() && selectedCategory != null
+                ) {
+                    Text("Upload")
+                }
+            } else {
+                Button(
+                    onClick = { onUpload() },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Success,
+                        contentColor = OnPrimary
+                    )
+                ) {
+                    Text("Done")
+                }
             }
         },
         dismissButton = {
