@@ -2,10 +2,8 @@ package com.example.blankapp.updater
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Environment
 import androidx.core.content.FileProvider
 import com.example.blankapp.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +15,6 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import android.app.PendingIntent
 import java.security.MessageDigest
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
@@ -120,10 +117,9 @@ object AppUpdater {
         return false
     }
 
-    /** Downloads the APK into the app's external Downloads dir and returns the file. */
+    /** Downloads the APK into the app's cache dir and returns the file. */
     suspend fun downloadApk(context: Context, downloadUrl: String): File = withContext(Dispatchers.IO) {
-        val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-            ?: throw IllegalStateException("No external storage available")
+        val dir = context.cacheDir
         val outFile = File(dir, APK_NAME)
         val req = Request.Builder().url(downloadUrl)
             .header("User-Agent", "aplus-study-house-app")
@@ -139,27 +135,20 @@ object AppUpdater {
         outFile
     }
 
-    /** Installs the APK using PackageInstaller API (works on API 24+). */
+    /** Installs the APK using the standard installer intent. */
     fun installApk(context: Context, apkFile: File) {
         verifyApkIntegrity(context, apkFile)
-        val installer = context.packageManager.packageInstaller
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-        params.setAppPackageName(context.packageName)
-        val sessionId = installer.createSession(params)
-        val session = installer.openSession(sessionId)
-        session.use { s ->
-            FileInputStream(apkFile).use { input ->
-                s.openWrite("apk", 0, apkFile.length()).use { output ->
-                    input.copyTo(output)
-                    s.fsync(output)
-                }
-            }
-            // Create an intent to bring the app back after install
-            val intent = Intent(context, context.javaClass)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            val pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-            s.commit(pi.intentSender)
+        val uri = FileProvider.getUriForFile(
+            context,
+            context.packageName + ".fileprovider",
+            apkFile
+        )
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        context.startActivity(intent)
     }
 
     /**
