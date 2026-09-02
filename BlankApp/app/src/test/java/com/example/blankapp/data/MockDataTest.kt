@@ -289,7 +289,7 @@ class MockDataTest {
     @Test
     fun `all documents have valid categories`() {
         val validCategories = setOf(
-            DocumentCategory.REGISTRATION, DocumentCategory.MEDICAL,
+            DocumentCategory.MEDICAL,
             DocumentCategory.ID_DOCUMENT, DocumentCategory.ID_COPY, DocumentCategory.REPORT, DocumentCategory.REPORT_CARD,
             DocumentCategory.PHOTO, DocumentCategory.PROOF_OF_PAYMENT, DocumentCategory.OTHER
         )

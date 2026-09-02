@@ -181,16 +181,16 @@ class DataModelTest {
     fun `MockDocument can be constructed`() {
         val doc = MockDocument(
             id = "DOC001",
-            fileName = "Registration Form",
-            name = "Registration Form",
-            category = DocumentCategory.REGISTRATION,
+            fileName = "Medical Certificate",
+            name = "Medical Certificate",
+            category = DocumentCategory.MEDICAL,
             studentId = "S001",
             parentId = "P001",
             uploadDate = "2024-01-15",
             fileSize = "245 KB"
         )
         assertEquals("DOC001", doc.id)
-        assertEquals(DocumentCategory.REGISTRATION, doc.category)
+        assertEquals(DocumentCategory.MEDICAL, doc.category)
     }
 
     // ============================================

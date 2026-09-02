@@ -28,7 +28,6 @@ import com.example.blankapp.ui.theme.*
 // Helper functions for document categories
 fun getCategoryIcon(category: DocumentCategory): ImageVector {
     return when (category) {
-        DocumentCategory.REGISTRATION -> Icons.Filled.AppRegistration
         DocumentCategory.MEDICAL -> Icons.Filled.MedicalServices
         DocumentCategory.ID_DOCUMENT, DocumentCategory.ID_COPY -> Icons.Filled.Badge
         DocumentCategory.REPORT, DocumentCategory.REPORT_CARD -> Icons.Filled.Assessment
@@ -40,7 +39,6 @@ fun getCategoryIcon(category: DocumentCategory): ImageVector {
 
 fun getCategoryColor(category: DocumentCategory): Color {
     return when (category) {
-        DocumentCategory.REGISTRATION -> Primary
         DocumentCategory.MEDICAL -> Error
         DocumentCategory.ID_DOCUMENT, DocumentCategory.ID_COPY -> Secondary
         DocumentCategory.REPORT, DocumentCategory.REPORT_CARD -> Success
@@ -52,7 +50,6 @@ fun getCategoryColor(category: DocumentCategory): Color {
 
 fun getCategoryName(category: DocumentCategory): String {
     return when (category) {
-        DocumentCategory.REGISTRATION -> "Registration Forms"
         DocumentCategory.MEDICAL -> "Medical Documents"
         DocumentCategory.ID_DOCUMENT, DocumentCategory.ID_COPY -> "ID Documents"
         DocumentCategory.REPORT, DocumentCategory.REPORT_CARD -> "Reports"

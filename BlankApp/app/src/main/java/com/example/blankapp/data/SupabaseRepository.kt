@@ -299,7 +299,7 @@ object SupabaseRepository {
                         parentId = obj.optString("parent_id", ""),
                         fileName = obj.optString("name", ""),
                         category = when (obj.optString("category")) {
-                            "registration" -> DocumentCategory.REGISTRATION
+                            "proof_of_payment" -> DocumentCategory.PROOF_OF_PAYMENT
                             "medical" -> DocumentCategory.MEDICAL
                             "id_document" -> DocumentCategory.ID_DOCUMENT
                             "report" -> DocumentCategory.REPORT

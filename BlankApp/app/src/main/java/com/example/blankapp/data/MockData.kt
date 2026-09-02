@@ -331,7 +331,7 @@ data class MockDocument(
 )
 
 enum class DocumentCategory {
-    REGISTRATION, MEDICAL, ID_DOCUMENT, ID_COPY, REPORT, REPORT_CARD, PHOTO, PROOF_OF_PAYMENT, OTHER
+    MEDICAL, ID_DOCUMENT, ID_COPY, REPORT, REPORT_CARD, PHOTO, PROOF_OF_PAYMENT, OTHER
 }
 
 val mockDocuments = mutableListOf<MockDocument>()
