@@ -18,6 +18,7 @@ import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
 
 /**
  * Self-updater that fetches releases from the GitHub repo
@@ -56,7 +57,13 @@ object AppUpdater {
     private const val RELEASES_URL = "https://api.github.com/repos/$OWNER/$REPO/releases/latest"
     private const val APK_NAME = "aplus-study-house-update.apk"
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .writeTimeout(120, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
     private val json = Json { ignoreUnknownKeys = true }
 
     fun currentVersion(): String = BuildConfig.VERSION_NAME
@@ -121,15 +128,33 @@ object AppUpdater {
     suspend fun downloadApk(context: Context, downloadUrl: String): File = withContext(Dispatchers.IO) {
         val dir = context.cacheDir
         val outFile = File(dir, APK_NAME)
+        // Delete any existing file
+        if (outFile.exists()) outFile.delete()
+        
+        android.util.Log.d("AppUpdater", "Starting download from: $downloadUrl")
         val req = Request.Builder().url(downloadUrl)
             .header("User-Agent", "aplus-study-house-app")
             .build()
         val resp = client.newCall(req).execute()
-        val stream = resp.body?.byteStream()
-            ?: throw IllegalStateException("Download failed (no body, code ${resp.code})")
-        stream.use { input ->
+        android.util.Log.d("AppUpdater", "Response code: ${resp.code}")
+        if (!resp.isSuccessful) {
+            throw IllegalStateException("Download failed (HTTP ${resp.code})")
+        }
+        val body = resp.body ?: throw IllegalStateException("Download failed (no body)")
+        val contentLength = body.contentLength()
+        android.util.Log.d("AppUpdater", "Content length: $contentLength")
+        
+        body.byteStream().use { input ->
             FileOutputStream(outFile).use { output ->
-                input.copyTo(output)
+                val buf = ByteArray(8192)
+                var totalRead = 0L
+                var read: Int
+                while (input.read(buf).also { read = it } != -1) {
+                    output.write(buf, 0, read)
+                    totalRead += read
+                }
+                output.flush()
+                android.util.Log.d("AppUpdater", "Download complete: $totalRead bytes")
             }
         }
         outFile
@@ -137,18 +162,49 @@ object AppUpdater {
 
     /** Installs the APK using the standard installer intent. */
     fun installApk(context: Context, apkFile: File) {
-        verifyApkIntegrity(context, apkFile)
-        val uri = FileProvider.getUriForFile(
-            context,
-            context.packageName + ".fileprovider",
-            apkFile
-        )
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        android.util.Log.d("AppUpdater", "Starting install: ${apkFile.absolutePath}")
+        android.util.Log.d("AppUpdater", "File exists: ${apkFile.exists()}, size: ${apkFile.length()}")
+        
+        try {
+            verifyApkIntegrity(context, apkFile)
+            android.util.Log.d("AppUpdater", "Integrity check passed")
+            
+            val uri = FileProvider.getUriForFile(
+                context,
+                context.packageName + ".fileprovider",
+                apkFile
+            )
+            android.util.Log.d("AppUpdater", "FileProvider URI: $uri")
+            
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+            
+            // Check if there's an app to handle this intent
+            val packageManager = context.packageManager
+            val activities = packageManager.queryIntentActivities(intent, 0)
+            android.util.Log.d("AppUpdater", "Activities that can handle install: ${activities.size}")
+            
+            if (activities.isEmpty()) {
+                // Fallback: try with ACTION_INSTALL_PACKAGE
+                val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                    data = uri
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(fallbackIntent)
+            } else {
+                context.startActivity(intent)
+            }
+            
+            android.util.Log.d("AppUpdater", "Install intent launched successfully")
+        } catch (e: Exception) {
+            android.util.Log.e("AppUpdater", "Install failed", e)
+            throw e
         }
-        context.startActivity(intent)
     }
 
     /**

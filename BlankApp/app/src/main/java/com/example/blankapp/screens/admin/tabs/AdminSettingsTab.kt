@@ -61,13 +61,18 @@ fun AdminSettingsTab(
                 if (result.available && result.downloadUrl != null) {
                     // Keep dialog open - show download progress
                     downloadProgress = 0.1f
+                    android.util.Log.d("AdminSettings", "Starting download from: ${result.downloadUrl}")
                     val file = AppUpdater.downloadApk(context, result.downloadUrl)
                     downloadProgress = 0.8f
+                    android.util.Log.d("AdminSettings", "Download complete, starting install")
                     AppUpdater.installApk(context, file)
                     downloadProgress = 1f
-                    // Install launched - dialog will be dismissed by user or stay open showing success
+                    android.util.Log.d("AdminSettings", "Install launched successfully")
+                } else {
+                    errorMsg = "No download URL available"
                 }
             } catch (e: Exception) {
+                android.util.Log.e("AdminSettings", "Update failed", e)
                 errorMsg = e.message ?: "Update failed"
             } finally {
                 downloading = false
