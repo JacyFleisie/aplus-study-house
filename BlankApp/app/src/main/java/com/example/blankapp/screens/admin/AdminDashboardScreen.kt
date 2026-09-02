@@ -34,9 +34,16 @@ fun AdminDashboardScreen(
 ) {
     var selectedTab by remember { mutableStateOf(AdminTab.HOME) }
     var showCrashLogs by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
 
     if (showCrashLogs) {
         CrashLogScreen(onBackClick = { showCrashLogs = false })
+        return
+    }
+
+    // About screen has its own top bar - hide bottom nav
+    if (showAbout) {
+        AboutScreen(onBack = { showAbout = false })
         return
     }
 
@@ -114,7 +121,8 @@ fun AdminDashboardScreen(
                 AdminTab.FINANCE -> AdminFinanceTab(onNavigateToFinance = onNavigateToFinance)
                 AdminTab.SETTINGS -> AdminSettingsTab(
                     onLogout = onLogout,
-                    onNavigateToCrashLogs = { showCrashLogs = true }
+                    onNavigateToCrashLogs = { showCrashLogs = true },
+                    onNavigateToAbout = { showAbout = true }
                 )
             }
         }
