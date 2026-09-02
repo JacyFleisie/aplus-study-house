@@ -24,6 +24,7 @@ import com.example.blankapp.R
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -32,6 +33,7 @@ fun ParentChildrenScreen(
 ) {
     val currentUser = AuthRepository.getCurrentUser()
     val parentId = currentUser?.id ?: ""
+    val scope = rememberCoroutineScope()
 
     // Error state for data loading
     var isLoading by remember { mutableStateOf(true) }
@@ -44,12 +46,14 @@ fun ParentChildrenScreen(
         refreshing = isRefreshing,
         onRefresh = {
             isRefreshing = true
-            try {
-                children = getStudentsByParent(parentId)
-            } catch (e: Exception) {
-                loadError = e.toUserFriendlyMessage()
-            } finally {
-                isRefreshing = false
+            scope.launch {
+                try {
+                    children = SupabaseRepository.getParentStudents(parentId)
+                } catch (e: Exception) {
+                    loadError = e.toUserFriendlyMessage()
+                } finally {
+                    isRefreshing = false
+                }
             }
         }
     )
@@ -59,7 +63,7 @@ fun ParentChildrenScreen(
         try {
             isLoading = true
             loadError = null
-            children = getStudentsByParent(parentId)
+            children = SupabaseRepository.getParentStudents(parentId)
             isLoading = false
         } catch (e: Exception) {
             isLoading = false
@@ -75,6 +79,15 @@ fun ParentChildrenScreen(
             onRetry = {
                 loadError = null
                 isLoading = true
+                scope.launch {
+                    try {
+                        children = SupabaseRepository.getParentStudents(parentId)
+                    } catch (e: Exception) {
+                        loadError = e.toUserFriendlyMessage()
+                    } finally {
+                        isLoading = false
+                    }
+                }
             }
         )
         return

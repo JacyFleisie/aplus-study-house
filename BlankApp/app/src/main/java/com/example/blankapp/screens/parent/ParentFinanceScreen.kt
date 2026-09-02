@@ -14,19 +14,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.R
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun ParentFinanceScreen(
     onNavigateToPayment: (String, Double, String) -> Unit = { _, _, _ -> }
 ) {
     val currentUser = AuthRepository.getCurrentUser()
+    val scope = rememberCoroutineScope()
 
     // Error state for data loading
     var isLoading by remember { mutableStateOf(true) }
@@ -39,11 +41,15 @@ fun ParentFinanceScreen(
             isLoading = true
             loadError = null
             val parentId = currentUser?.id ?: ""
-            val students = getStudentsByParent(parentId)
-            val totalBalance = getFamilyBalance(parentId)
-            val allInvoices = students.flatMap { student ->
-                getInvoicesByStudent(student.id)
-            }.sortedByDescending { it.dueDate }
+            val students = SupabaseRepository.getParentStudents(parentId)
+            val totalBalance = if (students.isEmpty()) {
+                0.0
+            } else {
+                SupabaseRepository.getParentInvoices(parentId).filter {
+                    it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
+                }.sumOf { it.amount }
+            }
+            val allInvoices = SupabaseRepository.getParentInvoices(parentId).sortedByDescending { it.dueDate }
             financeData = Triple(students, totalBalance, allInvoices)
             isLoading = false
         } catch (e: Exception) {
@@ -60,6 +66,21 @@ fun ParentFinanceScreen(
             onRetry = {
                 loadError = null
                 isLoading = true
+                scope.launch {
+                    try {
+                        val parentId = currentUser?.id ?: ""
+                        val students = SupabaseRepository.getParentStudents(parentId)
+                        val totalBalance = SupabaseRepository.getParentInvoices(parentId).filter {
+                            it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
+                        }.sumOf { it.amount }
+                        val allInvoices = SupabaseRepository.getParentInvoices(parentId).sortedByDescending { it.dueDate }
+                        financeData = Triple(students, totalBalance, allInvoices)
+                    } catch (e: Exception) {
+                        loadError = e.toUserFriendlyMessage()
+                    } finally {
+                        isLoading = false
+                    }
+                }
             }
         )
         return

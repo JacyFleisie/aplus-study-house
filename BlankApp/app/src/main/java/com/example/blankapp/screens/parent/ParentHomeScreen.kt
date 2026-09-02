@@ -317,55 +317,6 @@ fun ParentHomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Recent Activity
-        Text(
-            text = "Recent Activity",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = OnBackground
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                ActivityItem(
-                    icon = Icons.Filled.CheckCircle,
-                    title = "Payment verified",
-                    subtitle = "R1,800 for Oliver Johnson — Aftercare September",
-                    time = "2 days ago",
-                    color = Success
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                ActivityItem(
-                    icon = Icons.Filled.Description,
-                    title = "Document uploaded",
-                    subtitle = "Medical Certificate - Sophia",
-                    time = "5 days ago",
-                    color = Info
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                ActivityItem(
-                    icon = Icons.Filled.School,
-                    title = "New child registered",
-                    subtitle = "Sophia Johnson - Grade 2",
-                    time = "1 week ago",
-                    color = Primary
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
         // Account Balance Card
         if (balance > 0) {
             Card(

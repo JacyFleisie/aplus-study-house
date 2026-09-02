@@ -315,7 +315,7 @@ fun ApplicationReviewScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = OutlineVariant)
                     InfoRow(
                         "Registration Fee",
-                        "R${application.paymentAmount.toInt()} ${if (application.status == ApplicationStatus.PAYMENT_VERIFIED) "· Verified" else "· Pending verification"}"
+                        "R${application.paymentAmount.toInt()} · Pay on approval"
                     )
                 }
             }
@@ -396,27 +396,25 @@ fun ApplicationReviewScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                // Approve Button (only after viewing POP)
-                if (popViewed || application.paymentProofUrl.isNullOrBlank()) {
-                    Button(
-                        onClick = { showApproveDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Success,
-                            contentColor = OnPrimary
-                        )
-                    ) {
-                        Icon(Icons.Filled.CheckCircle, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Approve Application",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                // Approve Button
+                Button(
+                    onClick = { showApproveDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Success,
+                        contentColor = OnPrimary
+                    )
+                ) {
+                    Icon(Icons.Filled.CheckCircle, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Approve Application",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -464,41 +462,11 @@ fun ApplicationReviewScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-
-                // Verify Payment Button (only when a POP has been uploaded and not yet verified)
-                if (!application.paymentProofUrl.isNullOrBlank() &&
-                    application.status != ApplicationStatus.PAYMENT_VERIFIED &&
-                    application.status != ApplicationStatus.APPROVED
-                ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                SupabaseRepository.updateApplicationStatus(applicationId, "payment_verified")
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Primary,
-                            contentColor = OnPrimary
-                        )
-                    ) {
-                        Icon(Icons.Filled.Payment, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Verify Payment (POP received)",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
             }
 
             // Decision Made Banner
             if (decisionMade) {
+                Spacer(modifier = Modifier.height(16.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -540,21 +508,46 @@ fun ApplicationReviewScreen(
 
     // Approve Dialog
     if (showApproveDialog) {
+        var isApproving by remember { mutableStateOf(false) }
+        var approvalError by remember { mutableStateOf<String?>(null) }
+
         DecisionDialog(
             title = "Approve Application",
-            message = "Are you sure you want to approve this application? The student will be enrolled and a profile will be created.",
-            confirmText = "Approve",
+            message = "Are you sure you want to approve this application? This will also mark the registration fee as paid and create the student profile.",
+            confirmText = if (isApproving) "Approving..." else "Approve",
             confirmColor = Success,
             onConfirm = {
+                if (isApproving) return@DecisionDialog
+                isApproving = true
+                approvalError = null
                 showApproveDialog = false
-                decisionMade = true
                 scope.launch {
-                    SupabaseRepository.updateApplicationStatus(applicationId, "approved")
-                    applicationState?.let { app ->
-                        SupabaseRepository.createStudentFromApplication(app)
+                    val ok = try {
+                        SupabaseRepository.updateApplicationStatus(applicationId, "approved")
+                    } catch (e: Exception) {
+                        false
                     }
+
+                    if (!ok) {
+                        approvalError = "Failed to update application status."
+                        isApproving = false
+                        return@launch
+                    }
+
+                    val created = try {
+                        SupabaseRepository.createStudentFromApplication(applicationState ?: return@launch)
+                    } catch (e: Exception) {
+                        false
+                    }
+
+                    if (!created) {
+                        approvalError = "Approved, but failed to create student profile. Please check the student list later."
+                    }
+
+                    decisionMade = true
+                    isApproving = false
+                    onDecisionMade()
                 }
-                onDecisionMade()
             },
             onDismiss = { showApproveDialog = false }
         )
