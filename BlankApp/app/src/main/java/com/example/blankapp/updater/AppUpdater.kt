@@ -139,13 +139,14 @@ object AppUpdater {
         outFile
     }
 
-    /** Installs the APK using PackageInstaller API (works on API 26+). */
+    /** Installs the APK using PackageInstaller API (works on API 24+). */
     fun installApk(context: Context, apkFile: File) {
         verifyApkIntegrity(context, apkFile)
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         params.setAppPackageName(context.packageName)
-        val session = installer.openSession(installer.createSession(params))
+        val sessionId = installer.createSession(params)
+        val session = installer.openSession(sessionId)
         session.use { s ->
             FileInputStream(apkFile).use { input ->
                 s.openWrite("apk", 0, apkFile.length()).use { output ->
@@ -153,7 +154,9 @@ object AppUpdater {
                     s.fsync(output)
                 }
             }
+            // Create an intent to bring the app back after install
             val intent = Intent(context, context.javaClass)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             val pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
             s.commit(pi.intentSender)
         }

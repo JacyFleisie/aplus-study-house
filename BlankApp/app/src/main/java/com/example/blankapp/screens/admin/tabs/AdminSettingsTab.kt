@@ -29,6 +29,7 @@ fun AdminSettingsTab(
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
     var downloading by remember { mutableStateOf(false) }
+    var downloadProgress by remember { mutableStateOf(0f) }
     var info by remember { mutableStateOf<UpdateInfo?>(null) }
     var showAbout by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
@@ -49,15 +50,22 @@ fun AdminSettingsTab(
         }
     }
 
+    // Don't auto-close dialog - keep it open to show download progress
     fun runDownloadAndInstall() {
         scope.launch {
             downloading = true
+            downloadProgress = 0f
             errorMsg = null
             try {
                 val result = info ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
+                    // Keep dialog open - show download progress
+                    downloadProgress = 0.1f
                     val file = AppUpdater.downloadApk(context, result.downloadUrl)
+                    downloadProgress = 0.8f
                     AppUpdater.installApk(context, file)
+                    downloadProgress = 1f
+                    // Install launched - dialog will be dismissed by user or stay open showing success
                 }
             } catch (e: Exception) {
                 errorMsg = e.message ?: "Update failed"
@@ -69,22 +77,38 @@ fun AdminSettingsTab(
 
     if (showAbout) {
         AlertDialog(
-            onDismissRequest = { showAbout = false },
+            onDismissRequest = { if (!downloading) showAbout = false },
             confirmButton = {
-                if (info?.available == true) {
-                    TextButton(onClick = {
-                        showAbout = false
-                        runDownloadAndInstall()
-                    }, enabled = !downloading) {
-                        Text(if (downloading) "Downloading..." else "Download & Install")
+                when {
+                    downloading -> {
+                        TextButton(enabled = false, onClick = {}) {
+                            Text("Downloading... ${(downloadProgress * 100).toInt()}%")
+                        }
                     }
-                } else {
-                    TextButton(onClick = { showAbout = false }) { Text("OK") }
+                    info?.available == true -> {
+                        TextButton(onClick = { runDownloadAndInstall() }) {
+                            Text("Download & Install")
+                        }
+                    }
+                    else -> {
+                        TextButton(onClick = { showAbout = false }) { Text("OK") }
+                    }
                 }
             },
             dismissButton = {
-                if (!checking && !downloading && info?.available != true) {
-                    TextButton(onClick = { runCheck() }) { Text("Check for Updates") }
+                when {
+                    downloading -> {
+                        // Show progress instead of cancel during download
+                        TextButton(enabled = false, onClick = {}) {
+                            LinearProgressIndicator(
+                                progress = { downloadProgress },
+                                modifier = Modifier.width(100.dp),
+                            )
+                        }
+                    }
+                    !checking && info?.available != true -> {
+                        TextButton(onClick = { runCheck() }) { Text("Check for Updates") }
+                    }
                 }
             },
             title = { Text("About A+ Study House") },
@@ -98,7 +122,14 @@ fun AdminSettingsTab(
                     Spacer(Modifier.height(12.dp))
                     when {
                         checking -> Text("Checking for updates…")
-                        downloading -> Text("Downloading update…")
+                        downloading -> {
+                            Text("Downloading update… ${(downloadProgress * 100).toInt()}%")
+                            Spacer(Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { downloadProgress },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         info?.available == true -> {
                             Text("Update available: ${info!!.latestVersion}")
                             Spacer(Modifier.height(4.dp))
