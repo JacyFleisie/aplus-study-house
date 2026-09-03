@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.AuditLogger
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.ui.theme.*
@@ -64,13 +65,24 @@ fun RegistrationPaymentScreen(
                 val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 if (bytes != null) {
                     val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                    val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${System.currentTimeMillis()}", bytes, mimeType)
+                    val ext = when (mimeType) {
+                        "application/pdf" -> ".pdf"
+                        "image/jpeg" -> ".jpg"
+                        "image/png" -> ".png"
+                        else -> ""
+                    }
+                    val fileName = "pop_${parentId}_${System.currentTimeMillis()}${ext}"
+                    AuditLogger.log(ctx, "pop_upload_start", "parentId=$parentId mime=$mimeType name=$fileName size=${bytes.size}")
+                    val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, mimeType)
                     if (path != null) {
                         proofOfPayment = path
+                        AuditLogger.log(ctx, "pop_upload_ok", "path=$path")
+                    } else {
+                        AuditLogger.log(ctx, "pop_upload_fail", "parentId=$parentId name=$fileName")
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
+                AuditLogger.log(ctx, "pop_upload_error", e.message ?: "")
             } finally {
                 uploading = false
             }
@@ -87,7 +99,8 @@ fun RegistrationPaymentScreen(
                     val bytes = ctx.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
                     if (bytes != null) {
                         val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                        val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${System.currentTimeMillis()}", bytes, "image/jpeg")
+                        val fileName = "pop_${parentId}_${System.currentTimeMillis()}.jpg"
+                        val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${parentId}_${System.currentTimeMillis()}.jpg", bytes, "image/jpeg")
                         if (path != null) {
                             proofOfPayment = path
                         }

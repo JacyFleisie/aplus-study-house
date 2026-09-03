@@ -522,26 +522,31 @@ fun ApplicationReviewScreen(
                 approvalError = null
                 showApproveDialog = false
                 scope.launch {
-                    val ok = try {
+                    AuditLogger.log("admin_decision_start", "appId=$applicationId action=approve")
+                    val statusOk = try {
                         SupabaseRepository.updateApplicationStatus(applicationId, "approved")
                     } catch (e: Exception) {
                         false
                     }
 
-                    if (!ok) {
+                    if (!statusOk) {
                         approvalError = "Failed to update application status."
+                        AuditLogger.log("admin_decision_fail", "appId=$applicationId action=approve step=status")
                         isApproving = false
                         return@launch
                     }
 
                     val created = try {
-                        SupabaseRepository.createStudentFromApplication(applicationState ?: return@launch)
+                        SupabaseRepository.createStudentFromApplication(applicationId)
                     } catch (e: Exception) {
                         false
                     }
 
                     if (!created) {
                         approvalError = "Approved, but failed to create student profile. Please check the student list later."
+                        AuditLogger.log("admin_decision_fail", "appId=$applicationId action=approve step=student")
+                    } else {
+                        AuditLogger.log("admin_decision_ok", "appId=$applicationId action=approve studentCreated=true")
                     }
 
                     decisionMade = true

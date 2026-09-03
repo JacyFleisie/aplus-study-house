@@ -3,6 +3,8 @@ package com.example.blankapp.screens.admin.tabs
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -47,69 +49,79 @@ fun AdminApplicationsTab(onNavigateToApplication: (String) -> Unit = {}) {
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
-            .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            filters.forEach { filter ->
-                FilterChip(
-                    selected = selectedFilter == filter,
-                    onClick = { selectedFilter = filter },
-                    label = { Text(filter, style = MaterialTheme.typography.labelSmall) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = SecondaryContainer,
-                        selectedLabelColor = Secondary
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Secondary)
-            }
-        } else if (filteredApplications.isNotEmpty()) {
-            filteredApplications.forEach { application ->
-                ApplicationCard(
-                    application = application,
-                    onClick = { onNavigateToApplication(application.id) }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        } else {
-            Card(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                filters.forEach { filter ->
+                    FilterChip(
+                        selected = selectedFilter == filter,
+                        onClick = { selectedFilter = filter },
+                        label = { Text(filter, style = MaterialTheme.typography.labelSmall) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = SecondaryContainer,
+                            selectedLabelColor = Secondary
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Secondary)
+                }
+            } else if (filteredApplications.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    androidx.compose.foundation.Image(
-                        painter = painterResource(R.drawable.empty_applications),
-                        contentDescription = "No Applications",
-                        modifier = Modifier.size(120.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "No Applications", 
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = OnBackground
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "No applications match the selected filter",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = OnSurfaceVariant
-                    )
+                    items(filteredApplications.size) { index ->
+                        val application = filteredApplications[index]
+                        ApplicationCard(
+                            application = application,
+                            onClick = { onNavigateToApplication(application.id) }
+                        )
+                    }
+                }
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        androidx.compose.foundation.Image(
+                            painter = painterResource(R.drawable.empty_applications),
+                            contentDescription = "No Applications",
+                            modifier = Modifier.size(120.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Applications",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = OnBackground
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "No applications match the selected filter",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant
+                        )
+                    }
                 }
             }
         }

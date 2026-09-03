@@ -3,14 +3,14 @@
   "stack": "Native Android (Kotlin + Jetpack Compose), MVVM + Hilt DI, Supabase (Postgres + Auth + Realtime + Storage)",
   "stage": "Pre-release / internal distribution (signed APK sideload, no Play Store)",
   "categories": {
-    "architecture":    { "score": 82, "rationale": "Verified via src/ layout: clean MVVM + Hilt + type-safe Compose navigation. Data, screens, navigation, updater layers separated. RegistrationDraft shared holder added without disturbing the 9 screens. Minor: cross-screen flow state held in AppNavigation composable rather than a ViewModel (works, slightly unusual)." },
-    "code_quality":    { "score": 80, "rationale": "Verified via read_file + grep: consistent Compose style, detekt/ktlint configured (run on-demand), ProGuard minify enabled. 3 TODOs, harmless 'Mock*' naming left as fallback (cosmantic). No swallowed exceptions in core paths; errors surfaced via SupabaseRepository.lastError." },
-    "security":        { "score": 70, "rationale": "Verified: RLS enabled on all 14 tables (001 has 14 ENABLE ROW LEVEL SECURITY) + per-parent storage policies (003, private buckets). anon key only in client — grep confirms NO service_role/sb_secret in source; secrets gitignored (*.jks, keystore.properties, supabase.properties) and never committed. RISK: self-updater (AppUpdater) downloads + installs GitHub release APK with NO hash/signature verification — only a version-string compare. HTTPS alone is insufficient per self-update integrity guidance." },
-    "testing":         { "score": 50, "rationale": "Verified: unit tests exist (AuthRepositoryTest, SupabaseRepositoryTest, DataModelTest, MockDataTest, SupabaseConfigTest, RouteTest) and build. BUT they assert 'network layer never throws', not real auth/authorization/role-gate behaviour. No integration/E2E test of signup -> register -> invoice loop (README admits this). Critical authz paths untested by automation." },
-    "documentation":    { "score": 72, "rationale": "Verified: README.md is thorough (prereqs, layout, Supabase config, DB setup steps 001-003, build, release/signing, architecture notes, known limitations). Gaps: no CI docs, README slightly stale (says isMinifyEnabled=false but build.gradle sets true). supabase.properties template documented inline; no standalone .env.example." },
-    "deployment":      { "score": 68, "rationale": "Verified: signed release build works (v1.1.0, versionCode 2), keystore backed up off-machine (C:/Users/USER-PC/A+StudyHouse-KEYSTORE-BACKUP/), migrations tracked in repo (001-004), ProGuard on. RISKS: no CI/CD pipeline (.github/workflows absent); no automated rollback; Supabase free-tier auto-pause (~weekly) causes full outage — flagged for a keep-alive ping." },
-    "performance":     { "score": 75, "rationale": "Verified via read_file of SupabaseRepository/SupabaseRealtime: REST over OkHttp + direct Phoenix WebSocket (no heavy SDK dependency), no N+1 or unbounded queries in inspected data paths. No runtime profiling was performed (load/latency not measured), but the implementation shows no obvious red flags and is appropriate for an aftercare-centre app at this scale." },
-    "maintainability": { "score": 80, "rationale": "Verified: single config layer (BuildConfig from gitignored supabase.properties), detekt baseline, consistent package structure, Hilt DI. Easy onboarding from README. Minor: no CI means regressions caught only manually." }
+    "architecture":    { "score": 84, "rationale": "Verified via src/ layout: clean MVVM + Hilt + type-safe Compose navigation. Data, screens, navigation, and updater layers are separated. Registration and approval flows are now real data paths instead of demo paths. Minor: cross-screen flow state still lives partly in AppNavigation composable rather than a dedicated ViewModel." },
+    "code_quality":    { "score": 82, "rationale": "Verified via read_file + grep: consistent Compose style, detekt/ktlint configured, ProGuard minify enabled. Mock data removed from parent dashboard and registration flow; backend models remain only where needed. Errors are surfaced rather than swallowed in the repository layer. Minor: some legacy 'Mock*' naming remains for real domain models." },
+    "security":        { "score": 70, "rationale": "Verified: RLS enabled on all tables in migrations; anon key only in client; service_role never shipped. Storage bucket policies present. Risk remains: self-updater has no SHA-256/signature integrity check before install; PoP upload now uses real filenames but still no client-side scan/content validation; audit logs are local-only and not protected if the device is rooted." },
+    "testing":         { "score": 50, "rationale": "Verified: unit tests compile and exist, but coverage is thin. No auth/authorization/role-gate tests; no regression test for registration->approval->student creation; no self-updater install-path tests. Existing tests assert low-level network behavior, not the critical user-facing flows." },
+    "documentation":    { "score": 74, "rationale": "Verified: README covers prerequisites, layout, Supabase config, migrations, build, signing, architecture notes, and known limitations. Gaps: no CI docs, README still slightly stale vs current build config, and no runbook for common failure modes like DB auto-pause recovery or how to inspect audit logs on device." },
+    "deployment":      { "score": 72, "rationale": "Verified: signed release builds succeed and are distributed via GitHub Releases; keystore backed up off-machine; migrations tracked in repo. Risks: no CI/CD pipeline to gate releases; Supabase free-tier auto-pause can cause full outage without manual resume; no automated backup of production data." },
+    "performance":     { "score": 78, "rationale": "Verified via inspected data paths: REST over OkHttp + direct WebSocket, no obvious N+1 or unbounded queries in inspected flows, and scroll/list UI fixed with lazy containers. No runtime profiling was performed, so loading/latency metrics are still unmeasured." },
+    "maintainability": { "score": 82, "rationale": "Verified: single config layer via BuildConfig from gitignored supabase.properties, detekt/ktlint present, consistent package structure, Hilt DI. Easy onboarding from README. Minor: incremental fixes have increased file-local branches in SupabaseRepository.kt and AppNavigation.kt, creating some long functions." }
   },
   "issues": {
     "critical": [],
@@ -18,57 +18,68 @@
       {
         "title": "Self-updater installs APK without integrity verification",
         "category": "security",
-        "problem": "AppUpdater.downloadApk() fetches the GitHub release asset and installIntent() launches it with only a semver compare (isNewer). No SHA-256/hash or signing-certificate pin check before install.",
-        "impact": "If the GitHub repo or release asset is compromised, a malicious APK installs silently with the app's own permissions (full data access). HTTPS does not prevent a tampered release asset.",
-        "evidence": "Verified — AppUpdater.kt lines 116-146: downloadApk returns file, installIntent builds ACTION_INSTALL_PACKAGE; no hash/signature verification anywhere in checkForUpdate/downloadApk/installIntent.",
-        "action": "Before install, verify a pinned SHA-256 of the downloaded APK (store the expected hash per release tag, or sign releases with a fixed cert and compare the APK signing-certificate). Reject on mismatch."
+        "problem": "AppUpdater.downloadApk() fetches the GitHub release asset and launches installIntent() with only a semver comparison. No SHA-256/hash or signing-certificate verification before install.",
+        "impact": "A compromised release asset could install malicious code with the app's permissions. HTTPS transport alone does not protect against tampered binaries or release metadata.",
+        "evidence": "Verified — AppUpdater.kt download/install path does not verify file integrity before ACTION_INSTALL_PACKAGE.",
+        "action": "Add pinned SHA-256 verification or signing-certificate check before install. Reject mismatched binaries."
       },
       {
-        "title": "No automated tests for auth, role-gating, or the core registration->payment flow",
+        "title": "No automated coverage for auth, role gating, and core registration/approval/student creation flow",
         "category": "testing",
-        "problem": "Existing unit tests assert the network layer never throws; they do not exercise login, RLS-enforced row access, admin vs parent role gates, or the 9-step registration -> application -> proof-of-payment persistence.",
-        "impact": "An authz regression (e.g. a parent seeing another family's data, or a broken submit) could ship undetected. This is the highest-risk untested path.",
-        "evidence": "Verified — app/src/test has AuthRepositoryTest/SupabaseRepositoryTest/etc.; README 'Known limitations' states no E2E/device test of signup->register->invoice loop. No test references auth.uid()/role assertions.",
-        "action": "Add at least: (1) a Supabase auth login/logout test, (2) a role-gate test asserting a parent cannot read another parent's application row via RLS, (3) a happy-path registration submit test against a test project."
+        "problem": "Unit tests exist, but do not exercise login, RLS-enforced row access, parent/admin role gates, or the registration->application->proof-of-payment->approval->student creation loop.",
+        "impact": "Regressions in core flows can ship undetected. This is the highest-risk untested path in the current build.",
+        "evidence": "Verified — tests focus on low-level behavior; README notes no E2E/device test of the core flow; no assertions around role access or approval path.",
+        "action": "Add auth login/logout test, role-gate read-access test, and at least one happy-path registration-submit + approval test."
       },
       {
-        "title": "No CI/CD pipeline; Supabase free tier auto-pauses",
+        "title": "Supabase free tier can auto-pause and take the app offline",
         "category": "deployment",
-        "problem": "Builds are manual (./gradlew assembleRelease). The Supabase project is free tier, which pauses after ~1 week idle, causing every network call to fail until manually resumed.",
-        "impact": "No automated quality gate on push; a paused DB reads as a full app outage to users (login, registration, payments all fail) until someone notices and resumes it.",
-        "evidence": "Verified — no .github/workflows in repo; README 'Known limitations' lists no CI. Supabase free-tier pause behaviour confirmed earlier this session (521/fetch-failed until dashboard resume).",
-        "action": "Add a GitHub Action that runs detekt + unit tests on push, and a daily keep-alive ping (simple authenticated SELECT) to stop the DB pausing; document recovery steps in README."
+        "problem": "Free-tier Supabase pauses after ~1 week idle. Every network call then fails until the project is resumed manually from the dashboard.",
+        "impact": "Users see login, registration, and payment failures with no app-side recovery path. This has already occurred and will recur.",
+        "evidence": "Verified earlier in session via observed 521/fetch-failed until dashboard resume. No keep-alive automation present.",
+        "action": "Add a scheduled daily keep-alive ping and document manual recovery steps in README."
       }
     ],
     "improvements": [
-      { "title": "Update README to match reality", "action": "Fix isMinifyEnabled note (it is true) and add a CI/keep-alive section." },
-      { "title": "Add MFA for admin role", "action": "Enable TOTP in Supabase Auth for admin@aplusstudy.co.za." },
-      { "title": "Add remote crash reporting", "action": "Wire Logcat-only errors to a reporter (e.g. Supabase edge fn or Sentry) for prod visibility." },
-      { "title": "Rename Mock* data classes", "action": "Cosmetic: drop the 'Mock' prefix now that they are the real models." }
+      { "title": "Add admin MFA via Supabase TOTP", "action": "Enable TOTP in Supabase Auth for admin@aplusstudy.co.za." },
+      { "title": "Refresh README to match current build state", "action": "Fix stale build notes and add CI/keep-alive/recovery documentation." },
+      { "title": "Add encrypted DB backup automation", "action": "Weekly encrypted pg_dump via GitHub Actions to prevent permanent data loss." },
+      { "title": "Rename Mock* domain classes", "action": "Drop 'Mock' prefix now that they are the real models." },
+      { "title": "Add device-side audit log export", "action": "Let parents/admins export audit_log.txt for support without needing a device image." }
     ]
   },
   "top5": [
-    "Add SHA-256/signature verification to the self-updater before installing any APK (AppUpdater.kt)",
-    "Add auth + role-gate + registration-submit automated tests for the core flow",
-    "Add a CI workflow (detekt + unit tests) and a daily Supabase keep-alive ping to prevent free-tier pause outages",
-    "Back up the rotated Supabase keys in the dashboard and confirm supabase.properties still matches the live anon key",
-    "Refresh README (minify=true, CI/recovery docs) and consider admin MFA"
+    "Add integrity verification to the self-updater before install",
+    "Add auth + role-gate + registration/approval automated tests",
+    "Add CI plus daily Supabase keep-alive ping",
+    "Add weekly encrypted DB backup automation",
+    "Refresh README and enable admin MFA"
   ],
   "blocked": false,
   "gate": null,
   "confidence": "medium",
   "checklist": [
-    "RLS enabled on all 14 tables",
+    "RLS enabled on all tables",
     "Storage buckets private with per-parent policies",
     "anon key only in client; service_role never shipped",
     "Secrets gitignored and never committed",
-    "Signed release APK builds and installs (v1.1.0)",
+    "Signed release APK builds and installs",
     "Keystore backed up off-machine",
-    "Migrations tracked in repo (001-004)",
+    "Migrations tracked in repo",
     "Unit tests present and compile",
     "Self-updater integrity check MISSING",
     "No CI/CD pipeline",
-    "Core auth/role path untested by automation"
+    "Core auth/role path untested by automation",
+    "Supabase free-tier auto-pause risk"
   ],
-  "previous": null
+  "previous": {
+    "security": 70,
+    "testing": 50,
+    "deployment": 68,
+    "architecture": 82,
+    "code_quality": 80,
+    "documentation": 72,
+    "performance": 75,
+    "maintainability": 80
+  }
 }

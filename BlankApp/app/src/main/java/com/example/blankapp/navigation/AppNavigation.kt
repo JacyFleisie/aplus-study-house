@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.blankapp.data.AuditLogger
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.RegistrationDraft
 import com.example.blankapp.data.RegistrationDraftStore
@@ -406,16 +407,19 @@ fun AppNavigation(
                     },
                     onSubmit = { parentId ->
                         scope.launch {
+                            val draftJson = registrationDraft.toApplicationJson(parentId)
+                            AuditLogger.log("registration_submit_start", "parentId=$parentId draftJson=$draftJson")
                             val created = SupabaseRepository.createApplication(
-                                registrationDraft.toApplicationJson(parentId), parentId
+                                draftJson, parentId
                             )
-                            createdApplication = created
-                            // Successful submission: clear the persisted draft so
-                            // RegistrationStart no longer offers "Continue".
                             if (created != null) {
+                                AuditLogger.log("registration_submit_ok", "appId=${created.id}")
                                 val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
                                 RegistrationDraftStore.clear(ctx, uid)
+                            } else {
+                                AuditLogger.log("registration_submit_fail", "parentId=$parentId")
                             }
+                            createdApplication = created
                         }
                     },
                     onContinue = {

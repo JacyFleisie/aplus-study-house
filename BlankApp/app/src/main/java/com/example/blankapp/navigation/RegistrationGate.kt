@@ -36,11 +36,13 @@ fun RequireRegisteredChild(
     var hasChildren by remember(parentId) { mutableStateOf(false) }
 
     LaunchedEffect(parentId) {
+        AuditLogger.log("registration_gate_start", "parentId=$parentId")
         val result = try {
             // Check if parent has active students (means registration was approved)
             val students = SupabaseRepository.getParentStudents(parentId)
             if (students.isNotEmpty()) {
                 Log.d("RegistrationGate", "Parent $parentId has ${students.size} students")
+                AuditLogger.log("registration_gate_ok", "parentId=$parentId students=${students.size}")
                 true
             } else {
                 // Also check for approved/payment_verified applications (in case student creation failed but app is approved)
@@ -50,10 +52,12 @@ fun RequireRegisteredChild(
                     it.status == com.example.blankapp.data.ApplicationStatus.PAYMENT_VERIFIED
                 }
                 Log.d("RegistrationGate", "Parent $parentId has approved app: $hasApprovedApp")
+                AuditLogger.log("registration_gate_fallback", "parentId=$parentId approvedApp=$hasApprovedApp")
                 hasApprovedApp
             }
         } catch (e: Exception) {
             Log.e("RegistrationGate", "Error checking children", e)
+            AuditLogger.log("registration_gate_error", "parentId=$parentId error=${e.message ?: ""}")
             false
         }
         hasChildren = result

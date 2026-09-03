@@ -576,7 +576,7 @@ object SupabaseRepository {
         try {
             val result = SupabaseConfig.supabaseGet(
                 table = "messages",
-                query = "or=(sender_id=eq.$userId,sender_id=eq.$otherUserId)&recipient_id=eq.$otherUserId&order=created_at.asc",
+                query = "or=(and(sender_id=eq.$userId,recipient_id=eq.$otherUserId),and(sender_id=eq.$otherUserId,recipient_id=eq.$userId))&order=created_at.asc",
                 authToken = authToken()
             ) ?: return@withContext emptyList()
 
@@ -724,6 +724,7 @@ object SupabaseRepository {
      * mock record so the flow can continue in demo mode.
      */
     suspend fun createApplication(app: JSONObject, parentId: String): MockApplication? = withContext(Dispatchers.IO) {
+        AuditLogger.log("createApplication_start", "parentId=$parentId appKeys=${app.keys().asSequence().toList()}")
         if (!isUsingBackend()) {
             val mock = parseApplication(app).copy(
                 id = "APP-${(1000..9999).random()}",
@@ -731,6 +732,7 @@ object SupabaseRepository {
                 status = ApplicationStatus.SUBMITTED
             )
             mockApplications.add(mock)
+            AuditLogger.log("createApplication_mock", "appId=${mock.id}")
             return@withContext mock
         }
 
@@ -739,15 +741,22 @@ object SupabaseRepository {
                 table = "applications",
                 body = app.toString(),
                 authToken = authToken()
-            ) ?: return@withContext null
+            ) ?: run {
+                AuditLogger.log("createApplication_fail", "supabasePost returned null")
+                return@withContext null
+            }
             val arr = JSONArray(result)
             if (arr.length() > 0) {
-                parseApplication(arr.getJSONObject(0))
+                val created = parseApplication(arr.getJSONObject(0))
+                AuditLogger.log("createApplication_ok", "appId=${created.id} status=${created.status}")
+                created
             } else {
+                AuditLogger.log("createApplication_fail", "empty result array")
                 null
             }
         } catch (e: Exception) {
             recordError("Backend query", e)
+            AuditLogger.log("createApplication_error", e.message ?: "")
             null
         }
     }
@@ -767,17 +776,26 @@ object SupabaseRepository {
         bytes: ByteArray,
         contentType: String
     ): String? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext null
+        AuditLogger.log("uploadProofOfPayment_start", "parentId=$parentId appId=$applicationId contentType=$contentType size=${bytes.size}")
+        if (!isUsingBackend()) {
+            AuditLogger.log("uploadProofOfPayment_skip", "backend disabled")
+            return@withContext null
+        }
         try {
-            SupabaseConfig.supabaseStorageUpload(
+            val result = SupabaseConfig.supabaseStorageUpload(
                 bucket = "proof-of-payment",
                 path = "$parentId/$applicationId.${contentTypeToExt(contentType)}",
                 bytes = bytes,
                 contentType = contentType,
                 authToken = authToken()
             )
+            AuditLogger.log("uploadProofOfPayment_${
+                if (result != null) "ok" else "fail"
+            }", "path=$parentId/$applicationId.${contentTypeToExt(contentType)}")
+            result
         } catch (e: Exception) {
             recordError("POP upload", e)
+            AuditLogger.log("uploadProofOfPayment_error", e.message ?: "")
             null
         }
     }
@@ -791,7 +809,11 @@ object SupabaseRepository {
         status: String,
         paymentProofUrl: String? = null
     ): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+        AuditLogger.log("updateApplicationStatus_start", "appId=$applicationId status=$status proofUrl=${paymentProofUrl ?: "null"}")
+        if (!isUsingBackend()) {
+            AuditLogger.log("updateApplicationStatus_skip", "backend disabled")
+            return@withContext false
+        }
         try {
             val body = JSONObject().apply {
                 put("status", status)
@@ -814,9 +836,12 @@ object SupabaseRepository {
                 body = body.toString(),
                 authToken = authToken()
             )
-            result != null
+            val ok = result != null
+            AuditLogger.log("updateApplicationStatus_${if (ok) "ok" else "fail"}", "appId=$applicationId status=$status")
+            ok
         } catch (e: Exception) {
             recordError("Update application status", e)
+            AuditLogger.log("updateApplicationStatus_error", "appId=$applicationId error=${e.message ?: ""}")
             false
         }
     }
@@ -884,65 +909,150 @@ object SupabaseRepository {
      * Create a student row from an approved application.
      * Called when admin approves an application.
      */
-    suspend fun createStudentFromApplication(app: MockApplication): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    suspend fun createStudentFromApplication(applicationId: String): Boolean = withContext(Dispatchers.IO) {
+        AuditLogger.log("createStudentFromApplication_start", "appId=$applicationId")
+        if (!isUsingBackend()) {
+            AuditLogger.log("createStudentFromApplication_skip", "backend disabled")
+            return@withContext false
+        }
         try {
-            // Validate required fields
-            if (app.studentFirstName.isBlank() || app.studentLastName.isBlank()) {
-                recordError("Create student from application", Exception("First name and last name are required"))
+            val appResult = SupabaseConfig.supabaseGet(
+                table = "applications",
+                query = "id=eq.$applicationId&select=*",
+                authToken = authToken()
+            ) ?: run {
+                AuditLogger.log("createStudentFromApplication_fail", "application not found")
                 return@withContext false
             }
 
-            // Ensure grade is within valid range (1-7)
-            val validGrade = if (app.studentGrade in 1..7) app.studentGrade else 1
-
-            // Parse date_of_birth - table expects DATE format (YYYY-MM-DD)
-            val dobValue = if (app.studentDOB.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
-                app.studentDOB
-            } else {
-                null // Let database use default if invalid format
+            val appObj = JSONArray(appResult).optJSONObject(0) ?: run {
+                AuditLogger.log("createStudentFromApplication_fail", "empty application result")
+                return@withContext false
             }
 
-            val body = JSONObject().apply {
-                put("parent_id", app.parentId)
-                put("first_name", app.studentFirstName.trim())
-                put("last_name", app.studentLastName.trim())
-                // date_of_birth is optional, only include if valid
-                if (dobValue != null) {
-                    put("date_of_birth", dobValue)
-                }
+            val parentId = appObj.optString("parent_id")
+            val firstName = appObj.optString("student_first_name").trim()
+            val lastName = appObj.optString("student_last_name").trim()
+
+            if (firstName.isBlank() || lastName.isBlank()) {
+                recordError("Create student from application", Exception("First name and last name are required"))
+                AuditLogger.log("createStudentFromApplication_fail", "missing name")
+                return@withContext false
+            }
+
+            val validGrade = appObj.optInt("student_grade").let { if (it in 1..7) it else 1 }
+
+            val studentBody = JSONObject().apply {
+                put("parent_id", parentId)
+                put("first_name", firstName)
+                put("last_name", lastName)
+                val dob = appObj.optString("student_dob")
+                if (dob.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) put("date_of_birth", dob)
                 put("grade", validGrade)
-                // school and address are optional
-                if (app.studentSchool.isNotBlank()) put("school", app.studentSchool.trim())
-                if (app.studentAddress.isNotBlank()) put("address", app.studentAddress.trim())
-                // gender is optional with check constraint
-                if (app.studentGender.isNotBlank()) put("gender", app.studentGender)
-                // class_number is optional
-                if (app.studentClassNumber.isNotBlank()) put("class_number", app.studentClassNumber.trim())
-                // teacher_name is optional
-                if (app.studentTeacherName.isNotBlank()) put("teacher_name", app.studentTeacherName.trim())
-                // lsen is BOOLEAN in table - convert from string
-                put("lsen", app.studentLsen.equals("true", ignoreCase = true) || app.studentLsen == "Yes")
+                if (appObj.optString("student_school").isNotBlank()) put("school", appObj.optString("student_school").trim())
+                if (appObj.optString("student_address").isNotBlank()) put("address", appObj.optString("student_address").trim())
+                if (appObj.optString("student_gender").isNotBlank()) put("gender", appObj.optString("student_gender"))
+                if (appObj.optString("student_class_number").isNotBlank()) put("class_number", appObj.optString("student_class_number").trim())
+                if (appObj.optString("student_teacher_name").isNotBlank()) put("teacher_name", appObj.optString("student_teacher_name").trim())
+                put("lsen", appObj.optString("student_lsen").equals("true", ignoreCase = true) || appObj.optString("student_lsen") == "Yes")
                 put("status", "active")
             }
 
-            Log.d(TAG, "Creating student from application: ${body.toString()}")
+            Log.d(TAG, "Creating student from application: ${studentBody.toString()}")
 
-            val result = SupabaseConfig.supabasePost(
+            val studentResult = SupabaseConfig.supabasePost(
                 table = "students",
-                body = body.toString(),
+                body = studentBody.toString(),
                 authToken = authToken()
             )
 
-            if (result == null) {
+            if (studentResult == null) {
                 Log.e(TAG, "Create student failed: null result from API")
+                AuditLogger.log("createStudentFromApplication_fail", "null api result")
                 return@withContext false
             }
 
-            Log.d(TAG, "Student created successfully: $result")
+            val studentId = JSONObject(studentResult).optString("id")
+            Log.d(TAG, "Student created successfully: $studentResult")
+            AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
+
+            if (studentId.isNotBlank()) {
+                val medicalBody = JSONObject().apply {
+                    put("student_id", studentId)
+                    put("doctor_name", InputSanitizer.sanitizeName(appObj.optString("doctor_name")))
+                    put("doctor_location", InputSanitizer.sanitizeText(appObj.optString("doctor_location")))
+                    put("doctor_contact", InputSanitizer.sanitizePhone(appObj.optString("doctor_contact")))
+                    put("medical_plan", InputSanitizer.sanitizeText(appObj.optString("medical_plan")))
+                    put("medical_aid_number", InputSanitizer.sanitizeText(appObj.optString("medical_aid_number")))
+                    put("allergies", InputSanitizer.sanitizeText(appObj.optString("allergies")))
+                    put("has_allergies", appObj.optBoolean("has_allergies"))
+                    put("epilepsy", appObj.optBoolean("epilepsy"))
+                    put("diabetic", appObj.optBoolean("diabetic"))
+                    put("asthma", appObj.optBoolean("asthma"))
+                    put("nose_bleeder", appObj.optBoolean("nose_bleeder"))
+                }
+                val medicalResult = SupabaseConfig.supabasePost(
+                    table = "medical_info",
+                    body = medicalBody.toString(),
+                    authToken = authToken()
+                )
+                AuditLogger.log("createStudentFromApplication_medical", "studentId=$studentId medical=${medicalResult != null}")
+
+                val collectionPersons = listOf(
+                    1 to Triple(
+                        appObj.optString("collection_person_1"),
+                        appObj.optString("collection_contact_1"),
+                        appObj.optString("collection_vehicle_1")
+                    ),
+                    2 to Triple(
+                        appObj.optString("collection_person_2"),
+                        appObj.optString("collection_contact_2"),
+                        appObj.optString("collection_vehicle_2")
+                    )
+                )
+
+                collectionPersons.forEach { (order, triple) ->
+                    val (person, contact, vehicle) = triple
+                    if (!person.isNullOrBlank()) {
+                        val body = JSONObject().apply {
+                            put("student_id", studentId)
+                            put("person_name", InputSanitizer.sanitizeName(person))
+                            put("contact_number", InputSanitizer.sanitizePhone(contact ?: ""))
+                            put("vehicle_registration", InputSanitizer.sanitizeVehicleReg(vehicle ?: ""))
+                            put("person_order", order)
+                        }
+                        val result = SupabaseConfig.supabasePost(
+                            table = "collection_persons",
+                            body = body.toString(),
+                            authToken = authToken()
+                        )
+                        AuditLogger.log("createStudentFromApplication_collection", "studentId=$studentId order=$order result=${result != null}")
+                    }
+                }
+
+                val sports = appObj.optString("sports")
+                if (sports.isNotBlank()) {
+                    sports.split(",").forEach { sport ->
+                        if (sport.isNotBlank()) {
+                            val body = JSONObject().apply {
+                                put("student_id", studentId)
+                                put("sport_name", InputSanitizer.sanitizeText(sport))
+                            }
+                            val result = SupabaseConfig.supabasePost(
+                                table = "student_sports",
+                                body = body.toString(),
+                                authToken = authToken()
+                            )
+                            AuditLogger.log("createStudentFromApplication_sport", "studentId=$studentId sport=$sport result=${result != null}")
+                        }
+                    }
+                }
+            }
+
             true
         } catch (e: Exception) {
             recordError("Create student from application", e)
+            AuditLogger.log("createStudentFromApplication_error", e.message ?: "")
             false
         }
     }
