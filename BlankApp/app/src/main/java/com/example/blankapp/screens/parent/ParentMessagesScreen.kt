@@ -368,12 +368,34 @@ fun ThreadDetailScreen(
     threadId: String,
     onBack: () -> Unit
 ) {
-    val threadMessages = getThreadMessages(threadId).sortedBy { it.timestamp }
     val currentUser = AuthRepository.getCurrentUser()
     val userId = currentUser?.id ?: ""
+    var threadMessages by remember { mutableStateOf<List<MockMessage>>(emptyList()) }
     var replyText by remember { mutableStateOf("") }
-    var messagesState by remember { mutableStateOf(threadMessages) }
-    val firstMsg = threadMessages.firstOrNull()
+    var messagesState by remember { mutableStateOf<List<MockMessage>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(threadId) {
+        try {
+            val msgs = SupabaseRepository.getUserMessages(userId)
+            val threadMsgs = msgs.filter { it.threadId == threadId }.sortedBy { it.timestamp }
+            threadMessages = threadMsgs
+            messagesState = threadMsgs
+        } catch (e: Exception) {
+            threadMessages = emptyList()
+            messagesState = emptyList()
+        }
+        isLoading = false
+    }
+
+    val firstMsg = messagesState.firstOrNull()
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = Primary)
+        }
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -448,17 +470,20 @@ fun ThreadDetailScreen(
                     IconButton(
                         onClick = {
                             if (replyText.isNotBlank()) {
+                                val replyTo = firstMsg ?: return@IconButton
+                                val recipientId = if (replyTo.senderId == userId) replyTo.recipientId else replyTo.senderId
+                                val recipientName = if (replyTo.senderId == userId) replyTo.recipientName else replyTo.senderName
                                 val newMsg = MockMessage(
                                     id = "MSG${System.currentTimeMillis()}",
-                                    subject = firstMsg?.subject ?: "Reply",
+                                    subject = replyTo.subject ?: "Reply",
                                     senderId = userId,
                                     senderName = currentUser?.fullName ?: "Parent",
-                                    recipientId = firstMsg?.senderId ?: "A001",
-                                    recipientName = firstMsg?.senderName ?: "A+ Study House",
+                                    recipientId = recipientId,
+                                    recipientName = recipientName,
                                     content = replyText,
                                     timestamp = "Just now",
                                     isRead = false,
-                                    category = firstMsg?.category ?: MessageCategory.GENERAL,
+                                    category = replyTo.category ?: MessageCategory.GENERAL,
                                     threadId = threadId,
                                     parentMessageId = messagesState.lastOrNull()?.id
                                 )
