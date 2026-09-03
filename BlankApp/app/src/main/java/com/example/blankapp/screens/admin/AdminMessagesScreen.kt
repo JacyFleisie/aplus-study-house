@@ -160,16 +160,22 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
     var messageText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf<List<MockMessage>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var reloadKey by remember { mutableStateOf(0) }
 
-    // Load messages
-    LaunchedEffect(parent.id) {
+    LaunchedEffect(parent.id, reloadKey) {
         try {
             val adminId = AuthRepository.getCurrentUser()?.id ?: ""
-            messages = SupabaseRepository.getConversation(adminId, parent.id)
+            messages = SupabaseRepository.getUserMessages(adminId)
+                .filter { it.senderId == adminId && it.recipientId == parent.id || it.senderId == parent.id && it.recipientId == adminId }
+                .sortedBy { it.timestamp }
         } catch (e: Exception) {
-            // Handle error
+            messages = emptyList()
         }
         isLoading = false
+    }
+    DisposableEffect(parent.id) {
+        val unsubscribe = SupabaseRealtime.onTableChange("messages") { reloadKey++ }
+        onDispose { unsubscribe() }
     }
 
     Scaffold(
@@ -242,15 +248,30 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                             if (messageText.isNotBlank()) {
                                 scope.launch {
                                     val adminId = AuthRepository.getCurrentUser()?.id ?: ""
-                                    SupabaseRepository.sendMessage(
+                                    val sent = SupabaseRepository.sendMessage(
                                         senderId = adminId,
                                         recipientId = parent.id,
                                         content = messageText,
                                         type = "message"
                                     )
+                                    if (sent) {
+                                        val threadId = "thread_${minOf(adminId.hashCode(), parent.id.hashCode())}_${maxOf(adminId.hashCode(), parent.id.hashCode())}"
+                                        val optimistic = MockMessage(
+                                            id = "MSG${System.currentTimeMillis()}",
+                                            subject = "Message",
+                                            senderId = adminId,
+                                            senderName = AuthRepository.getCurrentUser()?.fullName ?: "Admin",
+                                            recipientId = parent.id,
+                                            recipientName = parent.fullName,
+                                            content = messageText,
+                                            timestamp = "Just now",
+                                            isRead = false,
+                                            category = MessageCategory.GENERAL,
+                                            threadId = threadId
+                                        )
+                                        messages = (messages + optimistic).sortedBy { it.timestamp }
+                                    }
                                     messageText = ""
-                                    // Reload messages
-                                    messages = SupabaseRepository.getConversation(adminId, parent.id)
                                 }
                             }
                         },
