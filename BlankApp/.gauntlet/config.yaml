@@ -1,0 +1,23 @@
+# Gauntlet Loop Configuration
+
+max_iterations_per_piece: 5
+max_total_time_minutes: 120
+max_total_cost_usd: 50
+
+parallel_pieces: 1
+
+critic_confidence_threshold: 0.8
+ratchet_enabled: true
+stop_on_plateau: true
+plateau_rounds: 3
+
+evidence_requirements:
+  - artifact_inspection_log
+  - comparison_rationale
+
+stop_conditions:
+  - all_pieces_passed
+  - max_iterations_reached
+  - budget_exhausted
+  - plateau_detected
+  - human_stop

@@ -122,12 +122,15 @@ object SupabaseConfig {
                 .addHeader("Prefer", "return=representation")
 
             val response = httpClient.newCall(builder.build()).execute()
+            val responseBody = response.body?.string()
             if (response.isSuccessful) {
-                response.body?.string()
+                responseBody
             } else {
+                AuditLogger.log("supabase_post_fail", "table=$table code=${response.code} body=${responseBody?.take(200) ?: "null"}")
                 null
             }
         } catch (e: Exception) {
+            AuditLogger.log("supabase_post_error", "table=$table exception=${e.javaClass.simpleName} msg=${e.message ?: "null"}")
             null
         }
     }

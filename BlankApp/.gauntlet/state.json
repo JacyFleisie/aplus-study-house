@@ -1,0 +1,114 @@
+{
+  "goal": "Fix the messaging of my app from both admin and parent dashboards",
+  "reference": "Internal app behavior: parent/admin can send a message from Messages chat UI and the sent message appears as a chat bubble in the same thread on both sides. Backend must insert into Supabase messages table using schema in supabase/migrations/001_initial_schema.sql. Evidence: AUDIT logcat tags, supabase_post success, rendered bubble in app UI.",
+  "status": "looping",
+  "pieces": [
+    {
+      "id": "M1",
+      "name": "Normalize send payload to schema",
+      "description": "Update SupabaseRepository.sendMessage(senderId, recipientId, content, type) to build a request body that matches 001_initial_schema.sql exactly: include subject, content, category, is_read, thread_id, is_announcement=false, and omit unsupported fields.",
+      "quality_gate": "Inspector can open SupabaseRepository.kt and confirm the POST body keys are a subset of the messages table columns and category is one of the allowed check values.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/data/SupabaseRepository.kt",
+      "dependencies": [],
+      "status": "passed",
+      "current_round": 1,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/data/SupabaseRepository.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/data/SupabaseRepository.kt",
+      "previous_gap": null,
+      "verdicts": [
+        {
+          "round": 1,
+          "verdict": "PASS",
+          "confidence": 0.95,
+          "largest_gap": null,
+          "evidence": "Read SupabaseRepository.kt lines 538-577. POST body now includes only schema-supported keys: sender_id, recipient_id, subject, content, category, is_read, thread_id, is_announcement. Category maps type->allowed values, defaulting to general. thread_id is UUID.randomUUID(). Removed sender_name/recipient_name.",
+          "timestamp": "2026-09-03T15:03:00Z"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "Fix chat thread filtering in admin dashboard",
+      "description": "Change AdminMessagesScreen.ChatView to load messages with a conversation filter instead of fetching all messages and client-filtering. Use recipient_id/sender_id pair filtering or server-side query so only the admin<->parent thread is loaded.",
+      "quality_gate": "Inspector can read AdminMessagesScreen.kt and verify the chat loads messages using a query that restricts to the current parent conversation only.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "dependencies": ["M1"],
+      "status": "building",
+      "current_round": 1,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "previous_gap": null,
+      "verdicts": []
+    },
+    {
+      "id": "M3",
+      "name": "Fix chat thread filtering in parent dashboard",
+      "description": "Change ParentMessagesScreen.ParentAdminChatScreen to load only parent<->admin conversation messages, with stable thread_id handling and correct optimistic bubble append after send.",
+      "quality_gate": "Inspector can read ParentMessagesScreen.kt and verify the chat loads and filters messages by both sender/recipient pair for the current parent and office/admin.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/parent/ParentMessagesScreen.kt",
+      "dependencies": ["M1"],
+      "status": "building",
+      "current_round": 1,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/parent/ParentMessagesScreen.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/parent/ParentMessagesScreen.kt",
+      "previous_gap": null,
+      "verdicts": []
+    },
+    {
+      "id": "M4",
+      "name": "Add AUDIT evidence tags for sent message",
+      "description": "Ensure both dashboards log AUDIT tags around send: admin_chat_send_start/admin_chat_send_result/supabase_post success and rendered bubble count, using AuditLogger.log(event, detail) consistently.",
+      "quality_gate": "Inspector can grep AUDIT logcat tags from both AdminMessagesScreen.kt and ParentMessagesScreen.kt and confirm both sides emit send_start, send_result/supabase_post, and bubble-added audit lines.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "dependencies": ["M2"],
+      "status": "pending",
+      "current_round": 0,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "previous_gap": null,
+      "verdicts": []
+    },
+    {
+      "id": "M5",
+      "name": "Verify rendered chat bubble in app UI for both roles",
+      "description": "Confirm MessageBubble in admin and ParentMessageBubble in parent render both sent and received messages in the same thread, including optimistic local append after supabase_post success.",
+      "quality_gate": "Inspector can run the app and capture a screenshot from each dashboard showing a sent message bubble in the chat thread after sending.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "dependencies": ["M2", "M3"],
+      "status": "pending",
+      "current_round": 0,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/main/java/com/example/blankapp/screens/admin/AdminMessagesScreen.kt",
+      "previous_gap": null,
+      "verdicts": []
+    },
+    {
+      "id": "M6",
+      "name": "Run automated regression for messaging",
+      "description": "Add or update unit tests covering sendMessage payload and conversation filtering for both admin and parent paths.",
+      "quality_gate": "Inspector can run the test task and see all messaging-related tests pass.",
+      "output_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/test/java/com/example/blankapp/data/SupabaseRepositoryTest.kt",
+      "dependencies": ["M1", "M2", "M3"],
+      "status": "pending",
+      "current_round": 0,
+      "best_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/test/java/com/example/blankapp/data/SupabaseRepositoryTest.kt",
+      "current_candidate_path": "C:/Users/USER-PC/Desktop/A+ study house/BlankApp/app/src/test/java/com/example/blankapp/data/SupabaseRepositoryTest.kt",
+      "previous_gap": null,
+      "verdicts": []
+    }
+  ],
+  "budget": {
+    "max_time_minutes": 120,
+    "elapsed_minutes": 6,
+    "max_cost_usd": 50.0,
+    "spent_usd": 0.0
+  },
+  "config": {
+    "max_iterations_per_piece": 5,
+    "parallel_pieces": 1,
+    "critic_confidence_threshold": 0.8,
+    "ratchet_enabled": true,
+    "stop_on_plateau": true,
+    "plateau_rounds": 3
+  }
+}

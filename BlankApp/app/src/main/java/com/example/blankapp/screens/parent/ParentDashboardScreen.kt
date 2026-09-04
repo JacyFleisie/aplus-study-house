@@ -33,7 +33,6 @@ fun ParentDashboardScreen(
 ) {
     var selectedTab by remember { mutableStateOf(ParentTab.HOME) }
     var showNotifications by remember { mutableStateOf(false) }
-    var showCompose by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
 
     // Gate: Require at least one registered child
@@ -54,14 +53,6 @@ fun ParentDashboardScreen(
         return@RequireRegisteredChild
     }
 
-    if (showCompose) {
-        ComposeMessageScreen(
-            onBack = { showCompose = false },
-            onSent = { showCompose = false }
-        )
-        return@RequireRegisteredChild
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -78,15 +69,6 @@ fun ParentDashboardScreen(
                     )
                 },
                 actions = {
-                    if (selectedTab == ParentTab.MESSAGES) {
-                        IconButton(onClick = { showCompose = true }) {
-                            Icon(
-                                Icons.Filled.Edit,
-                                contentDescription = "Compose",
-                                tint = OnBackground
-                            )
-                        }
-                    }
                     IconButton(onClick = { showNotifications = true }) {
                         Icon(
                             Icons.Filled.Notifications,

@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import com.example.blankapp.utils.InputSanitizer
+import java.util.UUID
 
 /**
  * Supabase Data Repository
@@ -508,9 +509,7 @@ object SupabaseRepository {
             val body = JSONObject().apply {
                 put("thread_id", message.threadId)
                 put("sender_id", message.senderId)
-                put("sender_name", message.senderName)
                 put("recipient_id", message.recipientId)
-                put("recipient_name", message.recipientName)
                 put("subject", message.subject)
                 put("content", message.content)
                 put("category", when (message.category) {
@@ -521,6 +520,7 @@ object SupabaseRepository {
                     else -> "general"
                 })
                 put("is_read", message.isRead)
+                put("is_announcement", message.isAnnouncement)
                 if (message.parentMessageId != null) put("parent_message_id", message.parentMessageId)
             }
             val result = SupabaseConfig.supabasePost(
@@ -542,30 +542,42 @@ object SupabaseRepository {
         if (!isUsingBackend()) return@withContext false
 
         try {
-            val sender = AuthRepository.getCurrentUser()
-            val recipient = getAllParents().find { it.id == recipientId }
+            val threadId = UUID.randomUUID().toString()
+            val category = when (type) {
+                "application" -> "application"
+                "finance" -> "finance"
+                "permission" -> "permission"
+                "announcement" -> "announcement"
+                else -> "general"
+            }
             val body = JSONObject().apply {
-                put("thread_id", "thread_${minOf(senderId.hashCode(), recipientId.hashCode())}_${maxOf(senderId.hashCode(), recipientId.hashCode())}")
                 put("sender_id", senderId)
-                put("sender_name", sender?.fullName ?: "Admin")
                 put("recipient_id", recipientId)
-                put("recipient_name", recipient?.fullName ?: "Parent")
                 put("subject", "Message")
                 put("content", InputSanitizer.sanitizeText(content))
-                put("category", type)
+                put("category", category)
                 put("is_read", false)
+                put("thread_id", threadId)
+                put("is_announcement", false)
             }
+            lastSendMessageResult = body.toString()
             val result = SupabaseConfig.supabasePost(
                 table = "messages",
                 body = body.toString(),
                 authToken = authToken()
             )
+            lastSendMessageResult = result
             result != null
         } catch (e: Exception) {
             recordError("Send message", e)
+            AuditLogger.log("send_message_error", "parent_chat exception=${e.javaClass.simpleName} msg=${e.message ?: "null"} cause=${e.cause?.javaClass?.simpleName ?: "null"} stack=${e.stackTrace?.take(4)?.joinToString("|") ?: "null"}")
+            lastSendMessageResult = null
             false
         }
     }
+
+    @Volatile var lastSendMessageResult: String? = null
+        private set
 
     /**
      * Get conversation messages between two users.
@@ -590,6 +602,45 @@ object SupabaseRepository {
         } catch (e: Exception) {
             recordError("Get conversation", e)
             emptyList()
+        }
+    }
+
+    suspend fun getAdminUser(): MockUser? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext mockUsers.firstOrNull { it.role == UserRole.ADMIN }
+
+        try {
+            // Try by role=admin first
+            var result = SupabaseConfig.supabaseGet(
+                table = "profiles",
+                query = "role=eq.admin&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
+                authToken = authToken()
+            )
+
+            // Fallback: try by known admin email
+            if (result == null || result == "[]") {
+                result = SupabaseConfig.supabaseGet(
+                    table = "profiles",
+                    query = "email=eq.admin@aplusstudy.co.za&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at",
+                    authToken = authToken()
+                )
+            }
+
+            if (result == null || result == "[]") return@withContext null
+            val arr = JSONArray(result)
+            if (arr.length() == 0) return@withContext null
+            val obj = arr.getJSONObject(0)
+            MockUser(
+                id = obj.optString("id"),
+                fullName = obj.optString("full_name", ""),
+                email = obj.optString("email", ""),
+                phone = obj.optString("phone", ""),
+                password = "",
+                role = UserRole.ADMIN,
+                surname = obj.optString("surname", "")
+            )
+        } catch (e: Exception) {
+            recordError("getAdminUser", e)
+            null
         }
     }
 

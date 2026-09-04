@@ -248,12 +248,17 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                             if (messageText.isNotBlank()) {
                                 scope.launch {
                                     val adminId = AuthRepository.getCurrentUser()?.id ?: ""
+                                    AuditLogger.log("admin_chat_send_start", "adminId=$adminId parentId=${parent.id} text=${messageText.take(50)}")
+                                    val before = System.currentTimeMillis()
                                     val sent = SupabaseRepository.sendMessage(
                                         senderId = adminId,
                                         recipientId = parent.id,
                                         content = messageText,
                                         type = "message"
                                     )
+                                    val elapsed = System.currentTimeMillis() - before
+                                    val apiResult = SupabaseRepository.lastSendMessageResult
+                                    AuditLogger.log("admin_chat_send_result", "sent=$sent adminId=$adminId parentId=${parent.id} elapsed=$elapsed ms apiResult=${apiResult ?: "null"}")
                                     if (sent) {
                                         val threadId = "thread_${minOf(adminId.hashCode(), parent.id.hashCode())}_${maxOf(adminId.hashCode(), parent.id.hashCode())}"
                                         val optimistic = MockMessage(
@@ -270,6 +275,7 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                                             threadId = threadId
                                         )
                                         messages = (messages + optimistic).sortedBy { it.timestamp }
+                                        AuditLogger.log("admin_chat_optimistic", "added=true count=${messages.size}")
                                     }
                                     messageText = ""
                                 }
