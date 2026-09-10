@@ -34,11 +34,11 @@ android {
         applicationId = "com.example.blankapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 32
-        versionName = "1.5.2"
+        versionCode = 34
+        versionName = "1.6.1"
 
-        buildConfigField("String", "VERSION_NAME", "\"1.5.2\"")
-        buildConfigField("int", "VERSION_CODE", "32")
+        buildConfigField("String", "VERSION_NAME", "\"1.6.1\"")
+        buildConfigField("int", "VERSION_CODE", "34")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

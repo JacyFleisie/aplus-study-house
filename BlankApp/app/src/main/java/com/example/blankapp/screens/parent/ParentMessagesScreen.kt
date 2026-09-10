@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withTimeout
 
 // ============================================
 // PARENT MESSAGES SCREEN — WhatsApp-style, admin only
@@ -142,6 +146,7 @@ fun ParentAdminChatScreen(onBack: () -> Unit) {
     var messageText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf<List<MockMessage>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var loadError by remember { mutableStateOf<String?>(null) }
     var reloadKey by remember { mutableStateOf(0) }
 
     val currentUser = AuthRepository.getCurrentUser()
@@ -149,32 +154,53 @@ fun ParentAdminChatScreen(onBack: () -> Unit) {
     var adminId by remember { mutableStateOf<String?>(null) }
     var adminIdLoading by remember { mutableStateOf(true) }
 
+    // Resolve admin ID
     LaunchedEffect(Unit) {
         val resolved = try {
-            SupabaseRepository.getAdminUser()?.id
+            withContext(Dispatchers.IO) {
+                withTimeout(10000) {
+                    SupabaseRepository.getAdminUser()?.id
+                        ?: SupabaseRepository.findAdminIdFromMessages(parentId)
+                }
+            }
         } catch (e: Exception) { null }
         if (resolved == null) {
-            AuditLogger.log("parent_chat_admin_resolve_fail", "getAdminUser returned null")
+            AuditLogger.log("parent_chat_admin_resolve_fail", "getAdminUser returned null or timed out")
         }
-        adminId = resolved ?: "A001"
+        AuditLogger.log("parent_chat_admin_resolve", "parentId=$parentId resolvedAdminId=$resolved")
+        adminId = resolved
         adminIdLoading = false
     }
 
-    LaunchedEffect(reloadKey, adminId, parentId) {
-        val safeAdminId = adminId ?: return@LaunchedEffect
-        if (parentId.isBlank()) return@LaunchedEffect
+    // Load history
+    val safeAdminId = adminId
+    LaunchedEffect(safeAdminId, parentId, reloadKey) {
+        val targetAdminId = safeAdminId
+        if (targetAdminId == null || parentId.isBlank()) {
+            isLoading = false
+            return@LaunchedEffect
+        }
+        loadError = null
+        isLoading = true
         try {
-            messages = SupabaseRepository.getUserMessages(parentId)
-                .filter { it.senderId == parentId && it.recipientId == safeAdminId || it.senderId == safeAdminId && it.recipientId == parentId }
-                .sortedBy { it.timestamp }
+            val history = withContext(Dispatchers.IO) {
+                withTimeout(10000) {
+                    SupabaseRepository.getConversation(parentId, targetAdminId)
+                }
+            }
+            messages = history.sortedBy { it.timestamp }
         } catch (e: Exception) {
+            loadError = e.message ?: "Unknown error"
             messages = emptyList()
         }
         isLoading = false
     }
 
+    // Listen for realtime changes
     DisposableEffect(Unit) {
-        val unsubscribe = SupabaseRealtime.onTableChange("messages") { reloadKey++ }
+        val unsubscribe = SupabaseRealtime.onTableChange("messages") {
+            reloadKey++
+        }
         onDispose { unsubscribe() }
     }
 
@@ -242,36 +268,36 @@ fun ParentAdminChatScreen(onBack: () -> Unit) {
                     Spacer(modifier = Modifier.width(8.dp))
                     FilledIconButton(
                         onClick = {
-                            if (messageText.isNotBlank()) {
+                            if (messageText.isNotBlank() && safeAdminId != null) {
                                 scope.launch {
-                                    AuditLogger.log("parent_chat_send_start", "parentId=$parentId adminId=$adminId text=${messageText.take(50)}")
-                                    val resolvedAdminId = adminId ?: "A001"
+                                    val textToSend = messageText
+                                    AuditLogger.log("parent_chat_send_start", "parentId=$parentId adminId=$safeAdminId text=${textToSend.take(50)}")
                                     val before = System.currentTimeMillis()
                                     val sent = SupabaseRepository.sendMessage(
                                         senderId = parentId,
-                                        recipientId = resolvedAdminId,
-                                        content = messageText,
+                                        recipientId = safeAdminId,
+                                        content = textToSend,
                                         type = "message"
                                     )
                                     val elapsed = System.currentTimeMillis() - before
-                                    val apiResult = SupabaseRepository.lastSendMessageResult
-                                    AuditLogger.log("parent_chat_send_result", "sent=$sent parentId=$parentId adminId=$resolvedAdminId elapsed=$elapsed ms apiResult=${apiResult ?: "null"}")
+                                    AuditLogger.log("parent_chat_send_result", "sent=$sent parentId=$parentId adminId=$safeAdminId elapsed=$elapsed ms")
                                     if (sent) {
+                                        // Optimistic append
+                                        val threadId = "thread_${minOf(parentId.hashCode(), safeAdminId.hashCode())}_${maxOf(parentId.hashCode(), safeAdminId.hashCode())}"
                                         val optimistic = MockMessage(
-                                            id = "MSG${System.currentTimeMillis()}",
+                                            id = "local_${System.currentTimeMillis()}",
                                             subject = "Message",
                                             senderId = parentId,
                                             senderName = currentUser?.fullName ?: "Parent",
-                                            recipientId = resolvedAdminId,
-                                            recipientName = "A+ Study House",
-                                            content = messageText,
+                                            recipientId = safeAdminId,
+                                            recipientName = "Office",
+                                            content = textToSend,
                                             timestamp = "Just now",
                                             isRead = false,
                                             category = MessageCategory.GENERAL,
-                                            threadId = ""
+                                            threadId = threadId
                                         )
                                         messages = (messages + optimistic).sortedBy { it.timestamp }
-                                        AuditLogger.log("parent_chat_optimistic", "added=true count=${messages.size}")
                                     }
                                     messageText = ""
                                 }
@@ -286,30 +312,52 @@ fun ParentAdminChatScreen(onBack: () -> Unit) {
             }
         }
     ) { paddingValues ->
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Primary)
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            if (loadError != null) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    tonalElevation = 2.dp,
+                    color = MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("Load error", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onErrorContainer)
+                        Text(loadError ?: "", color = MaterialTheme.colorScheme.onErrorContainer)
+                    }
+                }
             }
-        } else if (messages.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(
-                    "Start a conversation with the office",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = OnSurfaceVariant
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Background),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(messages) { message ->
-                    val isMine = message.senderId == parentId
-                    ParentMessageBubble(message = message, isMine = isMine)
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Primary)
+                }
+            } else if (messages.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.ChatBubbleOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = OnSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Start a conversation with the office",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Background),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(messages) { message ->
+                        val isMine = message.senderId == parentId
+                        ParentMessageBubble(message = message, isMine = isMine)
+                    }
                 }
             }
         }

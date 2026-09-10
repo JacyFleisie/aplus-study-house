@@ -538,11 +538,14 @@ object SupabaseRepository {
     /**
      * Send a simple text message between two users.
      */
+    /**
+     * Send via Socket.io when available; fall back to REST when socket is disconnected.
+     */
     suspend fun sendMessage(senderId: String, recipientId: String, content: String, type: String = "message"): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
 
         try {
-            val threadId = UUID.randomUUID().toString()
+            val threadId = "thread_${minOf(senderId.hashCode(), recipientId.hashCode())}_${maxOf(senderId.hashCode(), recipientId.hashCode())}"
             val category = when (type) {
                 "application" -> "application"
                 "finance" -> "finance"
@@ -550,20 +553,22 @@ object SupabaseRepository {
                 "announcement" -> "announcement"
                 else -> "general"
             }
-            val body = JSONObject().apply {
+            val sanitized = InputSanitizer.sanitizeText(content)
+            val payload = JSONObject().apply {
                 put("sender_id", senderId)
                 put("recipient_id", recipientId)
                 put("subject", "Message")
-                put("content", InputSanitizer.sanitizeText(content))
+                put("content", sanitized)
                 put("category", category)
                 put("is_read", false)
                 put("thread_id", threadId)
                 put("is_announcement", false)
             }
-            lastSendMessageResult = body.toString()
+
+            lastSendMessageResult = "rest_send"
             val result = SupabaseConfig.supabasePost(
                 table = "messages",
-                body = body.toString(),
+                body = payload.toString(),
                 authToken = authToken()
             )
             lastSendMessageResult = result
@@ -586,22 +591,35 @@ object SupabaseRepository {
         if (!isUsingBackend()) return@withContext emptyList()
 
         try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "messages",
-                query = "or=(and(sender_id=eq.$userId,recipient_id=eq.$otherUserId),and(sender_id=eq.$otherUserId,recipient_id=eq.$userId))&order=created_at.asc",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            // Supabase OR filter can 400 on UUIDs; split into two simple queries
+            val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
+            val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
+            val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
+            val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
 
-            val arr = JSONArray(result)
             val messages = mutableListOf<MockMessage>()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                messages.add(parseMessage(obj))
-            }
-            messages
+            r1?.let { for (i in 0 until JSONArray(it).length()) messages.add(parseMessage(JSONArray(it).getJSONObject(i))) }
+            r2?.let { for (i in 0 until JSONArray(it).length()) messages.add(parseMessage(JSONArray(it).getJSONObject(i))) }
+            messages.sortedBy { it.timestamp }
         } catch (e: Exception) {
             recordError("Get conversation", e)
             emptyList()
+        }
+    }
+
+    suspend fun getConversationRaw(userId: String, otherUserId: String): String = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext "backend_disabled"
+
+        try {
+            val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
+            val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
+            val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
+            val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
+            val len1 = r1?.length ?: 0
+            val len2 = r2?.length ?: 0
+            "q1_len=$len1 q2_len=$len2 q1=${r1?.take(120) ?: "null"} q2=${r2?.take(120) ?: "null"}"
+        } catch (e: Exception) {
+            "exception=${e.javaClass.simpleName} msg=${e.message ?: "null"}"
         }
     }
 
@@ -640,6 +658,21 @@ object SupabaseRepository {
             )
         } catch (e: Exception) {
             recordError("getAdminUser", e)
+            null
+        }
+    }
+
+    suspend fun findAdminIdFromMessages(parentId: String): String? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext null
+        try {
+            val q = "recipient_id=eq.$parentId&select=sender_id&limit=1"
+            val result = SupabaseConfig.supabaseGet(table = "messages", query = q, authToken = authToken())
+            if (result == null || result == "[]") return@withContext null
+            val arr = JSONArray(result)
+            if (arr.length() == 0) return@withContext null
+            arr.getJSONObject(0).optString("sender_id")
+        } catch (e: Exception) {
+            recordError("findAdminIdFromMessages", e)
             null
         }
     }
