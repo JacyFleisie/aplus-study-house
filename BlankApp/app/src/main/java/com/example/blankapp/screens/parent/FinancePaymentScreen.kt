@@ -1,5 +1,10 @@
 package com.example.blankapp.screens.parent
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,13 +17,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.blankapp.data.AuditLogger
+import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +43,67 @@ fun FinancePaymentScreen(
     var selectedMethod by remember { mutableStateOf<String?>(null) }
     var popUploaded by remember { mutableStateOf(false) }
     var paymentSubmitted by remember { mutableStateOf(false) }
+    var uploading by remember { mutableStateOf(false) }
+    var proofOfPayment by remember { mutableStateOf<String?>(null) }
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // File picker for PoP
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            uploading = true
+            try {
+                val mimeType = ctx.contentResolver.getType(uri) ?: "image/*"
+                val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                if (bytes != null) {
+                    val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
+                    val ext = when (mimeType) {
+                        "application/pdf" -> ".pdf"
+                        "image/jpeg" -> ".jpg"
+                        "image/png" -> ".png"
+                        else -> ""
+                    }
+                    val fileName = "pop_${parentId}_${System.currentTimeMillis()}${ext}"
+                    val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, mimeType)
+                    if (path != null) {
+                        proofOfPayment = path
+                        popUploaded = true
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                uploading = false
+            }
+        }
+    }
+
+    // Camera for PoP
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && photoUri != null) {
+            scope.launch {
+                uploading = true
+                try {
+                    val bytes = ctx.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
+                    if (bytes != null) {
+                        val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
+                        val fileName = "pop_${parentId}_${System.currentTimeMillis()}.jpg"
+                        val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, "image/jpeg")
+                        if (path != null) {
+                            proofOfPayment = path
+                            popUploaded = true
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Handle error
+                } finally {
+                    uploading = false
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -166,36 +238,34 @@ fun FinancePaymentScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             if (!popUploaded) {
-                                OutlinedCard(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { popUploaded = true },
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(20.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    // Take Photo button
+                                    OutlinedButton(
+                                        onClick = {
+                                            val photoFile = File(ctx.cacheDir, "pop_${System.currentTimeMillis()}.jpg")
+                                            photoUri = androidx.core.content.FileProvider.getUriForFile(
+                                                ctx, ctx.packageName + ".fileprovider", photoFile
+                                            )
+                                            cameraLauncher.launch(photoUri!!)
+                                        },
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        enabled = !uploading
                                     ) {
-                                        Icon(
-                                            Icons.Filled.CloudUpload,
-                                            contentDescription = null,
-                                            tint = Primary,
-                                            modifier = Modifier.size(40.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "Tap to upload POP",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Primary,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                        Text(
-                                            text = "JPG, PNG or PDF (max 5MB)",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = OnSurfaceVariant
-                                        )
+                                        Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Take Photo", fontWeight = FontWeight.SemiBold)
+                                    }
+                                    // Choose File button
+                                    OutlinedButton(
+                                        onClick = { filePicker.launch("image/*,application/pdf") },
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        enabled = !uploading
+                                    ) {
+                                        Icon(Icons.Filled.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Choose File", fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             } else {
@@ -224,7 +294,7 @@ fun FinancePaymentScreen(
                                                 color = Success
                                             )
                                             Text(
-                                                text = "payment_proof_${System.currentTimeMillis()}.jpg",
+                                                text = proofOfPayment ?: "",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = OnSurfaceVariant
                                             )

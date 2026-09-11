@@ -454,6 +454,7 @@ fun InvoiceCard(
     onClick: () -> Unit = {}
 ) {
     val student = students.find { it.id == invoice.studentId }
+    val isUnpaid = invoice.status == InvoiceStatus.PENDING || invoice.status == InvoiceStatus.OVERDUE
 
     Card(
         modifier = Modifier
@@ -463,109 +464,124 @@ fun InvoiceCard(
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Status Icon
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        when (invoice.status) {
-                            InvoiceStatus.PAID -> SuccessContainer
-                            InvoiceStatus.PENDING -> WarningContainer
-                            InvoiceStatus.OVERDUE -> ErrorContainer
-                            InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
-                        },
-                        CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    when (invoice.status) {
-                        InvoiceStatus.PAID -> Icons.Filled.CheckCircle
-                        InvoiceStatus.PENDING -> Icons.Filled.Schedule
-                        InvoiceStatus.OVERDUE -> Icons.Filled.Warning
-                        InvoiceStatus.CANCELLED -> Icons.Filled.Cancel
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = when (invoice.status) {
-                        InvoiceStatus.PAID -> Success
-                        InvoiceStatus.PENDING -> Warning
-                        InvoiceStatus.OVERDUE -> Error
-                        InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = invoice.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = OnBackground
-                )
-                Text(
-                    text = student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurfaceVariant
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                // Status Icon
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            when (invoice.status) {
+                                InvoiceStatus.PAID -> SuccessContainer
+                                InvoiceStatus.PENDING -> WarningContainer
+                                InvoiceStatus.OVERDUE -> ErrorContainer
+                                InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
+                            },
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = getInvoiceCategoryColor(invoice.category).copy(alpha = 0.12f)
-                    ) {
-                        Text(
-                            text = getInvoiceCategoryLabel(invoice.category),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = getInvoiceCategoryColor(invoice.category),
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Due: ${invoice.dueDate}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = OnSurfaceVariant
-                    )
-                }
-            }
-
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "R${invoice.amount.toInt()}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = OnBackground
-                )
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = when (invoice.status) {
-                        InvoiceStatus.PAID -> SuccessContainer
-                        InvoiceStatus.PENDING -> WarningContainer
-                        InvoiceStatus.OVERDUE -> ErrorContainer
-                        InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
-                    }
-                ) {
-                    Text(
-                        text = invoice.status.name,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = when (invoice.status) {
+                    Icon(
+                        when (invoice.status) {
+                            InvoiceStatus.PAID -> Icons.Filled.CheckCircle
+                            InvoiceStatus.PENDING -> Icons.Filled.Schedule
+                            InvoiceStatus.OVERDUE -> Icons.Filled.Warning
+                            InvoiceStatus.CANCELLED -> Icons.Filled.Cancel
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = when (invoice.status) {
                             InvoiceStatus.PAID -> Success
                             InvoiceStatus.PENDING -> Warning
                             InvoiceStatus.OVERDUE -> Error
                             InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                        },
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        }
                     )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = invoice.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OnBackground
+                    )
+                    Text(
+                        text = student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = getInvoiceCategoryColor(invoice.category).copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                text = getInvoiceCategoryLabel(invoice.category),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = getInvoiceCategoryColor(invoice.category),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Due: ${invoice.dueDate}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceVariant
+                        )
+                    }
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "R${invoice.amount.toInt()}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = when (invoice.status) {
+                            InvoiceStatus.PAID -> SuccessContainer
+                            InvoiceStatus.PENDING -> WarningContainer
+                            InvoiceStatus.OVERDUE -> ErrorContainer
+                            InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
+                        }
+                    ) {
+                        Text(
+                            text = invoice.status.name,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = when (invoice.status) {
+                                InvoiceStatus.PAID -> Success
+                                InvoiceStatus.PENDING -> Warning
+                                InvoiceStatus.OVERDUE -> Error
+                                InvoiceStatus.CANCELLED -> OnSurfaceVariant
+                            },
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            // Pay Now button for unpaid invoices
+            if (isUnpaid) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (invoice.status == InvoiceStatus.OVERDUE) Error else Primary
+                    )
+                ) {
+                    Icon(Icons.Filled.Payment, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Pay Now", fontWeight = FontWeight.SemiBold)
                 }
             }
         }
