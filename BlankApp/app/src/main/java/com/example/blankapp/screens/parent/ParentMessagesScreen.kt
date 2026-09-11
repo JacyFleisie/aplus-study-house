@@ -189,6 +189,8 @@ fun ParentAdminChatScreen(onBack: () -> Unit) {
                 }
             }
             messages = history.sortedBy { it.timestamp }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            return@LaunchedEffect
         } catch (e: Exception) {
             loadError = e.message ?: "Unknown error"
             messages = emptyList()

@@ -179,6 +179,9 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                 }
             }
             messages = history.sortedBy { it.timestamp }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // Navigation caused cancellation — not an error, just return
+            return@LaunchedEffect
         } catch (e: Exception) {
             loadError = e.message ?: "Unknown error"
             messages = emptyList()
