@@ -1047,6 +1047,45 @@ object SupabaseRepository {
         }
     }
 
+    suspend fun createInvoice(studentId: String, parentId: String, amount: Double, description: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("student_id", studentId)
+                put("parent_id", parentId)
+                put("amount", amount)
+                put("description", InputSanitizer.sanitizeText(description))
+                put("status", "pending")
+                put("due_date", "now() + interval '30 days'")
+                put("created_at", "now()")
+            }
+            val result = SupabaseConfig.supabasePost(
+                table = "invoices",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Create invoice", e)
+            false
+        }
+    }
+
+    suspend fun deletePayment(paymentId: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val result = SupabaseConfig.supabaseDelete(
+                table = "payments",
+                query = "id=eq.$paymentId",
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Delete payment", e)
+            false
+        }
+    }
+
     // ============================================
     // STUDENT CREATION FROM APPLICATION
     // ============================================

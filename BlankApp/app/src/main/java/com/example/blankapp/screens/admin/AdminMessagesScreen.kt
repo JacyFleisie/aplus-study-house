@@ -388,11 +388,24 @@ fun MessageBubble(message: MockMessage, isFromAdmin: Boolean) {
                     color = if (isFromAdmin) OnPrimary else OnBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = message.timestamp,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (isFromAdmin) OnPrimary.copy(alpha = 0.7f) else OnSurfaceVariant
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = message.timestamp,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isFromAdmin) OnPrimary.copy(alpha = 0.7f) else OnSurfaceVariant
+                    )
+                    if (isFromAdmin) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = if (message.isRead) "Read" else "Sent",
+                            modifier = Modifier.size(12.dp),
+                            tint = if (message.isRead) Info else OnPrimary.copy(alpha = 0.5f)
+                        )
+                    }
+                }
             }
         }
     }

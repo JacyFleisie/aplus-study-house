@@ -904,6 +904,10 @@ fun PaymentCard(
 
 @Composable
 fun VerifiedPaymentCard(payment: MockPayment) {
+    var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -954,7 +958,47 @@ fun VerifiedPaymentCard(payment: MockPayment) {
                 fontWeight = FontWeight.Bold,
                 color = Success
             )
+            Spacer(modifier = Modifier.width(8.dp))
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Options")
+                }
+                DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = { showMenu = false /* TODO: open edit dialog */ },
+                        leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = { showMenu = false; showDeleteDialog = true },
+                        leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) }
+                    )
+                }
+            }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Payment") },
+            text = { Text("Are you sure you want to delete this payment record? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        scope.launch {
+                            // TODO: implement delete
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Error)
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 }
 

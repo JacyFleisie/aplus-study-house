@@ -10,9 +10,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -394,11 +395,24 @@ fun ParentMessageBubble(message: MockMessage, isMine: Boolean) {
                         color = if (isMine) OnPrimary else OnBackground
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = message.timestamp,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (isMine) OnPrimary.copy(alpha = 0.7f) else OnSurfaceVariant
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = message.timestamp,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isMine) OnPrimary.copy(alpha = 0.7f) else OnSurfaceVariant
+                        )
+                        if (isMine) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = if (message.isRead) "Read" else "Sent",
+                                modifier = Modifier.size(12.dp),
+                                tint = if (message.isRead) Info else OnPrimary.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
                 }
             }
         }

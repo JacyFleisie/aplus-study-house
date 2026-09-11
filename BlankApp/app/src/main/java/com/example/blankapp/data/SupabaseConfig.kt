@@ -166,6 +166,30 @@ object SupabaseConfig {
         }
     }
 
+    suspend fun supabaseDelete(
+        table: String,
+        query: String,
+        authToken: String? = null
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val url = "$SUPABASE_URL/rest/v1/$table${if (query.isNotEmpty()) "?$query" else ""}"
+            val builder = Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("apikey", SUPABASE_ANON_KEY)
+                .addHeader("Authorization", "Bearer ${authToken ?: SUPABASE_ANON_KEY}")
+
+            val response = httpClient.newCall(builder.build()).execute()
+            if (response.isSuccessful) {
+                response.body?.string()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     /**
      * Call Supabase Auth API
      */
