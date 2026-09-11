@@ -83,6 +83,31 @@ data class MockStudent(
     val parentSignature: String? = null
 )
 
+data class MockMedical(
+    val id: String = "",
+    val studentId: String = "",
+    val doctorName: String? = null,
+    val doctorLocation: String? = null,
+    val doctorContact: String? = null,
+    val medicalPlan: String? = null,
+    val medicalAidNumber: String? = null,
+    val allergies: String? = null,
+    val hasAllergies: Boolean = false,
+    val epilepsy: Boolean = false,
+    val diabetic: Boolean = false,
+    val asthma: Boolean = false,
+    val noseBleeder: Boolean = false
+)
+
+data class MockCollectionPerson(
+    val id: String = "",
+    val studentId: String = "",
+    val personName: String = "",
+    val contactNumber: String = "",
+    val vehicleRegistration: String = "",
+    val personOrder: Int = 1
+)
+
 enum class StudentStatus {
     ACTIVE, PENDING, INACTIVE
 }

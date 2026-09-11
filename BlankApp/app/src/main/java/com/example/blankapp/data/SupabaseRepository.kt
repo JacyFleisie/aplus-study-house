@@ -321,6 +321,68 @@ object SupabaseRepository {
         }
     }
 
+    suspend fun getStudentMedical(studentId: String): MockMedical? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext null
+
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "medical_info",
+                query = "student_id=eq.$studentId&select=*",
+                authToken = authToken()
+            ) ?: return@withContext null
+
+            val arr = JSONArray(result)
+            if (arr.length() > 0) parseMedical(arr.getJSONObject(0)) else null
+        } catch (e: Exception) {
+            recordError("Backend query", e)
+            null
+        }
+    }
+
+    suspend fun getStudentCollectionPersons(studentId: String): List<MockCollectionPerson> = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext emptyList()
+
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "collection_persons",
+                query = "student_id=eq.$studentId&select=*&order=person_order.asc",
+                authToken = authToken()
+            ) ?: return@withContext emptyList()
+
+            val arr = JSONArray(result)
+            val persons = mutableListOf<MockCollectionPerson>()
+            for (i in 0 until arr.length()) {
+                persons.add(parseCollectionPerson(arr.getJSONObject(i)))
+            }
+            persons
+        } catch (e: Exception) {
+            recordError("Backend query", e)
+            emptyList()
+        }
+    }
+
+    suspend fun getStudentSports(studentId: String): List<String> = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext emptyList()
+
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "student_sports",
+                query = "student_id=eq.$studentId&select=sport_name",
+                authToken = authToken()
+            ) ?: return@withContext emptyList()
+
+            val arr = JSONArray(result)
+            val sports = mutableListOf<String>()
+            for (i in 0 until arr.length()) {
+                sports.add(arr.getJSONObject(i).optString("sport_name"))
+            }
+            sports
+        } catch (e: Exception) {
+            recordError("Backend query", e)
+            emptyList()
+        }
+    }
+
     // ============================================
     // PERMISSIONS
     // ============================================
@@ -1201,6 +1263,35 @@ object SupabaseRepository {
             classNr = obj.optString("class_number", ""),
             teacherName = obj.optString("teacher_name", ""),
             lsen = obj.optBoolean("lsen", false)
+        )
+    }
+
+    private fun parseMedical(obj: JSONObject): MockMedical {
+        return MockMedical(
+            id = obj.optString("id"),
+            studentId = obj.optString("student_id"),
+            doctorName = obj.optString("doctor_name"),
+            doctorLocation = obj.optString("doctor_location"),
+            doctorContact = obj.optString("doctor_contact"),
+            medicalPlan = obj.optString("medical_plan"),
+            medicalAidNumber = obj.optString("medical_aid_number"),
+            allergies = obj.optString("allergies"),
+            hasAllergies = obj.optBoolean("has_allergies"),
+            epilepsy = obj.optBoolean("epilepsy"),
+            diabetic = obj.optBoolean("diabetic"),
+            asthma = obj.optBoolean("asthma"),
+            noseBleeder = obj.optBoolean("nose_bleeder")
+        )
+    }
+
+    private fun parseCollectionPerson(obj: JSONObject): MockCollectionPerson {
+        return MockCollectionPerson(
+            id = obj.optString("id"),
+            studentId = obj.optString("student_id"),
+            personName = obj.optString("person_name"),
+            contactNumber = obj.optString("contact_number"),
+            vehicleRegistration = obj.optString("vehicle_registration"),
+            personOrder = obj.optInt("person_order", 1)
         )
     }
 

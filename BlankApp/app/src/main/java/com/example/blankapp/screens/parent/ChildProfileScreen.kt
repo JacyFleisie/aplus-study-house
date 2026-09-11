@@ -30,6 +30,9 @@ fun ChildProfileScreen(
     var studentState by remember { mutableStateOf<MockStudent?>(null) }
     var studentDocuments by remember { mutableStateOf<List<MockDocument>>(emptyList()) }
     var studentInvoices by remember { mutableStateOf<List<MockInvoice>>(emptyList()) }
+    var studentMedical by remember { mutableStateOf<MockMedical?>(null) }
+    var studentCollectionPersons by remember { mutableStateOf<List<MockCollectionPerson>>(emptyList()) }
+    var studentSports by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(studentId) {
@@ -37,6 +40,9 @@ fun ChildProfileScreen(
             studentState = SupabaseRepository.getStudent(studentId)
             studentDocuments = SupabaseRepository.getStudentDocuments(studentId)
             studentInvoices = SupabaseRepository.getStudentInvoices(studentId)
+            studentMedical = SupabaseRepository.getStudentMedical(studentId)
+            studentCollectionPersons = SupabaseRepository.getStudentCollectionPersons(studentId)
+            studentSports = SupabaseRepository.getStudentSports(studentId)
         } catch (e: Exception) {
             studentState = null
         }
@@ -184,7 +190,8 @@ fun ChildProfileScreen(
                 icon = Icons.Filled.Sports,
                 color = Secondary
             ) {
-                ProfileInfoRow("Sports", if (student.sports.isNotEmpty()) student.sports.joinToString(", ") else "None")
+                val sports = if (student.sports.isNotEmpty()) student.sports else studentSports
+                ProfileInfoRow("Sports", if (sports.isNotEmpty()) sports.joinToString(", ") else "None")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -195,13 +202,14 @@ fun ChildProfileScreen(
                 icon = Icons.Filled.MedicalServices,
                 color = Error
             ) {
+                val medical = studentMedical
                 val conditionsList = mutableListOf<String>()
-                if (student.epilepsy) conditionsList.add("Epilepsy")
-                if (student.diabetic) conditionsList.add("Diabetic")
-                if (student.asthma) conditionsList.add("Asthma")
-                if (student.noseBleeder) conditionsList.add("Nose Bleeder")
-                if (student.hasAllergies) conditionsList.add("Allergies")
-                if (student.allergies.isNotEmpty() || conditionsList.isNotEmpty()) {
+                if (medical?.epilepsy == true) conditionsList.add("Epilepsy")
+                if (medical?.diabetic == true) conditionsList.add("Diabetic")
+                if (medical?.asthma == true) conditionsList.add("Asthma")
+                if (medical?.noseBleeder == true) conditionsList.add("Nose Bleeder")
+                if (medical?.hasAllergies == true) conditionsList.add("Allergies")
+                if (!medical?.allergies.isNullOrBlank() || conditionsList.isNotEmpty()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -212,7 +220,7 @@ fun ChildProfileScreen(
                                 .fillMaxWidth()
                                 .padding(12.dp)
                         ) {
-                            if (student.allergies.isNotEmpty()) {
+                            if (!medical?.allergies.isNullOrBlank()) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         Icons.Filled.Warning,
@@ -222,7 +230,7 @@ fun ChildProfileScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Allergies: ${student.allergies.joinToString(", ")}",
+                                        text = "Allergies: ${medical?.allergies}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = Error
                                     )
@@ -240,12 +248,12 @@ fun ChildProfileScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                ProfileInfoRow("Doctor", student.doctorName ?: "Not specified")
-                ProfileInfoRow("Doctor Location", student.doctorLocation ?: "Not specified")
-                ProfileInfoRow("Doctor Contact", student.doctorContact ?: "Not specified")
-                ProfileInfoRow("Medical Plan", student.medicalPlan ?: "Not specified")
-                if (student.medicalAidNumber != null) {
-                    ProfileInfoRow("Medical Aid No.", student.medicalAidNumber)
+                ProfileInfoRow("Doctor", medical?.doctorName ?: "Not specified")
+                ProfileInfoRow("Doctor Location", medical?.doctorLocation ?: "Not specified")
+                ProfileInfoRow("Doctor Contact", medical?.doctorContact ?: "Not specified")
+                ProfileInfoRow("Medical Plan", medical?.medicalPlan ?: "Not specified")
+                if (medical?.medicalAidNumber != null) {
+                    ProfileInfoRow("Medical Aid No.", medical.medicalAidNumber)
                 }
             }
 
@@ -257,8 +265,21 @@ fun ChildProfileScreen(
                 icon = Icons.Filled.DirectionsBus,
                 color = Secondary
             ) {
-                ProfileInfoRow("Collection Person", student.collectionPerson ?: "Not specified")
-                ProfileInfoRow("Contact Number", student.collectionContact ?: "Not specified")
+                if (studentCollectionPersons.isNotEmpty()) {
+                    studentCollectionPersons.forEachIndexed { index, person ->
+                        ProfileInfoRow("Collection Person ${index + 1}", person.personName)
+                        ProfileInfoRow("Contact", person.contactNumber)
+                        if (person.vehicleRegistration.isNotBlank()) {
+                            ProfileInfoRow("Vehicle", person.vehicleRegistration)
+                        }
+                        if (index < studentCollectionPersons.size - 1) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                } else {
+                    ProfileInfoRow("Collection Person", "Not specified")
+                    ProfileInfoRow("Contact Number", "Not specified")
+                }
                 ProfileInfoRow(
                     "Transport Required",
                     if (student.transportRequired) "Yes (R600/month)" else "No"
