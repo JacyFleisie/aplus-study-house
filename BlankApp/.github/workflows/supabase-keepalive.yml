@@ -1,0 +1,15 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Every day at 6 AM UTC
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase to prevent pause
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            "https://lhybcueknuarolxjuoqi.supabase.co/rest/v1/profiles?select=count&limit=1"
