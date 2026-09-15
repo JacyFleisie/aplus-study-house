@@ -1039,6 +1039,90 @@ object SupabaseRepository {
         }
     }
 
+    suspend fun generateMonthlyInvoices(): Int = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext 0
+        try {
+            // Get all active students
+            val studentsResult = SupabaseConfig.supabaseGet(
+                table = "students",
+                query="status=eq.active&select=id,parent_id",
+                authToken = authToken()
+            ) ?: return@withContext 0
+
+            val studentsArr = JSONArray(studentsResult)
+            var created = 0
+
+            for (i in 0 until studentsArr.length()) {
+                val student = studentsArr.getJSONObject(i)
+                val studentId = student.optString("id")
+                val parentId = student.optString("parent_id")
+
+                // Check if invoice already exists for this month
+                val existingResult = SupabaseConfig.supabaseGet(
+                    table = "invoices",
+                    query = "student_id=eq.$studentId&status=eq.pending&select=id",
+                    authToken = authToken()
+                )
+
+                val existingArr = JSONArray(existingResult ?: "[]")
+                if (existingArr.length() > 0) continue // Already has pending invoice
+
+                // Create monthly school fee invoice
+                val body = JSONObject().apply {
+                    put("student_id", studentId)
+                    put("amount", 1500.00) // Monthly school fee
+                    put("description", "Monthly School Fee")
+                    put("status", "pending")
+                    put("category", "registration")
+                    put("due_date", "now() + interval '30 days'")
+                    put("created_at", "now()")
+                }
+                val result = SupabaseConfig.supabasePost(
+                    table = "invoices",
+                    body = body.toString(),
+                    authToken = authToken()
+                )
+                if (result != null) created++
+            }
+            created
+        } catch (e: Exception) {
+            recordError("Generate monthly invoices", e)
+            0
+        }
+    }
+
+    suspend fun markOverdueInvoices(): Int = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext 0
+        try {
+            // Find pending invoices past due date
+            val result = SupabaseConfig.supabaseGet(
+                table = "invoices",
+                query = "status=eq.pending&due_date=lt.now()&select=id",
+                authToken = authToken()
+            ) ?: return@withContext 0
+
+            val arr = JSONArray(result)
+            var updated = 0
+            for (i in 0 until arr.length()) {
+                val invoiceId = arr.getJSONObject(i).optString("id")
+                val body = JSONObject().apply {
+                    put("status", "overdue")
+                }
+                val patchResult = SupabaseConfig.supabasePatch(
+                    table = "invoices",
+                    query = "id=eq.$invoiceId",
+                    body = body.toString(),
+                    authToken = authToken()
+                )
+                if (patchResult != null) updated++
+            }
+            updated
+        } catch (e: Exception) {
+            recordError("Mark overdue invoices", e)
+            0
+        }
+    }
+
     suspend fun updatePaymentStatus(paymentId: String, status: String): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
         try {
