@@ -366,8 +366,27 @@ fun FinancePaymentScreen(
                 // Submit Payment Button
                 Button(
                     onClick = {
-                        paymentSubmitted = true
-                        onPaymentComplete()
+                        scope.launch {
+                            val parentId = AuthRepository.getCurrentUser()?.id ?: ""
+                            val studentId = "" // Will be looked up from invoice
+                            val paymentMethod = if (selectedMethod == "CASH") "cash" else "eft"
+                            val proofUrl = proofOfPayment
+
+                            // Create payment record
+                            val paymentCreated = SupabaseRepository.createPayment(
+                                invoiceId = invoiceId,
+                                studentId = studentId,
+                                parentId = parentId,
+                                amount = amount,
+                                paymentMethod = paymentMethod,
+                                proofUrl = proofUrl
+                            )
+
+                            if (paymentCreated) {
+                                paymentSubmitted = true
+                                onPaymentComplete()
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

@@ -1014,9 +1014,41 @@ object SupabaseRepository {
     /**
      * Update payment status (verified/rejected).
      */
+    suspend fun createPayment(invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            val body = JSONObject().apply {
+                put("invoice_id", invoiceId)
+                put("student_id", studentId)
+                put("parent_id", parentId)
+                put("amount", amount)
+                put("payment_method", paymentMethod)
+                put("status", "pending")
+                if (proofUrl != null) put("proof_url", proofUrl)
+                put("payment_date", "now()")
+            }
+            val result = SupabaseConfig.supabasePost(
+                table = "payments",
+                body = body.toString(),
+                authToken = authToken()
+            )
+            result != null
+        } catch (e: Exception) {
+            recordError("Create payment", e)
+            false
+        }
+    }
+
     suspend fun updatePaymentStatus(paymentId: String, status: String): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
         try {
+            // Get the payment to find the invoice_id
+            val paymentResult = SupabaseConfig.supabaseGet(
+                table = "payments",
+                query = "id=eq.$paymentId&select=invoice_id",
+                authToken = authToken()
+            )
+
             val body = JSONObject().apply {
                 put("status", status)
                 if (status == "verified") {
@@ -1032,6 +1064,27 @@ object SupabaseRepository {
                 body = body.toString(),
                 authToken = authToken()
             )
+
+            // If payment verified, also update invoice status to paid
+            if (status == "verified" && paymentResult != null) {
+                val arr = JSONArray(paymentResult)
+                if (arr.length() > 0) {
+                    val invoiceId = arr.getJSONObject(0).optString("invoice_id")
+                    if (invoiceId.isNotBlank()) {
+                        val invoiceBody = JSONObject().apply {
+                            put("status", "paid")
+                            put("paid_date", "now()")
+                        }
+                        SupabaseConfig.supabasePatch(
+                            table = "invoices",
+                            query = "id=eq.$invoiceId",
+                            body = invoiceBody.toString(),
+                            authToken = authToken()
+                        )
+                    }
+                }
+            }
+
             result != null
         } catch (e: Exception) {
             recordError("Update payment status", e)
@@ -1070,7 +1123,6 @@ object SupabaseRepository {
         try {
             val body = JSONObject().apply {
                 put("student_id", studentId)
-                put("parent_id", parentId)
                 put("amount", amount)
                 put("description", InputSanitizer.sanitizeText(description))
                 put("status", "pending")
@@ -1183,10 +1235,10 @@ object SupabaseRepository {
                 // Generate registration fee invoice (R450)
                 val registrationInvoice = JSONObject().apply {
                     put("student_id", studentId)
-                    put("parent_id", parentId)
                     put("amount", 450.00)
                     put("description", "Registration Fee")
                     put("status", "pending")
+                    put("category", "registration")
                     put("due_date", "now() + interval '30 days'")
                     put("created_at", "now()")
                 }
@@ -1201,10 +1253,10 @@ object SupabaseRepository {
                 if (appObj.optBoolean("transport_required", false)) {
                     val transportInvoice = JSONObject().apply {
                         put("student_id", studentId)
-                        put("parent_id", parentId)
                         put("amount", 600.00)
                         put("description", "Transport Fee - Monthly")
                         put("status", "pending")
+                        put("category", "transport")
                         put("due_date", "now() + interval '30 days'")
                         put("created_at", "now()")
                     }
