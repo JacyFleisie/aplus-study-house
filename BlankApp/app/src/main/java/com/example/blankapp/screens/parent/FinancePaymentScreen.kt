@@ -48,6 +48,23 @@ fun FinancePaymentScreen(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Load bank details from Supabase config
+    var bankName by remember { mutableStateOf("First National Bank") }
+    var bankAccountName by remember { mutableStateOf("A+ Study House") }
+    var bankAccountNumber by remember { mutableStateOf("62845679012") }
+    var bankBranchCode by remember { mutableStateOf("250655") }
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                SupabaseRepository.getAppConfig("bank_name")?.let { bankName = it }
+                SupabaseRepository.getAppConfig("bank_account_name")?.let { bankAccountName = it }
+                SupabaseRepository.getAppConfig("bank_account_number")?.let { bankAccountNumber = it }
+                SupabaseRepository.getAppConfig("bank_branch_code")?.let { bankBranchCode = it }
+            } catch (_: Exception) { /* use defaults */ }
+        }
+    }
+
     // File picker for PoP
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -218,10 +235,10 @@ fun FinancePaymentScreen(
                                 color = OnBackground
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            BankingDetailRow("Bank", "First National Bank")
-                            BankingDetailRow("Account Name", "A+ Study House")
-                            BankingDetailRow("Account Number", "62845679012")
-                            BankingDetailRow("Branch Code", "250655")
+                            BankingDetailRow("Bank", bankName)
+                            BankingDetailRow("Account Name", bankAccountName)
+                            BankingDetailRow("Account Number", bankAccountNumber)
+                            BankingDetailRow("Branch Code", bankBranchCode)
                             BankingDetailRow("Reference", "INV-$invoiceId")
                             Spacer(modifier = Modifier.height(12.dp))
 

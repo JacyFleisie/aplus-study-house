@@ -46,6 +46,23 @@ fun RegistrationPaymentScreen(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Load bank details from Supabase config
+    var bankName by rememberSaveable { mutableStateOf("First National Bank") }
+    var bankAccountName by rememberSaveable { mutableStateOf("A+ Study House") }
+    var bankAccountNumber by rememberSaveable { mutableStateOf("62845679012") }
+    var bankBranchCode by rememberSaveable { mutableStateOf("250655") }
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                SupabaseRepository.getAppConfig("bank_name")?.let { bankName = it }
+                SupabaseRepository.getAppConfig("bank_account_name")?.let { bankAccountName = it }
+                SupabaseRepository.getAppConfig("bank_account_number")?.let { bankAccountNumber = it }
+                SupabaseRepository.getAppConfig("bank_branch_code")?.let { bankBranchCode = it }
+            } catch (_: Exception) { /* use defaults */ }
+        }
+    }
+
     /** Writes the bundled banking_details.md to cache and returns the File. */
     fun bankingDetailsFile(): File {
         val cache = File(ctx.cacheDir, "banking_details.md")
@@ -246,10 +263,10 @@ fun RegistrationPaymentScreen(
                                 Text("Download / share banking details", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Primary)
                             }
                             Spacer(modifier = Modifier.height(12.dp))
-                            BankDetailRow("Bank", "First National Bank")
-                            BankDetailRow("Account Name", "A+ Study House")
-                            BankDetailRow("Account Number", "62845679012")
-                            BankDetailRow("Branch Code", "250655")
+                            BankDetailRow("Bank", bankName)
+                            BankDetailRow("Account Name", bankAccountName)
+                            BankDetailRow("Account Number", bankAccountNumber)
+                            BankDetailRow("Branch Code", bankBranchCode)
                             BankDetailRow("Reference", "REG-[YourSurname]")
                             Spacer(modifier = Modifier.height(12.dp))
 

@@ -383,6 +383,24 @@ object SupabaseRepository {
         }
     }
 
+    suspend fun getAppConfig(key: String): String? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext null
+
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "app_config",
+                query = "key=eq.$key&select=value",
+                authToken = authToken()
+            ) ?: return@withContext null
+
+            val arr = JSONArray(result)
+            if (arr.length() > 0) arr.getJSONObject(0).optString("value") else null
+        } catch (e: Exception) {
+            recordError("Backend query", e)
+            null
+        }
+    }
+
     // ============================================
     // PERMISSIONS
     // ============================================
@@ -1162,6 +1180,42 @@ object SupabaseRepository {
             AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
 
             if (studentId.isNotBlank()) {
+                // Generate registration fee invoice (R450)
+                val registrationInvoice = JSONObject().apply {
+                    put("student_id", studentId)
+                    put("parent_id", parentId)
+                    put("amount", 450.00)
+                    put("description", "Registration Fee")
+                    put("status", "pending")
+                    put("due_date", "now() + interval '30 days'")
+                    put("created_at", "now()")
+                }
+                val regResult = SupabaseConfig.supabasePost(
+                    table = "invoices",
+                    body = registrationInvoice.toString(),
+                    authToken = authToken()
+                )
+                AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=registration result=${regResult != null}")
+
+                // Generate transport fee invoice if required (R600/month)
+                if (appObj.optBoolean("transport_required", false)) {
+                    val transportInvoice = JSONObject().apply {
+                        put("student_id", studentId)
+                        put("parent_id", parentId)
+                        put("amount", 600.00)
+                        put("description", "Transport Fee - Monthly")
+                        put("status", "pending")
+                        put("due_date", "now() + interval '30 days'")
+                        put("created_at", "now()")
+                    }
+                    val transResult = SupabaseConfig.supabasePost(
+                        table = "invoices",
+                        body = transportInvoice.toString(),
+                        authToken = authToken()
+                    )
+                    AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=transport result=${transResult != null}")
+                }
+
                 val medicalBody = JSONObject().apply {
                     put("student_id", studentId)
                     put("doctor_name", InputSanitizer.sanitizeName(appObj.optString("doctor_name")))

@@ -53,7 +53,7 @@ class RouteTest {
     }
 
     @Test
-    fun `all 10 registration step routes are defined`() {
+    fun `all 9 registration step routes are defined`() {
         val registrationRoutes = listOf(
             Screen.RegistrationStart.route,
             Screen.RegistrationStudentDetails.route,
@@ -63,10 +63,9 @@ class RouteTest {
             Screen.RegistrationParentDetails.route,
             Screen.RegistrationConsent.route,
             Screen.RegistrationPayment.route,
-            Screen.RegistrationSubmit.route,
-            Screen.ApplicationStatus.route
+            Screen.RegistrationSubmit.route
         )
-        assertEquals("Should have 10 registration routes", 10, registrationRoutes.size)
+        assertEquals("Should have 9 registration routes", 9, registrationRoutes.size)
         registrationRoutes.forEach { route ->
             assertTrue("Route '$route' should not be blank", route.isNotBlank())
         }
@@ -168,7 +167,6 @@ class RouteTest {
             Screen.RegistrationConsent.route,
             Screen.RegistrationPayment.route,
             Screen.RegistrationSubmit.route,
-            Screen.ApplicationStatus.route,
             Screen.AdminFinancePayment.route,
             Screen.CrashLogs.route
         )
