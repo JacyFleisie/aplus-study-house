@@ -176,34 +176,39 @@ object AppUpdater {
     fun installApk(context: Context, apkFile: File) {
         Log.d(TAG, "Starting install: ${apkFile.absolutePath}")
         Log.d(TAG, "File exists: ${apkFile.exists()}, size: ${apkFile.length()}")
-        
+
         try {
-            // Basic validation only - check file exists and has content
+            // Verify APK signature before install
+            if (!verifyApkSignature(context, apkFile)) {
+                throw IllegalStateException("APK signature verification failed. Update aborted for security.")
+            }
+
+            // Basic validation - check file exists and has content
             if (!apkFile.exists() || apkFile.length() == 0L) {
                 throw IllegalStateException("Update file is missing or empty.")
             }
-            
+
             Log.d(TAG, "File validation passed")
-            
+
             val uri = FileProvider.getUriForFile(
                 context,
                 context.packageName + ".fileprovider",
                 apkFile
             )
             Log.d(TAG, "FileProvider URI: $uri")
-            
+
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
-            
+
             // Check if there's an app to handle this intent
             val packageManager = context.packageManager
             val activities = packageManager.queryIntentActivities(intent, 0)
             Log.d(TAG, "Activities that can handle install: ${activities.size}")
-            
+
             if (activities.isEmpty()) {
                 // Fallback: try with ACTION_INSTALL_PACKAGE
                 Log.d(TAG, "No activities for ACTION_VIEW, trying ACTION_INSTALL_PACKAGE")
@@ -216,11 +221,70 @@ object AppUpdater {
             } else {
                 context.startActivity(intent)
             }
-            
+
             Log.d(TAG, "Install intent launched successfully")
         } catch (e: Exception) {
             Log.e(TAG, "Install failed", e)
             throw e
+        }
+    }
+
+    /**
+     * Verifies the APK signature matches the current app's signing certificate.
+     * This prevents installing a compromised or tampered APK.
+     */
+    private fun verifyApkSignature(context: Context, apkFile: File): Boolean {
+        return try {
+            val pm = context.packageManager
+
+            // Get the APK's signing certificate
+            val apkCertInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                pm.getPackageArchiveInfo(
+                    apkFile.absolutePath,
+                    android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES or android.content.pm.PackageManager.GET_SIGNATURES
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getPackageArchiveInfo(
+                    apkFile.absolutePath,
+                    android.content.pm.PackageManager.GET_SIGNATURES
+                )
+            }
+
+            val apkSignatures = apkCertInfo?.signingInfo?.apkContentsSigners
+                ?: apkCertInfo?.signatures
+
+            if (apkSignatures.isNullOrEmpty()) {
+                Log.e(TAG, "APK has no signatures")
+                return false
+            }
+
+            // Get current app's signing certificate
+            val currentCertInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                pm.getPackageInfo(context.packageName, android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES or android.content.pm.PackageManager.GET_SIGNATURES)
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getPackageInfo(context.packageName, android.content.pm.PackageManager.GET_SIGNATURES)
+            }
+
+            val currentSignatures = currentCertInfo?.signingInfo?.apkContentsSigners
+                ?: currentCertInfo?.signatures
+
+            if (currentSignatures.isNullOrEmpty()) {
+                Log.e(TAG, "Current app has no signatures")
+                return false
+            }
+
+            // Compare certificates
+            val apkCert = apkSignatures[0]
+            val currentCert = currentSignatures[0]
+
+            val match = apkCert.toByteArray().contentEquals(currentCert.toByteArray())
+            Log.d(TAG, "Signature verification: $match")
+            match
+        } catch (e: Exception) {
+            Log.e(TAG, "Signature verification failed", e)
+            false
         }
     }
 
