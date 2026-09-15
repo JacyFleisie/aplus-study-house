@@ -172,7 +172,8 @@ object SupabaseRepository {
 
             // Single batched query: invoices WHERE student_id IN (...) instead of
             // one REST call per student (fixes the N+1 query pattern).
-            val inList = studentIds.joinToString(",") { it }
+            // Quote UUIDs properly for PostgREST in.() filter
+            val inList = studentIds.joinToString(",") { "\"$it\"" }
             val result = SupabaseConfig.supabaseGet(
                 table = "invoices",
                 query = "student_id=in.($inList)&select=*",
@@ -1205,12 +1206,15 @@ object SupabaseRepository {
     suspend fun createInvoice(studentId: String, parentId: String, amount: Double, description: String): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
         try {
+            // Calculate due date 30 days from now in ISO format
+            val dueDate = java.time.LocalDate.now().plusDays(30).toString()
             val body = JSONObject().apply {
                 put("student_id", studentId)
+                put("parent_id", parentId)
                 put("amount", amount)
                 put("description", InputSanitizer.sanitizeText(description))
                 put("status", "pending")
-                put("due_date", "now() + interval '30 days'")
+                put("due_date", dueDate)
                 put("created_at", "now()")
             }
             val result = SupabaseConfig.supabasePost(
@@ -1633,7 +1637,8 @@ object SupabaseRepository {
                 "announcement" -> MessageCategory.ANNOUNCEMENT
                 else -> MessageCategory.GENERAL
             },
-            parentMessageId = obj.optString("parent_message_id", "")
+            parentMessageId = obj.optString("parent_message_id", ""),
+            isAnnouncement = obj.optBoolean("is_announcement", false)
         )
     }
 
