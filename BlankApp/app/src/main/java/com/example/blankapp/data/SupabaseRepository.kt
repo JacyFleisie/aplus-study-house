@@ -172,8 +172,8 @@ object SupabaseRepository {
 
             // Single batched query: invoices WHERE student_id IN (...) instead of
             // one REST call per student (fixes the N+1 query pattern).
-            // Quote UUIDs properly for PostgREST in.() filter
-            val inList = studentIds.joinToString(",") { "\"$it\"" }
+            // PostgREST in.() filter expects comma-separated values without quotes
+            val inList = studentIds.joinToString(",")
             val result = SupabaseConfig.supabaseGet(
                 table = "invoices",
                 query = "student_id=in.($inList)&select=*",
