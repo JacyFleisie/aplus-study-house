@@ -1,6 +1,7 @@
 package com.example.blankapp.screens.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -9,7 +10,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
+import android.content.Intent
+import android.net.Uri
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -412,10 +420,14 @@ fun PendingPaymentsTab(
 
 @Composable
 fun OutstandingPaymentsTab() {
-    // Load invoices/students/parents from backend (Supabase) — no mock data
     var outstandingInvoices by remember { mutableStateOf<List<MockInvoice>>(emptyList()) }
     var studentsById by remember { mutableStateOf<Map<String, MockStudent>>(emptyMap()) }
     var parentsById by remember { mutableStateOf<Map<String, MockUser>>(emptyMap()) }
+    var selectedInvoices by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var showBulkSendDialog by remember { mutableStateOf(false) }
+    var currentBulkIndex by remember { mutableStateOf(0) }
+    var bulkSendComplete by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         try {
             val allInvoices = SupabaseRepository.getAllInvoices()
@@ -424,10 +436,9 @@ fun OutstandingPaymentsTab() {
             outstandingInvoices = allInvoices.filter { it.status == InvoiceStatus.OVERDUE || it.status == InvoiceStatus.PENDING }
             studentsById = students.associateBy { it.id }
             parentsById = parents.associateBy { it.id }
-        } catch (e: Exception) {
-            // leave empty on failure
-        }
+        } catch (e: Exception) { }
     }
+
     val overdueInvoices = outstandingInvoices.filter { it.status == InvoiceStatus.OVERDUE }
     val overdueTotal = overdueInvoices.sumOf { it.amount }
 
@@ -446,76 +457,86 @@ fun OutstandingPaymentsTab() {
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Filled.Warning,
-                        contentDescription = "Overdue",
-                        tint = Error,
-                        modifier = Modifier.size(32.dp)
-                    )
+                    Icon(Icons.Filled.Warning, contentDescription = "Overdue", tint = Error, modifier = Modifier.size(32.dp))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "${overdueInvoices.size} Overdue Invoice${if (overdueInvoices.size != 1) "s" else ""}",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Error
-                        )
-                        Text(
-                            text = "R${"%.0f".format(overdueTotal)} overdue — send reminders",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = OnBackground
-                        )
+                        Text(text = "${overdueInvoices.size} Overdue Invoice${if (overdueInvoices.size != 1) "s" else ""}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Error)
+                        Text(text = "R${"%.0f".format(overdueTotal)} overdue — send reminders", style = MaterialTheme.typography.bodySmall, color = OnBackground)
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Text(
-            text = "All Outstanding Invoices",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = OnBackground
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        if (outstandingInvoices.isEmpty()) {
+        // Bulk send progress
+        if (showBulkSendDialog && selectedInvoices.isNotEmpty()) {
+            val currentInvoice = outstandingInvoices.getOrNull(currentBulkIndex)
+            val total = selectedInvoices.size
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface)
+                colors = CardDefaults.cardColors(containerColor = PrimaryContainer),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        Icons.Filled.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = Success
+                Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+                    Text(text = "Sending Statements", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Progress: ${currentBulkIndex + 1} of $total sent", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LinearProgressIndicator(
+                        progress = { (currentBulkIndex + 1).toFloat() / total.toFloat() },
+                        modifier = Modifier.fillMaxWidth().height(8.dp),
+                        color = Primary,
+                        trackColor = Surface
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "No Outstanding Balances",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = OnBackground
-                    )
-                    Text(
-                        text = "All families are paid up",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = OnSurfaceVariant
-                    )
+                    if (currentInvoice != null) {
+                        val student = studentsById[currentInvoice.studentId]
+                        val parent = student?.let { parentsById[it.parentId] }
+                        Text(text = "Current: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"} — R${currentInvoice.amount.toInt()}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Select All / Deselect All + Send to Selected
+        if (outstandingInvoices.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { selectedInvoices = outstandingInvoices.map { it.id }.toSet() }) { Text("Select All") }
+                    TextButton(onClick = { selectedInvoices = emptySet() }) { Text("Deselect All") }
+                }
+                Button(
+                    onClick = { showBulkSendDialog = true; currentBulkIndex = 0; bulkSendComplete = false },
+                    enabled = selectedInvoices.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Success)
+                ) {
+                    Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Send to Selected (${selectedInvoices.size})")
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        Text(text = "All Outstanding Invoices", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (outstandingInvoices.isEmpty()) {
+            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Surface)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(48.dp), tint = Success)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = "No Outstanding Balances", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                    Text(text = "All families are paid up", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
                 }
             }
         } else {
@@ -525,13 +546,107 @@ fun OutstandingPaymentsTab() {
                 OutstandingInvoiceCard(
                     invoice = invoice,
                     studentName = student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown",
-                    parentName = parent?.fullName ?: "Unknown"
+                    parentName = parent?.fullName ?: "Unknown",
+                    parentPhone = parent?.phone ?: "",
+                    isSelected = selectedInvoices.contains(invoice.id),
+                    onSelectionChange = { selected ->
+                        selectedInvoices = if (selected) selectedInvoices + invoice.id else selectedInvoices - invoice.id
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
-
         Spacer(modifier = Modifier.height(24.dp))
+    }
+
+    // Bulk send dialog
+    if (showBulkSendDialog && selectedInvoices.isNotEmpty()) {
+        val currentInvoice = outstandingInvoices.getOrNull(currentBulkIndex)
+        val total = selectedInvoices.size
+        val student = currentInvoice?.let { studentsById[it.studentId] }
+        val parent = student?.let { parentsById[it.parentId] }
+        val ctx = LocalContext.current
+
+        AlertDialog(
+            onDismissRequest = { showBulkSendDialog = false },
+            title = { Text("Send Statement via WhatsApp", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text(text = "Statement ${currentBulkIndex + 1} of $total", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Primary)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "To: ${parent?.fullName ?: "Unknown"}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Text(text = "Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Text(text = "Amount: R${currentInvoice?.amount?.toInt() ?: 0}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    val statementText = buildString {
+                        appendLine("A+ Study House — Fee Statement")
+                        appendLine("--------------------------------")
+                        appendLine("Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
+                        appendLine("Parent: ${parent?.fullName ?: "Unknown"}")
+                        appendLine("Invoice: ${currentInvoice?.description ?: ""}")
+                        appendLine("Amount: R${currentInvoice?.amount?.toInt() ?: 0}")
+                        appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
+                        appendLine("Status: ${currentInvoice?.status ?: ""}")
+                        appendLine("--------------------------------")
+                        appendLine("Bank: Capitec")
+                        appendLine("Account: A Study House Pty Ltd")
+                        appendLine("Account Number: 105 425 6349")
+                        appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
+                        appendLine("--------------------------------")
+                        appendLine("Please send proof of payment to 076 561 6648")
+                        appendLine("Thank you for your support!")
+                    }
+                    OutlinedTextField(
+                        value = statementText,
+                        onValueChange = { },
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                        textStyle = MaterialTheme.typography.bodySmall,
+                        readOnly = true
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val phone = parent?.phone ?: ""
+                        val encoded = URLEncoder.encode(buildString {
+                            appendLine("A+ Study House — Fee Statement")
+                            appendLine("--------------------------------")
+                            appendLine("Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
+                            appendLine("Parent: ${parent?.fullName ?: "Unknown"}")
+                            appendLine("Invoice: ${currentInvoice?.description ?: ""}")
+                            appendLine("Amount: R${currentInvoice?.amount?.toInt() ?: 0}")
+                            appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
+                            appendLine("Status: ${currentInvoice?.status ?: ""}")
+                            appendLine("--------------------------------")
+                            appendLine("Bank: Capitec")
+                            appendLine("Account: A Study House Pty Ltd")
+                            appendLine("Account Number: 105 425 6349")
+                            appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
+                            appendLine("--------------------------------")
+                            appendLine("Please send proof of payment to 076 561 6648")
+                            appendLine("Thank you for your support!")
+                        }, "UTF-8")
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$phone?text=$encoded"))
+                        ctx.startActivity(intent)
+                        if (currentBulkIndex < total - 1) {
+                            currentBulkIndex++
+                        } else {
+                            bulkSendComplete = true
+                            showBulkSendDialog = false
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Success)
+                ) {
+                    Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(if (currentBulkIndex < total - 1) "Send & Next" else "Send & Done")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBulkSendDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 }
 
@@ -539,62 +654,157 @@ fun OutstandingPaymentsTab() {
 fun OutstandingInvoiceCard(
     invoice: MockInvoice,
     studentName: String,
-    parentName: String
+    parentName: String,
+    parentPhone: String = "",
+    isSelected: Boolean = false,
+    onSelectionChange: (Boolean) -> Unit = {}
 ) {
+    val ctx = LocalContext.current
+    var showWhatsAppDialog by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onSelectionChange(!isSelected) },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) PrimaryContainer else Surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 2.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(14.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(
-                        if (invoice.status == InvoiceStatus.OVERDUE) ErrorContainer else WarningContainer,
-                        CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    if (invoice.status == InvoiceStatus.OVERDUE) Icons.Filled.Warning else Icons.Filled.Schedule,
-                    contentDescription = null,
-                    tint = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning,
-                    modifier = Modifier.size(18.dp)
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onSelectionChange(it) },
+                    colors = CheckboxDefaults.colors(checkedColor = Primary)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(
+                            if (invoice.status == InvoiceStatus.OVERDUE) ErrorContainer else WarningContainer,
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        if (invoice.status == InvoiceStatus.OVERDUE) Icons.Filled.Warning else Icons.Filled.Schedule,
+                        contentDescription = null,
+                        tint = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = studentName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OnBackground
+                    )
+                    Text(
+                        text = "${invoice.description} · $parentName",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Text(
+                        text = "Due: ${invoice.dueDate}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (invoice.status == InvoiceStatus.OVERDUE) Error else OnSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "R${invoice.amount.toInt()}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = studentName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = OnBackground
-                )
-                Text(
-                    text = "${invoice.description} · $parentName",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurfaceVariant
-                )
-                Text(
-                    text = "Due: ${invoice.dueDate}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (invoice.status == InvoiceStatus.OVERDUE) Error else OnSurfaceVariant
-                )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Send Statement via WhatsApp button
+            OutlinedButton(
+                onClick = { showWhatsAppDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Success)
+            ) {
+                Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Send Statement via WhatsApp")
             }
-            Text(
-                text = "R${invoice.amount.toInt()}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning
-            )
         }
+    }
+
+    // WhatsApp confirmation dialog
+    if (showWhatsAppDialog) {
+        val statementText = buildString {
+            appendLine("A+ Study House — Fee Statement")
+            appendLine("--------------------------------")
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Invoice: ${invoice.description}")
+            appendLine("Amount: R${invoice.amount.toInt()}")
+            appendLine("Due Date: ${invoice.dueDate}")
+            appendLine("Status: ${invoice.status}")
+            appendLine("--------------------------------")
+            appendLine("Bank: Capitec")
+            appendLine("Account: A Study House Pty Ltd")
+            appendLine("Account Number: 105 425 6349")
+            appendLine("Reference: $studentName")
+            appendLine("--------------------------------")
+            appendLine("Please send proof of payment to 076 561 6648")
+            appendLine("Thank you for your support!")
+        }
+
+        AlertDialog(
+            onDismissRequest = { showWhatsAppDialog = false },
+            title = { Text("Send Statement via WhatsApp") },
+            text = {
+                Column {
+                    Text(
+                        text = "This will open WhatsApp with the fee statement ready to send.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = statementText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showWhatsAppDialog = false
+                        val encoded = URLEncoder.encode(statementText, "UTF-8")
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                        ctx.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Success)
+                ) {
+                    Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Send")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWhatsAppDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
