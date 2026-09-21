@@ -26,7 +26,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.AuditLogger
 import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.data.PayFastRepository
 import com.example.blankapp.data.SupabaseRepository
+import org.json.JSONObject
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
 import java.io.File
@@ -213,6 +215,17 @@ fun FinancePaymentScreen(
                     onClick = { selectedMethod = "CASH" }
                 )
 
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // PayFast Option
+                PaymentOptionCard(
+                    title = "Pay with PayFast",
+                    subtitle = "Card, EFT, or instant payment",
+                    icon = Icons.Filled.CreditCard,
+                    isSelected = selectedMethod == "PAYFAST",
+                    onClick = { selectedMethod = "PAYFAST" }
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Banking Details (if EFT selected)
@@ -368,23 +381,51 @@ fun FinancePaymentScreen(
                     onClick = {
                         scope.launch {
                             val parentId = AuthRepository.getCurrentUser()?.id ?: ""
-                            val studentId = "" // Will be looked up from invoice
-                            val paymentMethod = if (selectedMethod == "CASH") "cash" else "eft"
-                            val proofUrl = proofOfPayment
 
-                            // Create payment record
-                            val paymentCreated = SupabaseRepository.createPayment(
-                                invoiceId = invoiceId,
-                                studentId = studentId,
-                                parentId = parentId,
-                                amount = amount,
-                                paymentMethod = paymentMethod,
-                                proofUrl = proofUrl
-                            )
+                            if (selectedMethod == "PAYFAST") {
+                                // Build PayFast payment data and open payment URL
+                                val payFastData = PayFastRepository.buildPaymentData(
+                                    invoiceId = invoiceId,
+                                    amount = amount,
+                                    itemName = description,
+                                    parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
+                                    parentId = parentId
+                                )
 
-                            if (paymentCreated) {
-                                paymentSubmitted = true
-                                onPaymentComplete()
+                                if (payFastData != null) {
+                                    val (data, url) = payFastData
+                                    // Create payment record as pending
+                                    SupabaseRepository.createPayment(
+                                        invoiceId = invoiceId,
+                                        studentId = "",
+                                        parentId = parentId,
+                                        amount = amount,
+                                        paymentMethod = "payfast",
+                                        proofUrl = null
+                                    )
+                                    // Open PayFast in browser
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url + "?" + PayFastRepository.buildQueryString(data)))
+                                    ctx.startActivity(intent)
+                                    paymentSubmitted = true
+                                }
+                            } else {
+                                val paymentMethod = if (selectedMethod == "CASH") "cash" else "eft"
+                                val proofUrl = proofOfPayment
+
+                                // Create payment record
+                                val paymentCreated = SupabaseRepository.createPayment(
+                                    invoiceId = invoiceId,
+                                    studentId = "",
+                                    parentId = parentId,
+                                    amount = amount,
+                                    paymentMethod = paymentMethod,
+                                    proofUrl = proofUrl
+                                )
+
+                                if (paymentCreated) {
+                                    paymentSubmitted = true
+                                    onPaymentComplete()
+                                }
                             }
                         }
                     },
@@ -400,12 +441,16 @@ fun FinancePaymentScreen(
                         },
                         contentColor = OnPrimary
                     ),
-                    enabled = (selectedMethod == "EFT" && popUploaded) || selectedMethod == "CASH"
+                    enabled = (selectedMethod == "EFT" && popUploaded) || selectedMethod == "CASH" || selectedMethod == "PAYFAST"
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (selectedMethod == "CASH") "Confirm Cash Payment" else "Submit Payment",
+                        text = when (selectedMethod) {
+                            "CASH" -> "Confirm Cash Payment"
+                            "PAYFAST" -> "Pay with PayFast"
+                            else -> "Submit Payment"
+                        },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -556,3 +601,5 @@ fun InfoRow(
         )
     }
 }
+
+

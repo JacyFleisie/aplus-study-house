@@ -468,6 +468,13 @@ fun AppNavigation(
             }
         }
 
+        // Payment Success
+        composable(Screen.PaymentSuccess.route) {
+            PaymentSuccessScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         // ============================================
         // ADMIN ROUTES (Require admin role)
         // ============================================

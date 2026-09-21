@@ -29,6 +29,7 @@ sealed class Screen(val route: String) {
     data object RegistrationConsent : Screen("registration_consent")
     data object RegistrationPayment : Screen("registration_payment")
     data object RegistrationSubmit : Screen("registration_submit")
+    data object PaymentSuccess : Screen("payment_success")
 
     // Child Profile with parameter
     data class ChildProfile(val studentId: String) : Screen("child_profile/{studentId}") {
