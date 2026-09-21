@@ -302,8 +302,8 @@ class DataModelTest {
     }
 
     @Test
-    fun `InvoiceCategory has exactly 4 values`() {
-        assertEquals(4, InvoiceCategory.values().size)
+    fun `InvoiceCategory has exactly 5 values`() {
+        assertEquals(5, InvoiceCategory.values().size)
     }
 
     @Test

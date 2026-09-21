@@ -365,6 +365,7 @@ fun getInvoiceCategoryColor(category: InvoiceCategory): androidx.compose.ui.grap
         InvoiceCategory.TRANSPORT -> Tertiary
         InvoiceCategory.STATIONERY -> Secondary
         InvoiceCategory.REGISTRATION -> Warning
+        InvoiceCategory.PROJECT -> Error
     }
 }
 
@@ -374,6 +375,7 @@ fun getInvoiceCategoryLabel(category: InvoiceCategory): String {
         InvoiceCategory.TRANSPORT -> "Transport"
         InvoiceCategory.STATIONERY -> "Stationery"
         InvoiceCategory.REGISTRATION -> "Registration"
+        InvoiceCategory.PROJECT -> "Project Fee"
     }
 }
 

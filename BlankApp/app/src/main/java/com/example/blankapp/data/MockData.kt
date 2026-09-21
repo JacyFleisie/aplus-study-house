@@ -298,7 +298,7 @@ enum class InvoiceStatus {
 }
 
 enum class InvoiceCategory {
-    REGISTRATION, AFTERCARE, TRANSPORT, STATIONERY
+    REGISTRATION, AFTERCARE, TRANSPORT, STATIONERY, PROJECT
 }
 
 val mockInvoices = mutableListOf<MockInvoice>()

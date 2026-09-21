@@ -1337,6 +1337,29 @@ object SupabaseRepository {
                 )
                 AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=registration result=${regResult != null}")
 
+                // Auto-generate Project Fee (R380) for Grade 6 students in Q3
+                val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+                val isQ3 = currentMonth in 7..9
+                val grade = appObj.optString("grade", "")
+                val isGrade6 = grade.contains("6", ignoreCase = true) || grade.equals("Grade 6", ignoreCase = true)
+                if (isQ3 && isGrade6) {
+                    val projectInvoice = JSONObject().apply {
+                        put("student_id", studentId)
+                        put("amount", 380.00)
+                        put("description", "Project Fee — Q3 2026 (Grade 6)")
+                        put("status", "pending")
+                        put("category", "project")
+                        put("due_date", "now() + interval '30 days'")
+                        put("created_at", "now()")
+                    }
+                    val projectResult = SupabaseConfig.supabasePost(
+                        table = "invoices",
+                        body = projectInvoice.toString(),
+                        authToken = authToken()
+                    )
+                    AuditLogger.log("createStudentFromApplication_projectFee", "studentId=$studentId grade=$grade month=$currentMonth result=${projectResult != null}")
+                }
+
                 // Transport fee removed — A+ Study House does not offer transport services
 
                 val medicalBody = JSONObject().apply {
