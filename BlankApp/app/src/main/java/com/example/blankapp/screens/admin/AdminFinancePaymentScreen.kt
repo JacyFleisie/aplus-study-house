@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -426,7 +428,7 @@ fun OutstandingPaymentsTab() {
     var selectedInvoices by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showBulkSendDialog by remember { mutableStateOf(false) }
     var currentBulkIndex by remember { mutableStateOf(0) }
-    var bulkSendComplete by remember { mutableStateOf(false) }
+    var sentInvoices by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     LaunchedEffect(Unit) {
         try {
@@ -515,7 +517,7 @@ fun OutstandingPaymentsTab() {
                     TextButton(onClick = { selectedInvoices = emptySet() }) { Text("Deselect All") }
                 }
                 Button(
-                    onClick = { showBulkSendDialog = true; currentBulkIndex = 0; bulkSendComplete = false },
+                    onClick = { showBulkSendDialog = true; currentBulkIndex = 0 },
                     enabled = selectedInvoices.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = Success)
                 ) {
@@ -551,7 +553,11 @@ fun OutstandingPaymentsTab() {
                     isSelected = selectedInvoices.contains(invoice.id),
                     onSelectionChange = { selected ->
                         selectedInvoices = if (selected) selectedInvoices + invoice.id else selectedInvoices - invoice.id
-                    }
+                    },
+                    onMarkAsSent = {
+                        sentInvoices = sentInvoices + invoice.id
+                    },
+                    isSent = sentInvoices.contains(invoice.id)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -593,6 +599,7 @@ fun OutstandingPaymentsTab() {
                         appendLine("Account Number: 105 425 6349")
                         appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
                         appendLine("--------------------------------")
+                        appendLine("Pay now: https://payfast.co.za/eng/process")
                         appendLine("Please send proof of payment to 076 561 6648")
                         appendLine("Thank you for your support!")
                     }
@@ -624,6 +631,7 @@ fun OutstandingPaymentsTab() {
                             appendLine("Account Number: 105 425 6349")
                             appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
                             appendLine("--------------------------------")
+                            appendLine("Pay now: https://payfast.co.za/eng/process")
                             appendLine("Please send proof of payment to 076 561 6648")
                             appendLine("Thank you for your support!")
                         }, "UTF-8")
@@ -632,7 +640,6 @@ fun OutstandingPaymentsTab() {
                         if (currentBulkIndex < total - 1) {
                             currentBulkIndex++
                         } else {
-                            bulkSendComplete = true
                             showBulkSendDialog = false
                         }
                     },
@@ -657,10 +664,13 @@ fun OutstandingInvoiceCard(
     parentName: String,
     parentPhone: String = "",
     isSelected: Boolean = false,
-    onSelectionChange: (Boolean) -> Unit = {}
+    onSelectionChange: (Boolean) -> Unit = {},
+    onMarkAsSent: () -> Unit = {},
+    isSent: Boolean = false
 ) {
     val ctx = LocalContext.current
     var showWhatsAppDialog by remember { mutableStateOf(false) }
+    var selectedTemplate by remember { mutableStateOf("monthly") }
 
     Card(
         modifier = Modifier
@@ -668,7 +678,11 @@ fun OutstandingInvoiceCard(
             .clickable { onSelectionChange(!isSelected) },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) PrimaryContainer else Surface
+            containerColor = when {
+                isSent -> SuccessContainer.copy(alpha = 0.3f)
+                isSelected -> PrimaryContainer
+                else -> Surface
+            }
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 2.dp)
     ) {
@@ -691,15 +705,21 @@ fun OutstandingInvoiceCard(
                     modifier = Modifier
                         .size(36.dp)
                         .background(
-                            if (invoice.status == InvoiceStatus.OVERDUE) ErrorContainer else WarningContainer,
+                            if (isSent) SuccessContainer
+                            else if (invoice.status == InvoiceStatus.OVERDUE) ErrorContainer
+                            else WarningContainer,
                             CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        if (invoice.status == InvoiceStatus.OVERDUE) Icons.Filled.Warning else Icons.Filled.Schedule,
+                        if (isSent) Icons.Filled.CheckCircle
+                        else if (invoice.status == InvoiceStatus.OVERDUE) Icons.Filled.Warning
+                        else Icons.Filled.Schedule,
                         contentDescription = null,
-                        tint = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning,
+                        tint = if (isSent) Success
+                        else if (invoice.status == InvoiceStatus.OVERDUE) Error
+                        else Warning,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -717,55 +737,79 @@ fun OutstandingInvoiceCard(
                         color = OnSurfaceVariant
                     )
                     Text(
-                        text = "Due: ${invoice.dueDate}",
+                        text = if (isSent) "Sent ✓" else "Due: ${invoice.dueDate}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (invoice.status == InvoiceStatus.OVERDUE) Error else OnSurfaceVariant
+                        color = if (isSent) Success
+                        else if (invoice.status == InvoiceStatus.OVERDUE) Error
+                        else OnSurfaceVariant
                     )
                 }
                 Text(
                     text = "R${invoice.amount.toInt()}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (invoice.status == InvoiceStatus.OVERDUE) Error else Warning
+                    color = if (isSent) Success
+                    else if (invoice.status == InvoiceStatus.OVERDUE) Error
+                    else Warning
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Send Statement via WhatsApp button
-            OutlinedButton(
-                onClick = { showWhatsAppDialog = true },
+            // Template selector
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Success)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Send Statement via WhatsApp")
+                listOf("monthly" to "Monthly", "overdue" to "Overdue", "registration" to "Registration", "project" to "Project", "custom" to "Custom").forEach { (key, label) ->
+                    FilterChip(
+                        selected = selectedTemplate == key,
+                        onClick = { selectedTemplate = key },
+                        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = PrimaryContainer,
+                            selectedLabelColor = OnBackground
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { showWhatsAppDialog = true },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Success)
+                ) {
+                    Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Send via WhatsApp")
+                }
+                if (!isSent) {
+                    OutlinedButton(
+                        onClick = onMarkAsSent,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
+                    ) {
+                        Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Mark Sent")
+                    }
+                }
             }
         }
     }
 
     // WhatsApp confirmation dialog
     if (showWhatsAppDialog) {
-        val statementText = buildString {
-            appendLine("A+ Study House — Fee Statement")
-            appendLine("--------------------------------")
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Invoice: ${invoice.description}")
-            appendLine("Amount: R${invoice.amount.toInt()}")
-            appendLine("Due Date: ${invoice.dueDate}")
-            appendLine("Status: ${invoice.status}")
-            appendLine("--------------------------------")
-            appendLine("Bank: Capitec")
-            appendLine("Account: A Study House Pty Ltd")
-            appendLine("Account Number: 105 425 6349")
-            appendLine("Reference: $studentName")
-            appendLine("--------------------------------")
-            appendLine("Please send proof of payment to 076 561 6648")
-            appendLine("Thank you for your support!")
-        }
+        val statementText = buildStatementText(selectedTemplate, studentName, parentName, invoice)
 
         AlertDialog(
             onDismissRequest = { showWhatsAppDialog = false },
@@ -788,8 +832,9 @@ fun OutstandingInvoiceCard(
                 Button(
                     onClick = {
                         showWhatsAppDialog = false
+                        val phone = parentPhone.ifEmpty { "" }
                         val encoded = URLEncoder.encode(statementText, "UTF-8")
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$phone?text=$encoded"))
                         ctx.startActivity(intent)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Success)
@@ -805,6 +850,105 @@ fun OutstandingInvoiceCard(
                 }
             }
         )
+    }
+}
+
+private fun buildStatementText(
+    template: String,
+    studentName: String,
+    parentName: String,
+    invoice: MockInvoice
+): String {
+    val header = "A+ Study House — Fee Statement"
+    val separator = "--------------------------------"
+    val bankDetails = buildString {
+        appendLine("Bank: Capitec")
+        appendLine("Account: A Study House Pty Ltd")
+        appendLine("Account Number: 105 425 6349")
+        appendLine("Reference: $studentName")
+    }
+    val footer = buildString {
+        appendLine("Please send proof of payment to 076 561 6648")
+        appendLine("Thank you for your support!")
+    }
+
+    return when (template) {
+        "overdue" -> buildString {
+            appendLine(header)
+            appendLine(separator)
+            appendLine("⚠️ OVERDUE NOTICE ⚠️")
+            appendLine(separator)
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Invoice: ${invoice.description}")
+            appendLine("Amount: R${invoice.amount.toInt()}")
+            appendLine("Due Date: ${invoice.dueDate}")
+            appendLine("Status: OVERDUE")
+            appendLine(separator)
+            appendLine(bankDetails)
+            appendLine(separator)
+            appendLine("Please settle this account as soon as possible.")
+            appendLine(footer)
+        }
+        "registration" -> buildString {
+            appendLine(header)
+            appendLine(separator)
+            appendLine("REGISTRATION FEE")
+            appendLine(separator)
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Registration Fee: R500")
+            appendLine("Status: ${invoice.status}")
+            appendLine(separator)
+            appendLine(bankDetails)
+            appendLine(separator)
+            appendLine("Registration fee is non-refundable and payable annually.")
+            appendLine(footer)
+        }
+        "project" -> buildString {
+            appendLine(header)
+            appendLine(separator)
+            appendLine("PROJECT FEE — Q3 2026")
+            appendLine(separator)
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Project Fee: R380 (Grade 6 only)")
+            appendLine("Due Date: ${invoice.dueDate}")
+            appendLine(separator)
+            appendLine(bankDetails)
+            appendLine(separator)
+            appendLine("This is a once-off fee for Grade 6 project materials.")
+            appendLine(footer)
+        }
+        "custom" -> buildString {
+            appendLine(header)
+            appendLine(separator)
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Amount: R${invoice.amount.toInt()}")
+            appendLine("Due Date: ${invoice.dueDate}")
+            appendLine(separator)
+            appendLine(bankDetails)
+            appendLine(separator)
+            appendLine(footer)
+        }
+        else -> buildString { // monthly (default)
+            appendLine(header)
+            appendLine(separator)
+            appendLine("MONTHLY FEE STATEMENT")
+            appendLine(separator)
+            appendLine("Student: $studentName")
+            appendLine("Parent: $parentName")
+            appendLine("Invoice: ${invoice.description}")
+            appendLine("Amount: R${invoice.amount.toInt()}")
+            appendLine("Due Date: ${invoice.dueDate}")
+            appendLine("Status: ${invoice.status}")
+            appendLine(separator)
+            appendLine(bankDetails)
+            appendLine(separator)
+            appendLine("Pay now: https://payfast.co.za/eng/process")
+            appendLine(footer)
+        }
     }
 }
 
