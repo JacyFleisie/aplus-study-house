@@ -724,7 +724,7 @@ fun RecordCashTab(
         
         // Mock recent cash payments
         val recentCashPayments = listOf(
-            Triple("Oliver Johnson", "R450", "Registration Fee"),
+            Triple("Oliver Johnson", "R500", "Registration Fee"),
             Triple("Ethan Williams", "R1200", "Monthly Fees")
         )
         

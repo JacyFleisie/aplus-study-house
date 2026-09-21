@@ -157,8 +157,8 @@ fun AppNavigation(
                     },
                     onNavigateToRegistration = { navController.navigate(Screen.RegistrationStart.route) },
                     onNavigateToChildProfile = { studentId -> navController.navigate(Screen.ChildProfile.createRoute(studentId)) },
-                    onNavigateToFinancePayment = { invoiceId, amount, description ->
-                        navController.navigate(Screen.FinancePayment.createRoute(invoiceId, amount, description))
+                    onNavigateToFinancePayment = { invoiceId, amount, description, studentName ->
+                        navController.navigate(Screen.FinancePayment.createRoute(invoiceId, amount, description, studentName))
                     }
                 )
             }
@@ -390,7 +390,8 @@ fun AppNavigation(
                     onPaymentComplete = {
                         registrationDraft.paymentMethod = "eft"
                     },
-                    onContinue = { navController.navigate(Screen.RegistrationSubmit.route) }
+                    onContinue = { navController.navigate(Screen.RegistrationSubmit.route) },
+                    registrationDraft = registrationDraft
                 )
             }
         }
@@ -449,7 +450,8 @@ fun AppNavigation(
             arguments = listOf(
                 navArgument("invoiceId") { type = NavType.StringType },
                 navArgument("amount") { type = NavType.FloatType },
-                navArgument("description") { type = NavType.StringType }
+                navArgument("description") { type = NavType.StringType },
+                navArgument("studentName") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
             RequireParent(navController = navController) {
@@ -458,10 +460,14 @@ fun AppNavigation(
                 val description = java.net.URLDecoder.decode(
                     backStackEntry.arguments?.getString("description") ?: "", "UTF-8"
                 )
+                val studentName = java.net.URLDecoder.decode(
+                    backStackEntry.arguments?.getString("studentName") ?: "", "UTF-8"
+                )
                 FinancePaymentScreen(
                     invoiceId = invoiceId,
                     amount = amount,
                     description = description,
+                    studentName = studentName,
                     onBackClick = { navController.popBackStack() },
                     onPaymentComplete = { navController.popBackStack() }
                 )

@@ -116,7 +116,7 @@ class DataModelTest {
     }
 
     @Test
-    fun `MockApplication default payment amount is R450`() {
+    fun `MockApplication default payment amount is R500`() {
         val app = MockApplication(
             id = "APP001",
             parentId = "P001",
@@ -128,7 +128,7 @@ class DataModelTest {
             status = ApplicationStatus.UNDER_REVIEW,
             submittedDate = "2024-01-01"
         )
-        assertEquals(450.0, app.paymentAmount, 0.01)
+        assertEquals(500.0, app.paymentAmount, 0.01)
     }
 
     // ============================================

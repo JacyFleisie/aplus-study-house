@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ParentFinanceScreen(
-    onNavigateToPayment: (String, Double, String) -> Unit = { _, _, _ -> }
+    onNavigateToPayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     val currentUser = AuthRepository.getCurrentUser()
     val scope = rememberCoroutineScope()
@@ -219,8 +219,6 @@ fun ParentFinanceScreen(
 
             // Per-category breakdown chips
             val aftercareTotal = pendingInvoices.filter { it.category == InvoiceCategory.AFTERCARE }.sumOf { it.amount }
-            val transportTotal = pendingInvoices.filter { it.category == InvoiceCategory.TRANSPORT }.sumOf { it.amount }
-            val stationeryTotal = pendingInvoices.filter { it.category == InvoiceCategory.STATIONERY }.sumOf { it.amount }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -228,12 +226,6 @@ fun ParentFinanceScreen(
             ) {
                 if (aftercareTotal > 0) {
                     CategorySummaryChip("Aftercare", aftercareTotal, Primary)
-                }
-                if (transportTotal > 0) {
-                    CategorySummaryChip("Transport", transportTotal, Tertiary)
-                }
-                if (stationeryTotal > 0) {
-                    CategorySummaryChip("Stationery", stationeryTotal, Secondary)
                 }
             }
 
@@ -244,7 +236,9 @@ fun ParentFinanceScreen(
                     invoice = invoice,
                     students = students,
                     onClick = {
-                        onNavigateToPayment(invoice.id, invoice.amount, invoice.description)
+                        val student = students.find { it.id == invoice.studentId }
+                        val studentName = student?.let { "${it.firstName} ${it.lastName}" } ?: ""
+                        onNavigateToPayment(invoice.id, invoice.amount, invoice.description, studentName)
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))

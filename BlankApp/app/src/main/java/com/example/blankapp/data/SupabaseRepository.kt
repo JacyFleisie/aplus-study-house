@@ -1071,7 +1071,7 @@ object SupabaseRepository {
                 // Create monthly school fee invoice
                 val body = JSONObject().apply {
                     put("student_id", studentId)
-                    put("amount", 1500.00) // Monthly school fee
+                    put("amount", if (i == 0) 1700.00 else 1650.00) // Monthly school fee: R1700 first child, R1650 siblings
                     put("description", "Monthly School Fee")
                     put("status", "pending")
                     put("category", "registration")
@@ -1320,10 +1320,10 @@ object SupabaseRepository {
             AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
 
             if (studentId.isNotBlank()) {
-                // Generate registration fee invoice (R450)
+                // Generate registration fee invoice (R500)
                 val registrationInvoice = JSONObject().apply {
                     put("student_id", studentId)
-                    put("amount", 450.00)
+                    put("amount", 500.00)
                     put("description", "Registration Fee")
                     put("status", "pending")
                     put("category", "registration")
@@ -1337,24 +1337,7 @@ object SupabaseRepository {
                 )
                 AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=registration result=${regResult != null}")
 
-                // Generate transport fee invoice if required (R600/month)
-                if (appObj.optBoolean("transport_required", false)) {
-                    val transportInvoice = JSONObject().apply {
-                        put("student_id", studentId)
-                        put("amount", 600.00)
-                        put("description", "Transport Fee - Monthly")
-                        put("status", "pending")
-                        put("category", "transport")
-                        put("due_date", "now() + interval '30 days'")
-                        put("created_at", "now()")
-                    }
-                    val transResult = SupabaseConfig.supabasePost(
-                        table = "invoices",
-                        body = transportInvoice.toString(),
-                        authToken = authToken()
-                    )
-                    AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=transport result=${transResult != null}")
-                }
+                // Transport fee removed — A+ Study House does not offer transport services
 
                 val medicalBody = JSONObject().apply {
                     put("student_id", studentId)
@@ -1725,7 +1708,7 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
         put("photo_consent", photoConsent)
         put("signature_data", InputSanitizer.sanitizeName(parentSignature))
         put("payment_method", paymentMethod)
-        put("payment_amount", 450.00)
+        put("payment_amount", 500.00)
         put("status", "submitted")
     }
 }

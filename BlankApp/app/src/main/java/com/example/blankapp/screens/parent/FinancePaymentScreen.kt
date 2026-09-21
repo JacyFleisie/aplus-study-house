@@ -39,6 +39,7 @@ fun FinancePaymentScreen(
     invoiceId: String,
     amount: Double,
     description: String,
+    studentName: String = "",
     onBackClick: () -> Unit,
     onPaymentComplete: () -> Unit
 ) {
@@ -51,10 +52,10 @@ fun FinancePaymentScreen(
     val scope = rememberCoroutineScope()
 
     // Load bank details from Supabase config
-    var bankName by remember { mutableStateOf("First National Bank") }
-    var bankAccountName by remember { mutableStateOf("A+ Study House") }
-    var bankAccountNumber by remember { mutableStateOf("62845679012") }
-    var bankBranchCode by remember { mutableStateOf("250655") }
+    var bankName by remember { mutableStateOf("Capitec") }
+    var bankAccountName by remember { mutableStateOf("A Study House Pty Ltd") }
+    var bankAccountNumber by remember { mutableStateOf("105 425 6349") }
+    var bankBranchCode by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -252,7 +253,7 @@ fun FinancePaymentScreen(
                             BankingDetailRow("Account Name", bankAccountName)
                             BankingDetailRow("Account Number", bankAccountNumber)
                             BankingDetailRow("Branch Code", bankBranchCode)
-                            BankingDetailRow("Reference", "INV-$invoiceId")
+                            BankingDetailRow("Reference", studentName)
                             Spacer(modifier = Modifier.height(12.dp))
 
                             // Upload POP Section
@@ -364,7 +365,7 @@ fun FinancePaymentScreen(
                                 colors = CardDefaults.cardColors(containerColor = WarningContainer)
                             ) {
                                 Text(
-                                    text = "⚠️ Please bring your invoice number: INV-$invoiceId",
+                                    text = "⚠️ Please bring your invoice number: $studentName",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnBackground,
                                     modifier = Modifier.padding(12.dp)

@@ -259,9 +259,9 @@ fun ChildProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Collection/Transport Section
+            // Collection Section
             ProfileSection(
-                title = "Collection & Transport",
+                title = "Collection",
                 icon = Icons.Filled.DirectionsBus,
                 color = Secondary
             ) {
@@ -280,10 +280,9 @@ fun ChildProfileScreen(
                     ProfileInfoRow("Collection Person", "Not specified")
                     ProfileInfoRow("Contact Number", "Not specified")
                 }
-                ProfileInfoRow(
-                    "Transport Required",
-                    if (student.transportRequired) "Yes (R600/month)" else "No"
-                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
+                Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

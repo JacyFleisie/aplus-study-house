@@ -151,23 +151,23 @@ fun CollectionTransportScreen(
                     HorizontalDivider(color = OutlineVariant)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Transport Required?", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = OnBackground)
-                            Text("Does your child need transport to/from the centre?", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Card(colors = CardDefaults.cardColors(containerColor = InfoContainer), shape = RoundedCornerShape(12.dp)) {
+                        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnBackground)
                         }
-                        Switch(checked = transportRequired, onCheckedChange = { transportRequired = it },
-                            colors = SwitchDefaults.colors(checkedTrackColor = Primary))
                     }
 
-                    if (transportRequired) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Card(colors = CardDefaults.cardColors(containerColor = InfoContainer), shape = RoundedCornerShape(12.dp)) {
-                            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Transport fee of R600/month will be added to your invoices", style = MaterialTheme.typography.bodySmall, color = OnBackground)
-                            }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = OutlineVariant)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Card(colors = CardDefaults.cardColors(containerColor = InfoContainer), shape = RoundedCornerShape(12.dp)) {
+                        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnBackground)
                         }
                     }
                 }

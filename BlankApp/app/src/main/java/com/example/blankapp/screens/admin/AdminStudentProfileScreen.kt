@@ -288,15 +288,17 @@ fun AdminStudentProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Collection/Transport
+            // Collection
             ProfileSection(
-                title = "Collection & Transport",
+                title = "Collection",
                 icon = Icons.Filled.DirectionsBus,
                 color = Tertiary
             ) {
                 ProfileInfoRow("Collection Person", student.collectionPerson ?: "Not specified")
                 ProfileInfoRow("Contact", student.collectionContact ?: "Not specified")
-                ProfileInfoRow("Transport", if (student.transportRequired) "Required (R600/month)" else "Not required")
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
+                Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

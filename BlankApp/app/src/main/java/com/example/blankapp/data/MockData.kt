@@ -154,7 +154,7 @@ data class MockApplication(
     val doctorName: String = "",
     val medicalAidName: String = "",
     val photoConsent: Boolean = false,
-    val paymentAmount: Double = 450.0,
+    val paymentAmount: Double = 500.0,
     val paymentProofUrl: String? = null
 )
 

@@ -87,7 +87,7 @@ fun RegistrationSubmitScreen(
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
                         SummaryItem("Consent & Signature", "✓ Completed", Success)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                        SummaryItem("Registration Fee", "R450 — EFT", Success)
+                        SummaryItem("Registration Fee", "R500 — EFT", Success)
                     }
                 }
 

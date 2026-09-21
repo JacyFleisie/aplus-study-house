@@ -175,7 +175,7 @@ fun RegistrationRequiredScreen(
                         InfoItem("School name and address")
                         InfoItem("Parent/guardian contact details")
                         InfoItem("Medical information")
-                        InfoItem("R450 registration fee")
+                        InfoItem("R500 registration fee")
                     }
                 }
 

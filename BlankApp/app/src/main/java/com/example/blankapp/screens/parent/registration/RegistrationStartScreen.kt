@@ -113,7 +113,7 @@ fun RegistrationStartScreen(
             RegistrationStepItem(4, "Medical Information", "Doctor, allergies, medical aid", Icons.Filled.MedicalServices, Error)
             RegistrationStepItem(5, "Parent Details", "Mother and father/guardian info", Icons.Filled.FamilyRestroom, Success)
             RegistrationStepItem(6, "Consent & Signature", "Photo consent and parent signature", Icons.Filled.Draw, Warning)
-            RegistrationStepItem(7, "Payment", "R450 registration fee (EFT or cash)", Icons.Filled.Payment, Primary)
+            RegistrationStepItem(7, "Payment", "R500 registration fee (EFT or cash)", Icons.Filled.Payment, Primary)
             RegistrationStepItem(8, "Submit", "Review and submit your application", Icons.Filled.Send, Secondary)
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -135,7 +135,7 @@ fun RegistrationStartScreen(
                         Text("Important Information", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = OnBackground)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    InfoBullet("Registration fee: R450 (non-refundable)")
+                    InfoBullet("Registration fee: R500 (non-refundable)")
                     InfoBullet("Grade range: Grade 1 – Grade 7 only")
                     InfoBullet("Processing time: 3–5 business days")
                     InfoBullet("You'll be notified once your application is reviewed")

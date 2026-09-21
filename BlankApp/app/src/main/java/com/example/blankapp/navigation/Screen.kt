@@ -43,13 +43,15 @@ sealed class Screen(val route: String) {
     data class FinancePayment(
         val invoiceId: String,
         val amount: Double,
-        val description: String
-    ) : Screen("finance_payment/{invoiceId}/{amount}/{description}") {
+        val description: String,
+        val studentName: String = ""
+    ) : Screen("finance_payment/{invoiceId}/{amount}/{description}/{studentName}") {
         companion object {
-            const val ROUTE = "finance_payment/{invoiceId}/{amount}/{description}"
-            fun createRoute(invoiceId: String, amount: Double, description: String): String {
+            const val ROUTE = "finance_payment/{invoiceId}/{amount}/{description}/{studentName}"
+            fun createRoute(invoiceId: String, amount: Double, description: String, studentName: String = ""): String {
                 val encodedDescription = java.net.URLEncoder.encode(description, "UTF-8")
-                return "finance_payment/$invoiceId/$amount/$encodedDescription"
+                val encodedStudentName = java.net.URLEncoder.encode(studentName, "UTF-8")
+                return "finance_payment/$invoiceId/$amount/$encodedDescription/$encodedStudentName"
             }
         }
     }

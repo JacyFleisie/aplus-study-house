@@ -29,7 +29,7 @@ fun ParentDashboardScreen(
     onLogout: () -> Unit,
     onNavigateToRegistration: () -> Unit = {},
     onNavigateToChildProfile: (String) -> Unit = {},
-    onNavigateToFinancePayment: (String, Double, String) -> Unit = { _, _, _ -> }
+    onNavigateToFinancePayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     var selectedTab by remember { mutableStateOf(ParentTab.HOME) }
     var showNotifications by remember { mutableStateOf(false) }

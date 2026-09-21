@@ -37,7 +37,8 @@ fun RegistrationPaymentScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
     onPaymentComplete: () -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    registrationDraft: com.example.blankapp.data.RegistrationDraft? = null
 ) {
     var selectedPaymentMethod by rememberSaveable { mutableStateOf<String?>(null) }
     var paymentCompleted by rememberSaveable { mutableStateOf(false) }
@@ -47,10 +48,10 @@ fun RegistrationPaymentScreen(
     val scope = rememberCoroutineScope()
 
     // Load bank details from Supabase config
-    var bankName by rememberSaveable { mutableStateOf("First National Bank") }
-    var bankAccountName by rememberSaveable { mutableStateOf("A+ Study House") }
-    var bankAccountNumber by rememberSaveable { mutableStateOf("62845679012") }
-    var bankBranchCode by rememberSaveable { mutableStateOf("250655") }
+    var bankName by rememberSaveable { mutableStateOf("Capitec") }
+    var bankAccountName by rememberSaveable { mutableStateOf("A Study House Pty Ltd") }
+    var bankAccountNumber by rememberSaveable { mutableStateOf("105 425 6349") }
+    var bankBranchCode by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -173,7 +174,7 @@ fun RegistrationPaymentScreen(
                 Column(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Registration Fee", style = MaterialTheme.typography.bodyLarge, color = OnPrimary.copy(alpha = 0.8f))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("R450", style = MaterialTheme.typography.displaySmall, color = OnPrimary, fontWeight = FontWeight.Bold)
+                    Text("R500", style = MaterialTheme.typography.displaySmall, color = OnPrimary, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Non-refundable registration fee", style = MaterialTheme.typography.bodySmall, color = OnPrimary.copy(alpha = 0.7f))
                 }
@@ -267,7 +268,7 @@ fun RegistrationPaymentScreen(
                             BankDetailRow("Account Name", bankAccountName)
                             BankDetailRow("Account Number", bankAccountNumber)
                             BankDetailRow("Branch Code", bankBranchCode)
-                            BankDetailRow("Reference", "REG-[YourSurname]")
+                            BankDetailRow("Reference", registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "REG-[YourSurname]")
                             Spacer(modifier = Modifier.height(12.dp))
 
                             // Proof-of-payment upload with camera + file picker
@@ -363,7 +364,7 @@ fun RegistrationPaymentScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Payment Confirmed!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Success)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Your R450 payment will be verified by our team. You'll be notified once verified.",
+                        Text("Your R500 payment will be verified by our team. You'll be notified once verified.",
                             style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant, textAlign = TextAlign.Center)
                     }
                 }
