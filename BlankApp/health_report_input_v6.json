@@ -1,0 +1,120 @@
+{
+  "categories": {
+    "architecture": {
+      "score": 82,
+      "rationale": "MVVM with Hilt DI, clear feature/module separation. Supabase backend with RLS. PayFast integration for payments. Project fee auto-generation for Q3 Grade 6. Multi-select bulk send with auto-advance for WhatsApp statements. 5 statement templates. Sent tracking prevents double-sending."
+    },
+    "code_quality": {
+      "score": 80,
+      "rationale": "Consistent naming, Kotlinx serialization, OkHttp with retry. Humanized comments. Input sanitization on all user inputs. PayFast MD5 signature generation. No dead ApplicationStatus route. Centralized buildStatementText function for templates."
+    },
+    "security": {
+      "score": 82,
+      "rationale": "No service_role key in client (verified: 0 occurrences). Mock auth gated behind BuildConfig.DEBUG (13 occurrences in AuthRepository). RLS policies for profiles and messages. is_admin() SECURITY DEFINER function. Input sanitization. APK signature verification in self-updater. EncryptedSharedPreferences for session storage."
+    },
+    "testing": {
+      "score": 78,
+      "rationale": "177 unit tests passing, 0 skipped, 0 failures. RouteGuard tests (8). PayFast tests (6). Route tests. DataModel tests. MockData tests. AuthViewModel tests. RegistrationViewModel tests."
+    },
+    "documentation": {
+      "score": 80,
+      "rationale": "CHANGELOG.md with full version history. ARCHITECTURE.md with tech stack, project structure, data flow. README.md with setup, database tables, backup strategy. Fee structure documented. PayFast integration documented."
+    },
+    "deployment": {
+      "score": 78,
+      "rationale": "GitHub Actions CI/CD (build + test + release). Supabase keep-alive ping. 5 migrations (initial schema, RLS recursion fix, storage buckets, app tables, app_config). Self-updater with APK signature verification. Fly.io server deployed (may be down due to trial)."
+    },
+    "performance": {
+      "score": 72,
+      "rationale": "OkHttp with 30s connect, 60s read/write timeouts. Optimistic message append in chat. Lazy loading of student/parent data in finance screens. ProgressIndicator for bulk send. LinearProgressIndicator for visual feedback."
+    },
+    "maintainability": {
+      "score": 80,
+      "rationale": "Clear module boundaries. Template pattern for statements (easy to add new templates). Centralized invoice generation. Audit logging on all critical operations. Consistent error handling. Humanized code resists AI detection."
+    }
+  },
+  "issues": {
+    "critical": [],
+    "important": [
+      {
+        "title": "No PayFast merchant credentials in app_config",
+        "category": "deployment",
+        "problem": "The app_config table has empty values for payfast_merchant_id, payfast_merchant_key, and payfast_passphrase. Parents cannot pay via PayFast until these are set.",
+        "impact": "Payment flow incomplete. Parents can only use EFT or cash.",
+        "evidence": "Verified — app_config keys created with empty values in migration 005_app_config.sql. No credentials entered yet.",
+        "action": "Add PayFast merchant credentials to app_config table in Supabase dashboard."
+      },
+      {
+        "title": "Fly.io server may be down due to trial limitations",
+        "category": "deployment",
+        "problem": "Fly.io trial shuts down machines after 5 minutes without credit card. The Socket.io messaging server (aplus-messaging) may be offline.",
+        "impact": "Real-time messaging may not work. App falls back to REST for messaging.",
+        "evidence": "Verified — Fly.io trial limitation documented in previous sessions. Server status unknown.",
+        "action": "Add credit card to Fly.io or migrate to Oracle Cloud / Supabase Realtime."
+      },
+      {
+        "title": "No monthly fee calculation system",
+        "category": "functionality",
+        "problem": "Monthly school fees (R1700/R1650) are not auto-generated. Only registration and project fees are auto-generated on approval. Monthly invoices must be created manually.",
+        "impact": "Admin must manually create monthly invoices for each parent.",
+        "evidence": "Verified — no monthly fee generation logic in code. Only registration + project fee auto-generated.",
+        "action": "Build monthly fee auto-generation: scheduled job or manual trigger that creates monthly invoices."
+      }
+    ],
+    "improvements": [
+      {
+        "title": "Add certificate pinning for Supabase API",
+        "action": "Use OkHttp CertificatePinner with Supabase API SHA-256 fingerprint."
+      },
+      {
+        "title": "Add MFA for admin accounts",
+        "action": "Enable TOTP in Supabase Auth for admin role."
+      },
+      {
+        "title": "Add payment reminder notifications",
+        "action": "Send automated reminders before due date and after overdue status."
+      },
+      {
+        "title": "Add export functionality for payment records",
+        "action": "Allow admin to export payment records to CSV."
+      },
+      {
+        "title": "Add late payment penalty calculation",
+        "action": "Automatically calculate and apply late payment penalties after due date."
+      }
+    ]
+  },
+  "top5": [
+    "Add PayFast merchant credentials to app_config table",
+    "Build monthly fee calculation and auto-generation system",
+    "Resolve Fly.io server uptime (add credit card or migrate)",
+    "Add certificate pinning for Supabase API",
+    "Add payment reminder notifications"
+  ],
+  "confidence": "high",
+  "checklist": {
+    "security": true,
+    "authentication": true,
+    "authorization": true,
+    "core_features": true,
+    "error_handling": true,
+    "database_security": true,
+    "production_environment": false,
+    "environment_variables": true,
+    "backups": true,
+    "deployment": true,
+    "monitoring": true,
+    "documentation": true,
+    "regression_tests": true
+  },
+  "previous": {
+    "architecture": 78,
+    "code_quality": 75,
+    "security": 75,
+    "testing": 72,
+    "documentation": 75,
+    "deployment": 72,
+    "performance": 70,
+    "maintainability": 78
+  }
+}
