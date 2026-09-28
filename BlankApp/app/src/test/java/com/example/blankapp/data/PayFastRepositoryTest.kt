@@ -67,32 +67,30 @@ class PayFastRepositoryTest {
     }
 
     @Test
-    fun `buildQueryString produces correct format`() {
+    fun `buildQueryString returns empty query — checkout URL is signed server-side`() {
+        // Since moving signing to the payfast-create-payment edge function,
+        // buildQueryString is a compatibility no-op: the checkout URL arrives
+        // from the server already signed and query-encoded.
         val data = JSONObject().apply {
             put("merchant_id", "123456")
             put("amount", "100.00")
             put("item_name", "Test Invoice")
         }
 
-        val query = PayFastRepository.buildQueryString(data)
-
-        assertTrue(query.contains("amount=100.00"))
-        assertTrue(query.contains("item_name=Test Invoice"))
-        assertTrue(query.contains("merchant_id=123456"))
-        assertFalse(query.contains("signature"))
+        assertEquals("", PayFastRepository.buildQueryString(data))
     }
 
     @Test
-    fun `buildQueryString skips empty values`() {
+    fun `generateSignature handles special characters deterministically`() {
         val data = JSONObject().apply {
-            put("merchant_id", "123456")
-            put("empty_field", "")
-            put("amount", "100.00")
+            put("item_name", "Registration Fee & extras")
+            put("amount", "500.00")
         }
 
-        val query = PayFastRepository.buildQueryString(data)
+        val sig1 = PayFastRepository.generateSignature(data, "pass")
+        val sig2 = PayFastRepository.generateSignature(data, "pass")
 
-        assertFalse(query.contains("empty_field"))
-        assertTrue(query.contains("merchant_id=123456"))
+        assertEquals(sig1, sig2)
+        assertEquals(32, sig1.length)
     }
 }

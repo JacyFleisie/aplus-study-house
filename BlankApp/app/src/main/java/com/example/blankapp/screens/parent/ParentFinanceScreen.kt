@@ -1,5 +1,8 @@
 package com.example.blankapp.screens.parent
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -200,6 +204,73 @@ fun ParentFinanceScreen(
                     text = if (totalBalance > 0) "Amount outstanding" else "All payments up to date",
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnPrimary.copy(alpha = 0.8f)
+                )
+            }
+        }
+
+        // Pay All — one PayFast checkout for every pending invoice
+        if (pendingInvoices.size >= 2) {
+            val ctx = LocalContext.current
+            var payingAll by remember { mutableStateOf(false) }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (payingAll) return@Button
+                    payingAll = true
+                    scope.launch {
+                        try {
+                            val parentId = AuthRepository.getCurrentUser()?.id ?: ""
+                            val ids = pendingInvoices.map { it.id }
+                            val amountById = pendingInvoices.associate { it.id to it.amount }
+                            val total = pendingInvoices.sumOf { it.amount }
+
+                            val payFastData = PayFastRepository.buildBatchPaymentData(
+                                invoiceIds = ids,
+                                amount = total,
+                                itemName = "A+ Study House — ${ids.size} invoices",
+                                parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
+                                parentId = parentId
+                            )
+
+                            if (payFastData != null) {
+                                val (firstSlot, url) = payFastData
+                                val batchId = firstSlot.optString("m_payment_id", "")
+                                if (batchId.isNotBlank()) {
+                                    SupabaseRepository.createBatchPayments(
+                                        invoiceIds = ids,
+                                        parentId = parentId,
+                                        amountPerInvoice = amountById,
+                                        batchId = batchId
+                                    )
+                                }
+                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                Toast.makeText(ctx, "Opening PayFast checkout for ${ids.size} invoices (R${"%.0f".format(total)})", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(ctx, "Online payments are not available right now. Please pay each invoice individually or contact the office.", Toast.LENGTH_LONG).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(ctx, "Could not start payment: ${e.message}", Toast.LENGTH_LONG).show()
+                        } finally {
+                            payingAll = false
+                        }
+                    }
+                },
+                enabled = !payingAll,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
+            ) {
+                if (payingAll) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = OnPrimary, strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Icon(Icons.Filled.Bolt, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (payingAll) "Preparing checkout…" else "Pay All ${pendingInvoices.size} Invoices (R${"%.0f".format(totalBalance)})",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

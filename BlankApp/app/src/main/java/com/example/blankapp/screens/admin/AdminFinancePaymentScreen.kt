@@ -594,13 +594,11 @@ fun OutstandingPaymentsTab() {
                         appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
                         appendLine("Status: ${currentInvoice?.status ?: ""}")
                         appendLine("--------------------------------")
-                        appendLine("Bank: Capitec")
-                        appendLine("Account: A Study House Pty Ltd")
-                        appendLine("Account Number: 105 425 6349")
+                        appendLine("Pay online: A+ Study House app → Finance → Pay Now (secure PayFast checkout)")
+                        appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
                         appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
                         appendLine("--------------------------------")
-                        appendLine("Pay now: https://payfast.co.za/eng/process")
-                        appendLine("Please send proof of payment to 076 561 6648")
+                        appendLine("Questions? WhatsApp the office on 076 561 6648")
                         appendLine("Thank you for your support!")
                     }
                     OutlinedTextField(
@@ -626,13 +624,11 @@ fun OutstandingPaymentsTab() {
                             appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
                             appendLine("Status: ${currentInvoice?.status ?: ""}")
                             appendLine("--------------------------------")
-                            appendLine("Bank: Capitec")
-                            appendLine("Account: A Study House Pty Ltd")
-                            appendLine("Account Number: 105 425 6349")
+                            appendLine("Pay online: A+ Study House app → Finance → Pay Now (secure PayFast checkout)")
+                            appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
                             appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
                             appendLine("--------------------------------")
-                            appendLine("Pay now: https://payfast.co.za/eng/process")
-                            appendLine("Please send proof of payment to 076 561 6648")
+                            appendLine("Questions? WhatsApp the office on 076 561 6648")
                             appendLine("Thank you for your support!")
                         }, "UTF-8")
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$phone?text=$encoded"))
@@ -861,14 +857,13 @@ private fun buildStatementText(
 ): String {
     val header = "A+ Study House — Fee Statement"
     val separator = "--------------------------------"
-    val bankDetails = buildString {
-        appendLine("Bank: Capitec")
-        appendLine("Account: A Study House Pty Ltd")
-        appendLine("Account Number: 105 425 6349")
+    val paymentDetails = buildString {
+        appendLine("Pay online: open the A+ Study House app → Finance → Pay Now (secure PayFast checkout: card, EFT or instant payment)")
+        appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
         appendLine("Reference: $studentName")
     }
     val footer = buildString {
-        appendLine("Please send proof of payment to 076 561 6648")
+        appendLine("Questions? WhatsApp the office on 076 561 6648")
         appendLine("Thank you for your support!")
     }
 
@@ -885,7 +880,7 @@ private fun buildStatementText(
             appendLine("Due Date: ${invoice.dueDate}")
             appendLine("Status: OVERDUE")
             appendLine(separator)
-            appendLine(bankDetails)
+            appendLine(paymentDetails)
             appendLine(separator)
             appendLine("Please settle this account as soon as possible.")
             appendLine(footer)
@@ -900,7 +895,7 @@ private fun buildStatementText(
             appendLine("Registration Fee: R500")
             appendLine("Status: ${invoice.status}")
             appendLine(separator)
-            appendLine(bankDetails)
+            appendLine(paymentDetails)
             appendLine(separator)
             appendLine("Registration fee is non-refundable and payable annually.")
             appendLine(footer)
@@ -915,7 +910,7 @@ private fun buildStatementText(
             appendLine("Project Fee: R380 (Grade 6 only)")
             appendLine("Due Date: ${invoice.dueDate}")
             appendLine(separator)
-            appendLine(bankDetails)
+            appendLine(paymentDetails)
             appendLine(separator)
             appendLine("This is a once-off fee for Grade 6 project materials.")
             appendLine(footer)
@@ -928,7 +923,7 @@ private fun buildStatementText(
             appendLine("Amount: R${invoice.amount.toInt()}")
             appendLine("Due Date: ${invoice.dueDate}")
             appendLine(separator)
-            appendLine(bankDetails)
+            appendLine(paymentDetails)
             appendLine(separator)
             appendLine(footer)
         }
@@ -944,9 +939,8 @@ private fun buildStatementText(
             appendLine("Due Date: ${invoice.dueDate}")
             appendLine("Status: ${invoice.status}")
             appendLine(separator)
-            appendLine(bankDetails)
+            appendLine(paymentDetails)
             appendLine(separator)
-            appendLine("Pay now: https://payfast.co.za/eng/process")
             appendLine(footer)
         }
     }

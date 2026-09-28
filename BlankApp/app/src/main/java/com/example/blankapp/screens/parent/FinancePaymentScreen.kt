@@ -2,14 +2,11 @@ package com.example.blankapp.screens.parent
 
 import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,21 +14,17 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.blankapp.data.AuditLogger
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.PayFastRepository
 import com.example.blankapp.data.SupabaseRepository
-import org.json.JSONObject
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,84 +37,22 @@ fun FinancePaymentScreen(
     onPaymentComplete: () -> Unit
 ) {
     var selectedMethod by remember { mutableStateOf<String?>(null) }
-    var popUploaded by remember { mutableStateOf(false) }
     var paymentSubmitted by remember { mutableStateOf(false) }
-    var uploading by remember { mutableStateOf(false) }
-    var proofOfPayment by remember { mutableStateOf<String?>(null) }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Load bank details from Supabase config
-    var bankName by remember { mutableStateOf("Capitec") }
-    var bankAccountName by remember { mutableStateOf("A Study House Pty Ltd") }
-    var bankAccountNumber by remember { mutableStateOf("105 425 6349") }
-    var bankBranchCode by remember { mutableStateOf("") }
+    // Cash payment info — loaded from app_config with sensible defaults
+    var cashLocation by remember { mutableStateOf("A+ Study House, Witpoortjie, Roodepoort") }
+    var cashHours by remember { mutableStateOf("Monday – Friday: 07h00 – 18h00") }
+    var cashPhone by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                SupabaseRepository.getAppConfig("bank_name")?.let { bankName = it }
-                SupabaseRepository.getAppConfig("bank_account_name")?.let { bankAccountName = it }
-                SupabaseRepository.getAppConfig("bank_account_number")?.let { bankAccountNumber = it }
-                SupabaseRepository.getAppConfig("bank_branch_code")?.let { bankBranchCode = it }
+                SupabaseRepository.getAppConfig("cash_payment_location")?.let { cashLocation = it }
+                SupabaseRepository.getAppConfig("cash_payment_hours")?.let { cashHours = it }
+                SupabaseRepository.getAppConfig("cash_payment_phone")?.let { cashPhone = it }
             } catch (_: Exception) { /* use defaults */ }
-        }
-    }
-
-    // File picker for PoP
-    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            uploading = true
-            try {
-                val mimeType = ctx.contentResolver.getType(uri) ?: "image/*"
-                val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                if (bytes != null) {
-                    val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                    val ext = when (mimeType) {
-                        "application/pdf" -> ".pdf"
-                        "image/jpeg" -> ".jpg"
-                        "image/png" -> ".png"
-                        else -> ""
-                    }
-                    val fileName = "pop_${parentId}_${System.currentTimeMillis()}${ext}"
-                    val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, mimeType)
-                    if (path != null) {
-                        proofOfPayment = path
-                        popUploaded = true
-                    }
-                }
-            } catch (e: Exception) {
-                // Handle error
-            } finally {
-                uploading = false
-            }
-        }
-    }
-
-    // Camera for PoP
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri != null) {
-            scope.launch {
-                uploading = true
-                try {
-                    val bytes = ctx.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
-                    if (bytes != null) {
-                        val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                        val fileName = "pop_${parentId}_${System.currentTimeMillis()}.jpg"
-                        val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, "image/jpeg")
-                        if (path != null) {
-                            proofOfPayment = path
-                            popUploaded = true
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Handle error
-                } finally {
-                    uploading = false
-                }
-            }
         }
     }
 
@@ -196,13 +127,13 @@ fun FinancePaymentScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // EFT Option
+                // PayFast Option (recommended)
                 PaymentOptionCard(
-                    title = "EFT / Bank Transfer",
-                    subtitle = "Transfer from any bank",
-                    icon = Icons.Filled.AccountBalance,
-                    isSelected = selectedMethod == "EFT",
-                    onClick = { selectedMethod = "EFT" }
+                    title = "Pay with PayFast",
+                    subtitle = "Card, EFT or instant payment — secure online checkout",
+                    icon = Icons.Filled.CreditCard,
+                    isSelected = selectedMethod == "PAYFAST",
+                    onClick = { selectedMethod = "PAYFAST" }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -216,125 +147,43 @@ fun FinancePaymentScreen(
                     onClick = { selectedMethod = "CASH" }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // PayFast Option
-                PaymentOptionCard(
-                    title = "Pay with PayFast",
-                    subtitle = "Card, EFT, or instant payment",
-                    icon = Icons.Filled.CreditCard,
-                    isSelected = selectedMethod == "PAYFAST",
-                    onClick = { selectedMethod = "PAYFAST" }
-                )
-
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Banking Details (if EFT selected)
-                if (selectedMethod == "EFT") {
+                // PayFast details (if PayFast selected)
+                if (selectedMethod == "PAYFAST") {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Text(
-                                text = "Banking Details",
+                                text = "Secure Online Payment",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = OnBackground
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            BankingDetailRow("Bank", bankName)
-                            BankingDetailRow("Account Name", bankAccountName)
-                            BankingDetailRow("Account Number", bankAccountNumber)
-                            BankingDetailRow("Branch Code", bankBranchCode)
-                            BankingDetailRow("Reference", studentName)
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Upload POP Section
-                            HorizontalDivider(color = OutlineVariant)
-                            Spacer(modifier = Modifier.height(12.dp))
-
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Upload Proof of Payment",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = OnBackground
+                                text = "You'll be redirected to PayFast's secure checkout where you can pay by credit/debit card, EFT or instant payment. A payment record is created immediately and marked as pending until PayFast confirms it.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-
-                            if (!popUploaded) {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    // Take Photo button
-                                    OutlinedButton(
-                                        onClick = {
-                                            val photoFile = File(ctx.cacheDir, "pop_${System.currentTimeMillis()}.jpg")
-                                            photoUri = androidx.core.content.FileProvider.getUriForFile(
-                                                ctx, ctx.packageName + ".fileprovider", photoFile
-                                            )
-                                            cameraLauncher.launch(photoUri!!)
-                                        },
-                                        modifier = Modifier.weight(1f).height(48.dp),
-                                        shape = RoundedCornerShape(12.dp),
-                                        enabled = !uploading
-                                    ) {
-                                        Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Take Photo", fontWeight = FontWeight.SemiBold)
-                                    }
-                                    // Choose File button
-                                    OutlinedButton(
-                                        onClick = { filePicker.launch("image/*,application/pdf") },
-                                        modifier = Modifier.weight(1f).height(48.dp),
-                                        shape = RoundedCornerShape(12.dp),
-                                        enabled = !uploading
-                                    ) {
-                                        Icon(Icons.Filled.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Choose File", fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-                            } else {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(containerColor = SuccessContainer)
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.CheckCircle,
-                                            contentDescription = null,
-                                            tint = Success,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = "POP Uploaded",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                fontWeight = FontWeight.SemiBold,
-                                                color = Success
-                                            )
-                                            Text(
-                                                text = proofOfPayment ?: "",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = OnSurfaceVariant
-                                            )
-                                        }
-                                    }
-                                }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.Lock, contentDescription = null, tint = Success, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Reference: $invoiceId",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = OnBackground
+                                )
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 // Cash Payment Details (if Cash selected)
@@ -351,21 +200,23 @@ fun FinancePaymentScreen(
                                 .padding(16.dp)
                         ) {
                             Text(
-                                text = "Cash Payment Location",
+                                text = "Cash Payment Details",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = OnBackground
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            InfoRow(icon = Icons.Filled.LocationOn, text = "Witpoortjie, Roodepoort")
-                            InfoRow(icon = Icons.Filled.Schedule, text = "Mon-Fri: 14:00 - 18:00")
-                            InfoRow(icon = Icons.Filled.Phone, text = "011 234 5678")
+                            InfoRow(icon = Icons.Filled.LocationOn, text = cashLocation)
+                            InfoRow(icon = Icons.Filled.Schedule, text = cashHours)
+                            if (cashPhone.isNotBlank()) {
+                                InfoRow(icon = Icons.Filled.Phone, text = cashPhone)
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
                             Card(
                                 colors = CardDefaults.cardColors(containerColor = WarningContainer)
                             ) {
                                 Text(
-                                    text = "⚠️ Please bring your invoice number: $studentName",
+                                    text = "Please bring your invoice reference: $invoiceId",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnBackground,
                                     modifier = Modifier.padding(12.dp)
@@ -373,9 +224,8 @@ fun FinancePaymentScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
 
                 // Submit Payment Button
                 Button(
@@ -394,8 +244,8 @@ fun FinancePaymentScreen(
                                 )
 
                                 if (payFastData != null) {
-                                    val (data, url) = payFastData
-                                    // Create payment record as pending
+                                    val (_, url) = payFastData
+                                    // Create payment record as pending — PayFast ITN confirms it
                                     SupabaseRepository.createPayment(
                                         invoiceId = invoiceId,
                                         studentId = "",
@@ -404,23 +254,26 @@ fun FinancePaymentScreen(
                                         paymentMethod = "payfast",
                                         proofUrl = null
                                     )
-                                    // Open PayFast in browser
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url + "?" + PayFastRepository.buildQueryString(data)))
+                                    // Open PayFast in browser (URL is signed server-side)
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                     ctx.startActivity(intent)
                                     paymentSubmitted = true
+                                } else {
+                                    Toast.makeText(
+                                        ctx,
+                                        "Online payments are not set up yet. Please pay by cash at the office or contact us.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             } else {
-                                val paymentMethod = if (selectedMethod == "CASH") "cash" else "eft"
-                                val proofUrl = proofOfPayment
-
-                                // Create payment record
+                                // Create cash payment record
                                 val paymentCreated = SupabaseRepository.createPayment(
                                     invoiceId = invoiceId,
                                     studentId = "",
                                     parentId = parentId,
                                     amount = amount,
-                                    paymentMethod = paymentMethod,
-                                    proofUrl = proofUrl
+                                    paymentMethod = "cash",
+                                    proofUrl = null
                                 )
 
                                 if (paymentCreated) {
@@ -436,20 +289,20 @@ fun FinancePaymentScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = when {
-                            selectedMethod == "EFT" && popUploaded -> Success
+                            selectedMethod == "PAYFAST" -> Primary
                             selectedMethod == "CASH" -> Success
                             else -> OnSurfaceVariant
                         },
                         contentColor = OnPrimary
                     ),
-                    enabled = (selectedMethod == "EFT" && popUploaded) || selectedMethod == "CASH" || selectedMethod == "PAYFAST"
+                    enabled = selectedMethod == "PAYFAST" || selectedMethod == "CASH"
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = when (selectedMethod) {
                             "CASH" -> "Confirm Cash Payment"
-                            "PAYFAST" -> "Pay with PayFast"
+                            "PAYFAST" -> "Continue to PayFast"
                             else -> "Submit Payment"
                         },
                         style = MaterialTheme.typography.titleMedium,
@@ -556,28 +409,6 @@ fun PaymentOptionCard(
 }
 
 @Composable
-fun BankingDetailRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = OnSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
-            color = OnBackground
-        )
-    }
-}
-
-@Composable
 fun InfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     text: String
@@ -602,5 +433,3 @@ fun InfoRow(
         )
     }
 }
-
-

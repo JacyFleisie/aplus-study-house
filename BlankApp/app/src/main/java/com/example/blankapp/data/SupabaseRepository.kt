@@ -3,6 +3,7 @@ package com.example.blankapp.data
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import com.example.blankapp.utils.InputSanitizer
@@ -398,6 +399,122 @@ object SupabaseRepository {
             if (arr.length() > 0) arr.getJSONObject(0).optString("value") else null
         } catch (e: Exception) {
             recordError("Backend query", e)
+            null
+        }
+    }
+
+    // ============================================
+    // ATTENDANCE + DAILY FEES
+    // ============================================
+
+    /** Calls a PostgREST RPC (SECURITY DEFINER function) and returns the raw JSON body, or null. */
+    private suspend fun supabaseRpc(functionName: String, args: JSONObject): String? = withContext(Dispatchers.IO) {
+        try {
+            val url = "${SupabaseConfig.SUPABASE_URL}/rest/v1/rpc/$functionName"
+            val body = okhttp3.RequestBody.create(
+                "application/json; charset=utf-8".toMediaTypeOrNull(), args.toString()
+            )
+            val request = okhttp3.Request.Builder()
+                .url(url)
+                .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
+                .addHeader("Authorization", "Bearer ${authToken() ?: SupabaseConfig.SUPABASE_ANON_KEY}")
+                .post(body)
+                .build()
+            SupabaseConfig.httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    recordError("RPC $functionName", java.io.IOException("HTTP ${response.code}: ${response.body?.string()?:""}"))
+                    return@use null
+                }
+                response.body?.string()
+            }
+        } catch (e: Exception) {
+            recordError("RPC $functionName", e)
+            null
+        }
+    }
+
+    /** Mark a student present/absent/late for a given date. Admin only. */
+    suspend fun markAttendance(studentId: String, date: String, status: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        val result = supabaseRpc(
+            "mark_attendance",
+            JSONObject().apply {
+                put("p_student_id", studentId)
+                put("p_date", date)
+                put("p_status", status)
+            }
+        ) ?: return@withContext false
+        try {
+            JSONObject(result).optBoolean("ok", false)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /** Attendance status for ALL students on one date (studentId -> status). Admin only. */
+    suspend fun getAttendanceForDate(date: String): Map<String, String> = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext emptyMap()
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "attendance",
+                query = "attendance_date=eq.$date&select=student_id,status",
+                authToken = authToken()
+            ) ?: return@withContext emptyMap()
+            val map = mutableMapOf<String, String>()
+            val arr = JSONArray(result)
+            for (i in 0 until arr.length()) {
+                val row = arr.getJSONObject(i)
+                map[row.optString("student_id")] = row.optString("status")
+            }
+            map
+        } catch (e: Exception) {
+            recordError("Get attendance for date", e)
+            emptyMap()
+        }
+    }
+
+    /** Attendance status per date (yyyy-MM-dd) for one student, visible to admins and the owning parent. */
+    suspend fun getAttendance(studentId: String, from: String, to: String): Map<String, String> = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext emptyMap()
+        try {
+            val result = SupabaseConfig.supabaseGet(
+                table = "attendance",
+                query = "student_id=eq.$studentId&attendance_date=gte.$from&attendance_date=lte.$to&select=attendance_date,status",
+                authToken = authToken()
+            ) ?: return@withContext emptyMap()
+            val map = mutableMapOf<String, String>()
+            val arr = JSONArray(result)
+            for (i in 0 until arr.length()) {
+                val row = arr.getJSONObject(i)
+                map[row.optString("attendance_date")] = row.optString("status")
+            }
+            map
+        } catch (e: Exception) {
+            recordError("Get attendance", e)
+            emptyMap()
+        }
+    }
+
+    /** Generate (or update) the monthly daily-fee invoice from attended days. Admin only. */
+    suspend fun generateAttendanceInvoice(studentId: String, month: String): AttendanceInvoiceResult? = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext null
+        val result = supabaseRpc(
+            "generate_attendance_invoice",
+            JSONObject().apply {
+                put("p_student_id", studentId)
+                put("p_month", month)
+            }
+        ) ?: return@withContext null
+        try {
+            val json = JSONObject(result)
+            if (!json.optBoolean("ok", false)) return@withContext null
+            AttendanceInvoiceResult(
+                updated = json.optBoolean("updated", false),
+                invoiceId = json.optString("invoice_id", ""),
+                days = json.optInt("days", 0),
+                amount = json.optDouble("amount", 0.0)
+            )
+        } catch (e: Exception) {
             null
         }
     }
@@ -1015,17 +1132,53 @@ object SupabaseRepository {
     /**
      * Update payment status (verified/rejected).
      */
-    suspend fun createPayment(invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null): Boolean = withContext(Dispatchers.IO) {
+    suspend fun createPayment(invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null): Boolean =
+        createPaymentInternal(invoiceId, studentId, parentId, amount, paymentMethod, proofUrl, batchId = null)
+
+    /** Pay-All: creates one pending payment per invoice, all sharing [batchId]. */
+    suspend fun createBatchPayments(invoiceIds: List<String>, parentId: String, amountPerInvoice: Map<String, Double>, batchId: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isUsingBackend()) return@withContext false
+        try {
+            var allOk = true
+            for (invoiceId in invoiceIds) {
+                val ok = createPaymentInternal(
+                    invoiceId = invoiceId,
+                    studentId = "",
+                    parentId = parentId,
+                    amount = amountPerInvoice[invoiceId] ?: 0.0,
+                    paymentMethod = "payfast",
+                    proofUrl = null,
+                    batchId = batchId
+                )
+                if (!ok) allOk = false
+            }
+            allOk
+        } catch (e: Exception) {
+            recordError("Create batch payments", e)
+            false
+        }
+    }
+
+    private suspend fun createPaymentInternal(
+        invoiceId: String,
+        studentId: String,
+        parentId: String,
+        amount: Double,
+        paymentMethod: String,
+        proofUrl: String?,
+        batchId: String?
+    ): Boolean = withContext(Dispatchers.IO) {
         if (!isUsingBackend()) return@withContext false
         try {
             val body = JSONObject().apply {
                 put("invoice_id", invoiceId)
-                put("student_id", studentId)
+                if (studentId.isNotBlank()) put("student_id", studentId)
                 put("parent_id", parentId)
                 put("amount", amount)
                 put("payment_method", paymentMethod)
                 put("status", "pending")
                 if (proofUrl != null) put("proof_url", proofUrl)
+                if (batchId != null) put("batch_id", batchId)
                 put("payment_date", "now()")
             }
             val result = SupabaseConfig.supabasePost(
@@ -1298,6 +1451,8 @@ object SupabaseRepository {
                 if (appObj.optString("student_class_number").isNotBlank()) put("class_number", appObj.optString("student_class_number").trim())
                 if (appObj.optString("student_teacher_name").isNotBlank()) put("teacher_name", appObj.optString("student_teacher_name").trim())
                 put("lsen", appObj.optString("student_lsen").equals("true", ignoreCase = true) || appObj.optString("student_lsen") == "Yes")
+                put("photo_consent", appObj.optBoolean("photo_consent", false))
+                if (appObj.optString("signature_data").isNotBlank()) put("signature_data", appObj.optString("signature_data"))
                 put("status", "active")
             }
 
@@ -1315,20 +1470,27 @@ object SupabaseRepository {
                 return@withContext false
             }
 
-            val studentId = JSONObject(studentResult).optString("id")
+            // PostgREST returns the created row(s) as a JSON array
+            val studentId = runCatching {
+                JSONArray(studentResult).optJSONObject(0)?.optString("id") ?: ""
+            }.getOrElse {
+                // Fallback: some configurations return a single object
+                runCatching { JSONObject(studentResult).optString("id") }.getOrElse { "" }
+            }
             Log.d(TAG, "Student created successfully: $studentResult")
             AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
 
             if (studentId.isNotBlank()) {
-                // Generate registration fee invoice (R500)
+                // Generate registration fee invoice (R500) — due_date is a real date column,
+                // so compute the ISO date client-side instead of sending SQL expressions
+                val dueIn30Days = java.time.LocalDate.now().plusDays(30).toString()
                 val registrationInvoice = JSONObject().apply {
                     put("student_id", studentId)
                     put("amount", 500.00)
                     put("description", "Registration Fee")
                     put("status", "pending")
                     put("category", "registration")
-                    put("due_date", "now() + interval '30 days'")
-                    put("created_at", "now()")
+                    put("due_date", dueIn30Days)
                 }
                 val regResult = SupabaseConfig.supabasePost(
                     table = "invoices",
@@ -1340,8 +1502,7 @@ object SupabaseRepository {
                 // Auto-generate Project Fee (R380) for Grade 6 students in Q3
                 val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
                 val isQ3 = currentMonth in 7..9
-                val grade = appObj.optString("grade", "")
-                val isGrade6 = grade.contains("6", ignoreCase = true) || grade.equals("Grade 6", ignoreCase = true)
+                val isGrade6 = appObj.optInt("student_grade", 0) == 6
                 if (isQ3 && isGrade6) {
                     val projectInvoice = JSONObject().apply {
                         put("student_id", studentId)
@@ -1349,15 +1510,14 @@ object SupabaseRepository {
                         put("description", "Project Fee — Q3 2026 (Grade 6)")
                         put("status", "pending")
                         put("category", "project")
-                        put("due_date", "now() + interval '30 days'")
-                        put("created_at", "now()")
+                        put("due_date", dueIn30Days)
                     }
                     val projectResult = SupabaseConfig.supabasePost(
                         table = "invoices",
                         body = projectInvoice.toString(),
                         authToken = authToken()
                     )
-                    AuditLogger.log("createStudentFromApplication_projectFee", "studentId=$studentId grade=$grade month=$currentMonth result=${projectResult != null}")
+                    AuditLogger.log("createStudentFromApplication_projectFee", "studentId=$studentId grade=6 month=$currentMonth result=${projectResult != null}")
                 }
 
                 // Transport fee removed — A+ Study House does not offer transport services
@@ -1487,10 +1647,10 @@ object SupabaseRepository {
             id = obj.optString("id"),
             firstName = obj.optString("first_name"),
             lastName = obj.optString("last_name"),
-            dateOfBirth = obj.optString("date_of_birth", ""),
+            dateOfBirth = obj.optStringOrNullSafe("date_of_birth"),
             grade = obj.optInt("grade", 0),
             school = obj.optString("school", ""),
-            address = obj.optString("address", ""),
+            address = obj.optStringOrNullSafe("address"),
             parentId = obj.optString("parent_id"),
             status = when (obj.optString("status")) {
                 "active" -> StudentStatus.ACTIVE
@@ -1498,10 +1658,12 @@ object SupabaseRepository {
                 "inactive" -> StudentStatus.INACTIVE
                 else -> StudentStatus.PENDING
             },
-            gender = obj.optString("gender", ""),
-            classNr = obj.optString("class_number", ""),
-            teacherName = obj.optString("teacher_name", ""),
-            lsen = obj.optBoolean("lsen", false)
+            gender = obj.optStringOrNullSafe("gender"),
+            classNr = obj.optStringOrNullSafe("class_number"),
+            teacherName = obj.optStringOrNullSafe("teacher_name"),
+            lsen = obj.optBoolean("lsen", false),
+            photoConsent = obj.optBoolean("photo_consent", false),
+            signatureData = obj.optStringOrNullSafe("signature_data")
         )
     }
 
@@ -1534,7 +1696,19 @@ object SupabaseRepository {
         )
     }
 
+    /**
+     * org.json's optString returns the literal string "null" when a JSON value is
+     * SQL NULL, which leaked "null" into the UI. This helper treats JSON null and
+     * the literal "null" string as empty.
+     */
+    private fun JSONObject.optStringOrNullSafe(key: String): String {
+        if (!this.has(key) || this.isNull(key)) return ""
+        val v = this.optString(key, "")
+        return if (v == "null") "" else v
+    }
+
     private fun parseApplication(obj: JSONObject): MockApplication {
+        val notesRaw = obj.optStringOrNullSafe("admin_notes")
         return MockApplication(
             id = obj.optString("id"),
             parentId = obj.optString("parent_id"),
@@ -1554,16 +1728,16 @@ object SupabaseRepository {
                 else -> ApplicationStatus.SUBMITTED
             },
             lastUpdated = obj.optString("updated_at", ""),
-            notes = obj.optString("admin_notes", ""),
+            notes = notesRaw.ifBlank { null },
             registrationFeePaid = obj.optBoolean("payment_amount", false),
             documentsUploaded = obj.optBoolean("documents_uploaded", false),
-            studentDOB = obj.optString("student_dob", ""),
-            studentAddress = obj.optString("student_address", ""),
-            studentGender = obj.optString("student_gender", ""),
-            studentClassNumber = obj.optString("student_class_number", ""),
-            studentTeacherName = obj.optString("student_teacher_name", ""),
-            studentLsen = obj.optString("student_lsen", ""),
-            paymentProofUrl = obj.optString("payment_proof_url").ifBlank { null }
+            studentDOB = obj.optStringOrNullSafe("student_dob"),
+            studentAddress = obj.optStringOrNullSafe("student_address"),
+            studentGender = obj.optStringOrNullSafe("student_gender"),
+            studentClassNumber = obj.optStringOrNullSafe("student_class_number"),
+            studentTeacherName = obj.optStringOrNullSafe("student_teacher_name"),
+            studentLsen = obj.optStringOrNullSafe("student_lsen"),
+            paymentProofUrl = obj.optStringOrNullSafe("payment_proof_url").ifBlank { null }
         )
     }
 
@@ -1573,14 +1747,14 @@ object SupabaseRepository {
             studentId = obj.optString("student_id"),
             description = obj.optString("description"),
             amount = obj.optDouble("amount", 0.0),
-            dueDate = obj.optString("due_date", ""),
+            dueDate = obj.optStringOrNullSafe("due_date"),
             status = when (obj.optString("status")) {
                 "paid" -> InvoiceStatus.PAID
                 "pending" -> InvoiceStatus.PENDING
                 "overdue" -> InvoiceStatus.OVERDUE
                 else -> InvoiceStatus.PENDING
             },
-            paidDate = obj.optString("paid_date", ""),
+            paidDate = obj.optStringOrNullSafe("paid_date"),
             category = when (obj.optString("category")) {
                 "aftercare" -> InvoiceCategory.AFTERCARE
                 "transport" -> InvoiceCategory.TRANSPORT
@@ -1688,7 +1862,21 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
         put("child_first_name", first)
         put("child_last_name", last)
         put("student_grade", InputSanitizer.sanitizeGrade(grade) ?: grade)
-        put("student_dob", InputSanitizer.sanitizeText(dob))
+        // student_dob is a DATE column: send JSON null when unknown (an empty
+        // string is rejected with `invalid input syntax for type date`), and
+        // normalise dd/MM/yyyy from the date picker to ISO yyyy-MM-dd.
+        val dobClean = InputSanitizer.sanitizeText(dob)
+        if (dobClean.isBlank()) {
+            put("student_dob", JSONObject.NULL)
+        } else {
+            val dobParts = dobClean.split("/")
+            val dobIso = if (dobParts.size == 3 && dobParts[2].length == 4) {
+                "%04d-%02d-%02d".format(dobParts[2].toInt(), dobParts[1].toInt(), dobParts[0].toInt())
+            } else {
+                dobClean
+            }
+            put("student_dob", dobIso)
+        }
         put("student_school", InputSanitizer.sanitizeText(school))
         put("student_address", InputSanitizer.sanitizeText(address))
         put("student_gender", gender)
@@ -1735,3 +1923,11 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
         put("status", "submitted")
     }
 }
+
+/** Result of generateAttendanceInvoice. */
+data class AttendanceInvoiceResult(
+    val updated: Boolean,
+    val invoiceId: String,
+    val days: Int,
+    val amount: Double
+)
