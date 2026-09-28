@@ -167,6 +167,11 @@ export function pfUrlencode(str: string): string {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
+const PAYFAST_VERIFY_TOKEN = Deno.env.get("PAYFAST_VERIFY_TOKEN") ?? "";
+// Service role: required to execute the verify RPCs (grants revoked from
+// anon/authenticated/public — migration 011) and to bypass RLS on writes.
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
 serve(async (req: Request) => {
   try {
     if (req.method !== "POST") {
@@ -216,17 +221,20 @@ serve(async (req: Request) => {
     const itnAmount = parseFloat(data["amount"] ?? "0");
 
     // All DB work happens inside the SECURITY DEFINER RPC — no service_role
-    // key is needed, and the payment lookup + verification is atomic.
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // key is needed for RLS, but the RPC itself requires the shared verify
+    // token (migration 011) because it can mark invoices paid. The client
+    // (service role) is used so the RPC is callable despite revoked grants.
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Pay-All batches share one checkout: m_payment_id = 'batch_<id>'.
     // The payments rows store batch_id exactly as the full m_payment_id
     // (including the 'batch_' prefix), so pass it through unchanged.
     if (invoiceId.startsWith("batch_")) {
       const { data: batchResult, error: batchError } = await supabase.rpc("verify_payfast_batch_payment", {
+        p_verify_token: PAYFAST_VERIFY_TOKEN,
         p_batch_id: invoiceId,
-        p_pf_payment_id: pfPaymentId,
         p_amount: itnAmount,
+        p_pf_payment_id: pfPaymentId,
       });
 
       if (batchError) {
@@ -235,8 +243,12 @@ serve(async (req: Request) => {
       }
 
       const batchStatus = batchResult?.status ?? "unknown";
+      if (batchStatus === "forbidden") {
+        console.error("Batch RPC rejected verify token");
+        return new Response("Forbidden", { status: 403 });
+      }
       if (batchStatus === "not_found") {
-        console.error(`Batch not found: ${batchId}`);
+        console.error(`Batch not found: ${invoiceId}`);
         return new Response("Payment not found", { status: 404 });
       }
       if (batchStatus === "amount_mismatch") {
@@ -244,11 +256,12 @@ serve(async (req: Request) => {
         return new Response("Amount mismatch", { status: 400 });
       }
 
-      console.log(`Batch ITN processed for ${batchId}: ${batchStatus}`);
+      console.log(`Batch ITN processed for ${invoiceId}: ${batchStatus}`);
       return new Response("OK", { status: 200 });
     }
 
     const { data: result, error: rpcError } = await supabase.rpc("verify_payfast_payment", {
+      p_verify_token: PAYFAST_VERIFY_TOKEN,
       p_m_payment_id: invoiceId,
       p_pf_payment_id: pfPaymentId,
       p_amount: itnAmount,
@@ -260,6 +273,10 @@ serve(async (req: Request) => {
     }
 
     const status = result?.status ?? "unknown";
+    if (status === "forbidden") {
+      console.error("RPC rejected verify token");
+      return new Response("Forbidden", { status: 403 });
+    }
     if (status === "not_found") {
       console.error(`Payment not found for ${invoiceId}`);
       return new Response("Payment not found", { status: 404 });
