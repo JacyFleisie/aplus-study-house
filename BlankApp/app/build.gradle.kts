@@ -12,6 +12,73 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
 }
 
+// ============================================
+// VERSION GUARD — fails the build if the app version does not increase
+// past the latest v* release tag. Prevents a repeat of the v1.6.8-v1.6.11
+// drift where every tagged build shipped versionName 1.6.7 and the
+// self-updater nagged users forever.
+// ============================================
+tasks.register("checkVersionBump") {
+    doLast {
+        // Falls back to the classic `versionCode = N` line for tags that
+        // predate the single-source appVersionCode variable.
+        fun parseVersionCodeFallback(output: String): Int? {
+            val fallback = Regex("versionCode\\s*=\\s*(\\d+)")
+            return fallback.find(output)?.groupValues?.get(1)?.toIntOrNull()
+        }
+        fun parseVersionCode(output: String): Int? {
+            // Matches the versionCode line in this file as of any commit
+            val regex = Regex("val appVersionCode\\s*=\\s*(\\d+)")
+            return regex.find(output)?.groupValues?.get(1)?.toIntOrNull()
+                ?: parseVersionCodeFallback(output)
+        }
+        val tags = providers.exec {
+            commandLine("git", "tag", "-l", "v*")
+        }.standardOutput.asText.get().trim().lines().filter { it.isNotBlank() }
+        if (tags.isEmpty()) {
+            logger.lifecycle("checkVersionBump: no v* tags found, skipping")
+            return@doLast
+        }
+        fun verKey(tag: String): List<Int> =
+            tag.removePrefix("v").split('.').map { it.toIntOrNull() ?: 0 }
+        val sorted = tags.sortedWith { a, b ->
+            val ka = verKey(a)
+            val kb = verKey(b)
+            val n = maxOf(ka.size, kb.size)
+            for (i in 0 until n) {
+                val va = ka.getOrElse(i) { 0 }
+                val vb = kb.getOrElse(i) { 0 }
+                if (va != vb) return@sortedWith va - vb
+            }
+            0
+        }
+        val latestTag = sorted.last()
+        val tagVersionCode = parseVersionCode(
+            providers.exec {
+                commandLine("git", "show", "$latestTag:./app/build.gradle.kts")
+            }.standardOutput.asText.get()
+        )
+        if (tagVersionCode == null) {
+            throw GradleException(
+                "checkVersionBump: could not read appVersionCode from $latestTag — " +
+                "verify app/build.gradle.kts defines 'val appVersionCode'"
+            )
+        }
+        if (appVersionCode <= tagVersionCode) {
+            throw GradleException(
+                "checkVersionBump: versionCode $appVersionCode must be greater than " +
+                "$tagVersionCode (from $latestTag). Bump appVersionCode and appVersionName " +
+                "in app/build.gradle.kts before releasing."
+            )
+        }
+        logger.lifecycle("checkVersionBump: OK — versionCode $appVersionCode > $tagVersionCode ($latestTag)")
+    }
+}
+
+tasks.matching { it.name in setOf("assembleRelease", "assembleDebug") }.configureEach {
+    dependsOn("checkVersionBump")
+}
+
 // Load keystore properties from gitignored file
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
@@ -26,6 +93,14 @@ if (supabasePropertiesFile.exists()) {
     supabaseProperties.load(FileInputStream(supabasePropertiesFile))
 }
 
+// Single source of truth for the app version. The self-updater
+// (AppUpdater.isNewer) compares BuildConfig.VERSION_NAME against the
+// latest GitHub release tag, so these MUST be bumped together on every
+// release. Bump appVersionCode by 1 and appVersionName to the tag name
+// (without the leading 'v').
+val appVersionCode = 40
+val appVersionName = "1.6.12"
+
 android {
     namespace = "com.example.blankapp"
     compileSdk = 34
@@ -34,11 +109,11 @@ android {
         applicationId = "com.example.blankapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 39
-        versionName = "1.6.7"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
-        buildConfigField("String", "VERSION_NAME", "\"1.6.7\"")
-        buildConfigField("int", "VERSION_CODE", "39")
+        buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
+        buildConfigField("int", "VERSION_CODE", "$appVersionCode")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

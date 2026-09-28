@@ -115,7 +115,7 @@ object AppUpdater {
     }
 
     /** true if [remote] is a higher semver than [current]. */
-    private fun isNewer(remote: String, current: String): Boolean {
+    internal fun isNewer(remote: String, current: String): Boolean {
         val r = remote.split('.').mapNotNull { it.toIntOrNull() }
         val c = current.split('.').mapNotNull { it.toIntOrNull() }
         val n = maxOf(r.size, c.size)
