@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.11] — 2026-09-21
+
+### Added
+- Project Fee auto-generation for Grade 6 in Q3
+- Pay All: settle all pending invoices in a single PayFast checkout (`batch` payment flow, server-side total re-verification, `verify_payfast_batch_payment` RPC)
+
+### Changed
+- Statement templates with payment links and Mark as Sent
+- Multi-select bulk send for WhatsApp statements
+
+## [1.6.7] — 2026-09-21
+
+### Added
+- PayFast payment gateway integration (single invoice checkout + ITN webhook verification)
+- Attendance screen and daily fees
+- Full-screen Profile / Change Password / Privacy & Security settings pages
+- Parent read access (RLS) to child medical, sports and collection details
+
+### Fixed
+- Photo/video consent now displays correctly on child profile
+
 ## [1.6.6] — 2026-09-19
 
 ### Added

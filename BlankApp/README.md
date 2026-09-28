@@ -69,9 +69,9 @@ A school management app for parents and administrators. Built with Kotlin, Jetpa
 
 ## Deployment
 
-- GitHub Actions: Build + test on tag push
-- GitHub Releases: APK published automatically
+- GitHub Releases: Signed APK published per version tag (v1.6.7+)
 - Self-updater: App checks for updates via GitHub API
+- Supabase: Edge functions (`payfast-create-payment`, `payfast-itn`) deployed via Supabase CLI; migrations applied to the live project
 
 ## Database Tables
 
