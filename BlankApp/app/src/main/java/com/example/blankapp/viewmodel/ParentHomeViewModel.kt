@@ -43,9 +43,27 @@ class ParentHomeViewModel @Inject constructor(
         val parentId = user?.id ?: return
 
         launchWithLoading {
-            _children.value = getStudentsByParent(parentId)
-            _documents.value = getDocumentsByParent(parentId)
-            _balance.value = getFamilyBalance(parentId)
+            // Load from backend (Supabase) — no mock data
+            _children.value = try {
+                SupabaseRepository.getParentStudents(parentId)
+            } catch (e: Exception) {
+                emptyList()
+            }
+            _documents.value = try {
+                // Documents are per-student in the backend
+                _children.value.flatMap { student ->
+                    SupabaseRepository.getStudentDocuments(student.id)
+                }
+            } catch (e: Exception) {
+                emptyList()
+            }
+            _balance.value = try {
+                SupabaseRepository.getParentInvoices(parentId)
+                    .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
+                    .sumOf { it.amount }
+            } catch (e: Exception) {
+                0.0
+            }
         }
     }
 

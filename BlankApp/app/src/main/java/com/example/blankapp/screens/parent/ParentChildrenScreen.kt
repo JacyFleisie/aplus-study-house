@@ -320,7 +320,11 @@ fun ChildCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 InfoChip(icon = Icons.Filled.School, label = student.school)
-                InfoChip(icon = Icons.Filled.CalendarToday, label = "DOB: ${student.dateOfBirth}")
+                if (student.dateOfBirth.isNotBlank()) {
+                    InfoChip(icon = Icons.Filled.CalendarToday, label = "DOB: ${student.dateOfBirth}")
+                } else {
+                    InfoChip(icon = Icons.Filled.School, label = "Grade ${student.grade}")
+                }
             }
 
             if (student.allergies.isNotEmpty() || student.asthma || student.epilepsy || student.diabetic) {

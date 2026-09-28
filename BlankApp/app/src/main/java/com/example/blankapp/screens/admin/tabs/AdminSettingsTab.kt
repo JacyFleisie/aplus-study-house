@@ -20,6 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.screens.admin.components.SettingsItem
+import com.example.blankapp.screens.parent.NotificationPreferencesScreen
+import com.example.blankapp.screens.settings.AdminProfileScreen
+import com.example.blankapp.screens.settings.ChangePasswordScreen
+import com.example.blankapp.screens.settings.PrivacySecurityScreen
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.updater.AppUpdater
 import com.example.blankapp.updater.UpdateInfo
@@ -33,6 +37,30 @@ fun AdminSettingsTab(
     onNavigateToCrashLogs: () -> Unit = {},
     onNavigateToAbout: () -> Unit = {}
 ) {
+    val scope = rememberCoroutineScope()
+    var showNotifications by remember { mutableStateOf(false) }
+    var showProfile by remember { mutableStateOf(false) }
+    var showPasswordReset by remember { mutableStateOf(false) }
+    var showSecurityInfo by remember { mutableStateOf(false) }
+
+    // Full-screen sub-pages (no popups)
+    if (showNotifications) {
+        NotificationPreferencesScreen(onBack = { showNotifications = false })
+        return
+    }
+    if (showProfile) {
+        AdminProfileScreen(onBack = { showProfile = false })
+        return
+    }
+    if (showPasswordReset) {
+        ChangePasswordScreen(onBack = { showPasswordReset = false })
+        return
+    }
+    if (showSecurityInfo) {
+        PrivacySecurityScreen(onBack = { showSecurityInfo = false })
+        return
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,9 +87,9 @@ fun AdminSettingsTab(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SettingsItem(icon = Icons.Filled.Person, title = "Profile", subtitle = "Manage your account")
+                SettingsItem(icon = Icons.Filled.Person, title = "Profile", subtitle = "Manage your account", onClick = { showProfile = true })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
-                SettingsItem(icon = Icons.Filled.Lock, title = "Change Password", subtitle = "Update your password")
+                SettingsItem(icon = Icons.Filled.Lock, title = "Change Password", subtitle = "Email yourself a reset link", onClick = { showPasswordReset = true })
             }
         }
 
@@ -86,9 +114,9 @@ fun AdminSettingsTab(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SettingsItem(icon = Icons.Filled.Notifications, title = "Notifications", subtitle = "Manage notification preferences")
+                SettingsItem(icon = Icons.Filled.Notifications, title = "Notification Preferences", subtitle = "Choose which notifications you receive", onClick = { showNotifications = true })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
-                SettingsItem(icon = Icons.Filled.Security, title = "Privacy & Security", subtitle = "Manage security settings")
+                SettingsItem(icon = Icons.Filled.Security, title = "Privacy & Security", subtitle = "Manage security settings", onClick = { showSecurityInfo = true })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
                 SettingsItem(
                     icon = Icons.Filled.Info,

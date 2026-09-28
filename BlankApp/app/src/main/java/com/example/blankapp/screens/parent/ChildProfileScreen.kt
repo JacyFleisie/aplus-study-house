@@ -24,7 +24,9 @@ import com.example.blankapp.ui.theme.*
 @Composable
 fun ChildProfileScreen(
     studentId: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onOpenDocuments: () -> Unit = {},
+    onOpenFinance: () -> Unit = {}
 ) {
     // Load from backend (Supabase) — no mock data
     var studentState by remember { mutableStateOf<MockStudent?>(null) }
@@ -34,6 +36,7 @@ fun ChildProfileScreen(
     var studentCollectionPersons by remember { mutableStateOf<List<MockCollectionPerson>>(emptyList()) }
     var studentSports by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var editNoteVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(studentId) {
         try {
@@ -81,7 +84,12 @@ fun ChildProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(
+                        onClick = {
+                            // Profile edits go through the office — explain why instead of doing nothing
+                            editNoteVisible = true
+                        }
+                    ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
                 },
@@ -176,10 +184,24 @@ fun ChildProfileScreen(
                 color = Primary
             ) {
                 ProfileInfoRow("Full Name", "${student.firstName} ${student.lastName}")
-                ProfileInfoRow("Date of Birth", student.dateOfBirth)
+                if (student.dateOfBirth.isNotBlank()) {
+                    ProfileInfoRow("Date of Birth", student.dateOfBirth)
+                }
                 ProfileInfoRow("Grade", "Grade ${student.grade}")
                 ProfileInfoRow("School", student.school)
-                ProfileInfoRow("Address", student.address)
+                if (student.address.isNotBlank()) {
+                    ProfileInfoRow("Address", student.address)
+                }
+                if (student.gender.isNotBlank()) {
+                    ProfileInfoRow("Gender", student.gender)
+                }
+                if (student.classNr.isNotBlank()) {
+                    ProfileInfoRow("Class", student.classNr)
+                }
+                if (student.teacherName.isNotBlank()) {
+                    ProfileInfoRow("Teacher", student.teacherName)
+                }
+                ProfileInfoRow("LSEN Support", if (student.lsen) "Yes" else "No")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -248,13 +270,11 @@ fun ChildProfileScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                ProfileInfoRow("Doctor", medical?.doctorName ?: "Not specified")
-                ProfileInfoRow("Doctor Location", medical?.doctorLocation ?: "Not specified")
-                ProfileInfoRow("Doctor Contact", medical?.doctorContact ?: "Not specified")
-                ProfileInfoRow("Medical Plan", medical?.medicalPlan ?: "Not specified")
-                if (medical?.medicalAidNumber != null) {
-                    ProfileInfoRow("Medical Aid No.", medical.medicalAidNumber)
-                }
+                ProfileInfoRow("Doctor", medical?.doctorName?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow("Doctor Location", medical?.doctorLocation?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow("Doctor Contact", medical?.doctorContact?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow("Medical Plan", medical?.medicalPlan?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow("Medical Aid No.", medical?.medicalAidNumber?.takeIf { it.isNotBlank() } ?: "Not specified")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -297,6 +317,10 @@ fun ChildProfileScreen(
                     "Photo/Video Consent",
                     if (student.photoConsent) "Given" else "Not given"
                 )
+                ProfileInfoRow(
+                    "Parent Signature",
+                    if (student.signatureData.isNotBlank()) student.signatureData else "Not captured"
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -307,7 +331,7 @@ fun ChildProfileScreen(
                 icon = Icons.Filled.Description,
                 color = Tertiary,
                 actionText = "View All",
-                onActionClick = { }
+                onActionClick = onOpenDocuments
             ) {
                 if (studentDocuments.isNotEmpty()) {
                     studentDocuments.take(3).forEach { doc ->
@@ -366,7 +390,7 @@ fun ChildProfileScreen(
                 icon = Icons.Filled.AccountBalanceWallet,
                 color = Success,
                 actionText = "View All",
-                onActionClick = { }
+                onActionClick = onOpenFinance
             ) {
                 val totalOwed = studentInvoices
                     .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
@@ -469,6 +493,25 @@ fun ChildProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    // Edit pencil: profile data comes from the approved registration application.
+    // Changes must go through the office so records stay auditable.
+    if (editNoteVisible) {
+        AlertDialog(
+            onDismissRequest = { editNoteVisible = false },
+            title = { Text("Update child details") },
+            text = {
+                Text(
+                    "Your child's profile was created from the approved registration form. " +
+                        "To correct or update any details, please message the office from the Messages tab " +
+                        "and we'll update the record for you."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { editNoteVisible = false }) { Text("Got it") }
+            }
+        )
     }
 }
 

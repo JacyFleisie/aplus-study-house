@@ -35,6 +35,7 @@ fun AdminStudentProfileScreen(
     var parentState by remember { mutableStateOf<MockUser?>(null) }
     var studentDocuments by remember { mutableStateOf<List<MockDocument>>(emptyList()) }
     var studentInvoices by remember { mutableStateOf<List<MockInvoice>>(emptyList()) }
+    var studentSports by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(studentId) {
@@ -46,6 +47,7 @@ fun AdminStudentProfileScreen(
             }
             studentDocuments = SupabaseRepository.getStudentDocuments(studentId)
             studentInvoices = SupabaseRepository.getStudentInvoices(studentId)
+            studentSports = SupabaseRepository.getStudentSports(studentId)
         } catch (e: Exception) {
             studentState = null
         }
@@ -83,14 +85,7 @@ fun AdminStudentProfileScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
-                    }
-                },
+                actions = {},
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
                     titleContentColor = OnBackground
@@ -215,7 +210,7 @@ fun AdminStudentProfileScreen(
                 icon = Icons.Filled.Sports,
                 color = Secondary
             ) {
-                ProfileInfoRow("Sports", if (student.sports.isNotEmpty()) student.sports.joinToString(", ") else "None")
+                ProfileInfoRow("Sports", if (studentSports.isNotEmpty()) studentSports.joinToString(", ") else "None")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -438,14 +433,7 @@ fun AdminParentProfileScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
-                    }
-                },
+                actions = {},
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
                     titleContentColor = OnBackground

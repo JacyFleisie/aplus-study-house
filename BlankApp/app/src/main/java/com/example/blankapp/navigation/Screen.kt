@@ -20,7 +20,9 @@ sealed class Screen(val route: String) {
     // ============================================
 
     data object ParentDashboard : Screen("parent_dashboard")
+    data object StationeryList : Screen("stationery_list")
     data object RegistrationStart : Screen("registration_start")
+    data object RegistrationInfoAck : Screen("registration_info_ack")
     data object RegistrationStudentDetails : Screen("registration_student_details")
     data object RegistrationSportsActivities : Screen("registration_sports_activities")
     data object RegistrationCollection : Screen("registration_collection")
@@ -29,6 +31,7 @@ sealed class Screen(val route: String) {
     data object RegistrationConsent : Screen("registration_consent")
     data object RegistrationPayment : Screen("registration_payment")
     data object RegistrationSubmit : Screen("registration_submit")
+
     data object PaymentSuccess : Screen("payment_success")
 
     // Child Profile with parameter

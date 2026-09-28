@@ -64,7 +64,7 @@ fun ConsentSignatureScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 6 of 8 — Consent & Signature", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 7 of 9 — Consent & Signature", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

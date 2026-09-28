@@ -62,7 +62,7 @@ fun SportsActivitiesScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 2 of 8 — Sports Participation", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 3 of 9 — Sports Participation", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

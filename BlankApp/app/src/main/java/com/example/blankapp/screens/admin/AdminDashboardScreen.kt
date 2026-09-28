@@ -35,6 +35,12 @@ fun AdminDashboardScreen(
     var selectedTab by remember { mutableStateOf(AdminTab.HOME) }
     var showCrashLogs by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    var showAttendance by remember { mutableStateOf(false) }
+
+    if (showAttendance) {
+        AttendanceScreen(onBackClick = { showAttendance = false })
+        return
+    }
 
     if (showCrashLogs) {
         CrashLogScreen(onBackClick = { showCrashLogs = false })
@@ -107,7 +113,8 @@ fun AdminDashboardScreen(
         ) {
             when (selectedTab) {
                 AdminTab.HOME ->                AdminHomeTab(
-                    onNavigateToApplication = onNavigateToApplication
+                    onNavigateToApplication = onNavigateToApplication,
+                    onNavigateToAttendance = { showAttendance = true }
                 )
                 AdminTab.APPLICATIONS -> AdminApplicationsTab(onNavigateToApplication = onNavigateToApplication)
                 AdminTab.STUDENTS -> AdminStudentsTab(onNavigateToStudent = onNavigateToStudent)

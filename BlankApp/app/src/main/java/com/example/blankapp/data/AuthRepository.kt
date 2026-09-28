@@ -300,9 +300,14 @@ object AuthRepository {
             val body = JSONObject().apply {
                 put("email", email)
             }
-            val response = SupabaseConfig.supabaseAuth("forgot_password", body.toString())
+            // GoTrue's password-recovery endpoint is /recover (not forgot_password)
+            val response = SupabaseConfig.supabaseAuth("recover", body.toString())
 
-            if (response?.has("error") == true) {
+            // A null response means the request failed without a parseable body —
+            // treat it as an error instead of a false success.
+            if (response == null) {
+                AuthResult(false, "Could not reach the server. Please check your connection and try again.")
+            } else if (response.has("error")) {
                 AuthResult(false, "Failed to send reset link: ${response.getString("error")}")
             } else {
                 AuthResult(true, "Password reset link sent to $email")

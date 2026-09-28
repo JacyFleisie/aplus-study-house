@@ -28,21 +28,41 @@ enum class ParentTab(
 fun ParentDashboardScreen(
     onLogout: () -> Unit,
     onNavigateToRegistration: () -> Unit = {},
+    onNavigateToStationery: () -> Unit = {},
     onNavigateToChildProfile: (String) -> Unit = {},
     onNavigateToFinancePayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     var selectedTab by remember { mutableStateOf(ParentTab.HOME) }
     var showNotifications by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    var showPasswordReset by remember { mutableStateOf(false) }
+    var showSecurity by remember { mutableStateOf(false) }
+    var showNotificationPrefs by remember { mutableStateOf(false) }
 
     // Gate: Require at least one registered child
     com.example.blankapp.navigation.RequireRegisteredChild(
         onRegisterChild = onNavigateToRegistration
     ) {
 
-    // About screen has its own top bar - hide bottom nav
+    // Full-screen sub-pages live ABOVE the Scaffold (safe composition pattern):
+    // they replace the whole tab layout including the bottom nav.
     if (showAbout) {
         ParentAboutScreen(onBack = { showAbout = false })
+        return@RequireRegisteredChild
+    }
+
+    if (showPasswordReset) {
+        com.example.blankapp.screens.settings.ChangePasswordScreen(onBack = { showPasswordReset = false })
+        return@RequireRegisteredChild
+    }
+
+    if (showSecurity) {
+        com.example.blankapp.screens.settings.PrivacySecurityScreen(onBack = { showSecurity = false })
+        return@RequireRegisteredChild
+    }
+
+    if (showNotificationPrefs) {
+        NotificationPreferencesScreen(onBack = { showNotificationPrefs = false })
         return@RequireRegisteredChild
     }
 
@@ -120,7 +140,8 @@ fun ParentDashboardScreen(
                 ParentTab.HOME -> ParentHomeScreen(
                     onNavigateToChildren = { selectedTab = ParentTab.CHILDREN },
                     onNavigateToFinance = { selectedTab = ParentTab.FINANCE },
-                    onNavigateToRegistration = onNavigateToRegistration
+                    onNavigateToRegistration = onNavigateToRegistration,
+                    onNavigateToStationery = onNavigateToStationery
                 )
                 ParentTab.CHILDREN -> ParentChildrenScreen(
                     onChildClick = onNavigateToChildProfile
@@ -132,7 +153,9 @@ fun ParentDashboardScreen(
                 ParentTab.PROFILE -> ParentProfileScreen(
                     onLogout = onLogout,
                     onNavigateToAbout = { showAbout = true },
-                    onNavigateToNotifications = { showNotifications = true }
+                    onNavigateToNotifications = { showNotificationPrefs = true },
+                    onChangePassword = { showPasswordReset = true },
+                    onOpenPrivacySecurity = { showSecurity = true }
                 )
             }
         }

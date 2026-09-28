@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 @Composable
 fun AdminHomeTab(
     onNavigateToApplication: (String) -> Unit = {},
+    onNavigateToAttendance: () -> Unit = {},
     viewModel: AdminHomeViewModel = hiltViewModel()
 ) {
     var showCreatePermission by remember { mutableStateOf(false) }
@@ -96,6 +97,52 @@ fun AdminHomeTab(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Quick Action: Daily Attendance Register
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateToAttendance() },
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Success),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.EventAvailable,
+                    contentDescription = null,
+                    tint = OnPrimary,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Daily Attendance Register",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = OnPrimary
+                    )
+                    Text(
+                        text = "Mark present / late / absent — daily fee follows attendance",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnPrimary.copy(alpha = 0.8f)
+                    )
+                }
+                Icon(
+                    Icons.Filled.ChevronRight,
+                    contentDescription = null,
+                    tint = OnPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Quick Action: Create Permission Request
         Card(

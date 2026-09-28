@@ -76,7 +76,7 @@ fun MedicalInfoScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 4 of 8 — Medical Information", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 5 of 9 — Medical Information", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

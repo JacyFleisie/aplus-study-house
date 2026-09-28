@@ -2,7 +2,7 @@ package com.example.blankapp.screens.parent.registration
 
 import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -26,10 +26,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.AuditLogger
 import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.data.PayFastRepository
 import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,93 +42,21 @@ fun RegistrationPaymentScreen(
 ) {
     var selectedPaymentMethod by rememberSaveable { mutableStateOf<String?>(null) }
     var paymentCompleted by rememberSaveable { mutableStateOf(false) }
-    var proofOfPayment by rememberSaveable { mutableStateOf<String?>(null) }
-    var uploading by rememberSaveable { mutableStateOf(false) }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Load bank details from Supabase config
-    var bankName by rememberSaveable { mutableStateOf("Capitec") }
-    var bankAccountName by rememberSaveable { mutableStateOf("A Study House Pty Ltd") }
-    var bankAccountNumber by rememberSaveable { mutableStateOf("105 425 6349") }
-    var bankBranchCode by rememberSaveable { mutableStateOf("") }
+    // Cash payment info — loaded from app_config with sensible defaults
+    var cashLocation by rememberSaveable { mutableStateOf("A+ Study House, Witpoortjie, Roodepoort") }
+    var cashHours by rememberSaveable { mutableStateOf("Monday – Friday: 07h00 – 18h00") }
+    var cashPhone by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                SupabaseRepository.getAppConfig("bank_name")?.let { bankName = it }
-                SupabaseRepository.getAppConfig("bank_account_name")?.let { bankAccountName = it }
-                SupabaseRepository.getAppConfig("bank_account_number")?.let { bankAccountNumber = it }
-                SupabaseRepository.getAppConfig("bank_branch_code")?.let { bankBranchCode = it }
+                SupabaseRepository.getAppConfig("cash_payment_location")?.let { cashLocation = it }
+                SupabaseRepository.getAppConfig("cash_payment_hours")?.let { cashHours = it }
+                SupabaseRepository.getAppConfig("cash_payment_phone")?.let { cashPhone = it }
             } catch (_: Exception) { /* use defaults */ }
-        }
-    }
-
-    /** Writes the bundled banking_details.md to cache and returns the File. */
-    fun bankingDetailsFile(): File {
-        val cache = File(ctx.cacheDir, "banking_details.md")
-        ctx.assets.open("banking_details.md").use { input ->
-            cache.outputStream().use { input.copyTo(it) }
-        }
-        return cache
-    }
-
-    // File picker for PoP
-    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            uploading = true
-            try {
-                val mimeType = ctx.contentResolver.getType(uri) ?: "image/*"
-                val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                if (bytes != null) {
-                    val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                    val ext = when (mimeType) {
-                        "application/pdf" -> ".pdf"
-                        "image/jpeg" -> ".jpg"
-                        "image/png" -> ".png"
-                        else -> ""
-                    }
-                    val fileName = "pop_${parentId}_${System.currentTimeMillis()}${ext}"
-                    AuditLogger.log(ctx, "pop_upload_start", "parentId=$parentId mime=$mimeType name=$fileName size=${bytes.size}")
-                    val path = SupabaseRepository.uploadProofOfPayment(parentId, fileName, bytes, mimeType)
-                    if (path != null) {
-                        proofOfPayment = path
-                        AuditLogger.log(ctx, "pop_upload_ok", "path=$path")
-                    } else {
-                        AuditLogger.log(ctx, "pop_upload_fail", "parentId=$parentId name=$fileName")
-                    }
-                }
-            } catch (e: Exception) {
-                AuditLogger.log(ctx, "pop_upload_error", e.message ?: "")
-            } finally {
-                uploading = false
-            }
-        }
-    }
-
-    // Camera for PoP
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri != null) {
-            scope.launch {
-                uploading = true
-                try {
-                    val bytes = ctx.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
-                    if (bytes != null) {
-                        val parentId = AuthRepository.getCurrentUser()?.id ?: return@launch
-                        val fileName = "pop_${parentId}_${System.currentTimeMillis()}.jpg"
-                        val path = SupabaseRepository.uploadProofOfPayment(parentId, "pop_${parentId}_${System.currentTimeMillis()}.jpg", bytes, "image/jpeg")
-                        if (path != null) {
-                            proofOfPayment = path
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Handle error
-                } finally {
-                    uploading = false
-                }
-            }
         }
     }
 
@@ -188,7 +116,7 @@ fun RegistrationPaymentScreen(
                 Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Payment is only required after your application is approved. Use the banking details below to pay once you receive approval.",
+                    Text("Payment is only required after your application is approved. Choose how you'd like to pay once you receive approval — secure online via PayFast, or cash at the office.",
                         style = MaterialTheme.typography.bodySmall, color = OnBackground)
                 }
             }
@@ -199,19 +127,19 @@ fun RegistrationPaymentScreen(
                 Text("Select Payment Method", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // EFT
-                Card(modifier = Modifier.fillMaxWidth().clickable { selectedPaymentMethod = "EFT" },
+                // PayFast
+                Card(modifier = Modifier.fillMaxWidth().clickable { selectedPaymentMethod = "PAYFAST" },
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (selectedPaymentMethod == "EFT") PrimaryContainer else Surface),
+                    colors = CardDefaults.cardColors(containerColor = if (selectedPaymentMethod == "PAYFAST") PrimaryContainer else Surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                     Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.AccountBalance, contentDescription = null, tint = if (selectedPaymentMethod == "EFT") Primary else OnSurfaceVariant, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Filled.CreditCard, contentDescription = null, tint = if (selectedPaymentMethod == "PAYFAST") Primary else OnSurfaceVariant, modifier = Modifier.size(32.dp))
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("EFT / Bank Transfer", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = OnBackground)
-                            Text("Pay via bank transfer from any bank", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                            Text("PayFast — Secure Online Payment", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = OnBackground)
+                            Text("Credit/debit card, EFT or instant payment", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
                         }
-                        if (selectedPaymentMethod == "EFT") Icon(Icons.Filled.CheckCircle, contentDescription = "Selected", tint = Primary)
+                        if (selectedPaymentMethod == "PAYFAST") Icon(Icons.Filled.CheckCircle, contentDescription = "Selected", tint = Primary)
                     }
                 }
 
@@ -235,87 +163,20 @@ fun RegistrationPaymentScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                if (selectedPaymentMethod == "EFT") {
+                if (selectedPaymentMethod == "PAYFAST") {
                     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Text("Banking Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                            Text("Secure Online Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
                             Spacer(modifier = Modifier.height(8.dp))
-                            // Downloadable banking-details document
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        val f = bankingDetailsFile()
-                                        val uri = androidx.core.content.FileProvider.getUriForFile(
-                                            ctx, ctx.packageName + ".fileprovider", f
-                                        )
-                                        val share = Intent(Intent.ACTION_SEND).apply {
-                                            setType("text/markdown")
-                                            putExtra(Intent.EXTRA_STREAM, uri)
-                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                        }
-                                        ctx.startActivity(Intent.createChooser(share, "Save / share banking details"))
-                                    },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Filled.Download, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Download / share banking details", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Primary)
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            BankDetailRow("Bank", bankName)
-                            BankDetailRow("Account Name", bankAccountName)
-                            BankDetailRow("Account Number", bankAccountNumber)
-                            BankDetailRow("Branch Code", bankBranchCode)
-                            BankDetailRow("Reference", registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "REG-[YourSurname]")
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Proof-of-payment upload with camera + file picker
-                            Text("Proof of Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Upload a photo or PDF of your EFT payment", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            if (proofOfPayment != null) {
-                                Surface(shape = RoundedCornerShape(8.dp), color = SuccessContainer) {
-                                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = Success, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Proof attached: $proofOfPayment", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Success)
-                                    }
-                                }
-                            } else {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    // Take Photo button
-                                    OutlinedButton(
-                                        onClick = {
-                                            val photoFile = File(ctx.cacheDir, "pop_${System.currentTimeMillis()}.jpg")
-                                            photoUri = androidx.core.content.FileProvider.getUriForFile(
-                                                ctx, ctx.packageName + ".fileprovider", photoFile
-                                            )
-                                            cameraLauncher.launch(photoUri!!)
-                                        },
-                                        modifier = Modifier.weight(1f).height(48.dp),
-                                        shape = RoundedCornerShape(12.dp),
-                                        enabled = !uploading
-                                    ) {
-                                        Icon(Icons.Filled.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Take Photo", fontWeight = FontWeight.SemiBold)
-                                    }
-                                    // Choose File button
-                                    OutlinedButton(
-                                        onClick = { filePicker.launch("image/*,application/pdf") },
-                                        modifier = Modifier.weight(1f).height(48.dp),
-                                        shape = RoundedCornerShape(12.dp),
-                                        enabled = !uploading
-                                    ) {
-                                        Icon(Icons.Filled.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Choose File", fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
+                            Text("You'll be redirected to PayFast's secure checkout where you can pay by credit/debit card, EFT or instant payment. Once paid, our team verifies the payment against your application.",
+                                style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.Lock, contentDescription = null, tint = Success, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Card details are handled entirely by PayFast — they are never stored in this app.",
+                                    style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
                             }
                         }
                     }
@@ -325,24 +186,86 @@ fun RegistrationPaymentScreen(
                     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Text("Office Location", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                            Text("Cash Payment Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("📍 Witpoortjie, Roodepoort", style = MaterialTheme.typography.bodyMedium, color = OnBackground)
-                            Text("🕐 Monday – Friday: 14:00 – 18:00", style = MaterialTheme.typography.bodyMedium, color = OnBackground)
-                            Text("📞 011 234 5678", style = MaterialTheme.typography.bodyMedium, color = OnBackground)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.LocationOn, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(cashLocation, style = MaterialTheme.typography.bodyMedium, color = OnBackground)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.Schedule, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(cashHours, style = MaterialTheme.typography.bodyMedium, color = OnBackground)
+                            }
+                            if (cashPhone.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Phone, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(cashPhone, style = MaterialTheme.typography.bodyMedium, color = OnBackground)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(colors = CardDefaults.cardColors(containerColor = WarningContainer)) {
+                                Text(
+                                    "Please note: payment is only due once your application is approved. Reference: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "REG-[YourSurname]"}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = OnBackground,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(onClick = { paymentCompleted = true; onPaymentComplete() },
+                Button(
+                    onClick = {
+                        scope.launch {
+                            if (selectedPaymentMethod == "PAYFAST") {
+                                // Registration fee payment via PayFast — opened in browser
+                                val payFastData = PayFastRepository.buildPaymentData(
+                                    invoiceId = "registration_${AuthRepository.getCurrentUser()?.id ?: ""}",
+                                    amount = 500.0,
+                                    itemName = "Registration Fee",
+                                    parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
+                                    parentId = AuthRepository.getCurrentUser()?.id ?: ""
+                                )
+                                if (payFastData != null) {
+                                    val (_, url) = payFastData
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    ctx.startActivity(intent)
+                                    paymentCompleted = true
+                                    onPaymentComplete()
+                                } else {
+                                    Toast.makeText(
+                                        ctx,
+                                        "Online payments are not set up yet. Please pay by cash at the office or contact us.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            } else {
+                                paymentCompleted = true
+                                onPaymentComplete()
+                            }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = if (selectedPaymentMethod != null) Success else OnSurfaceVariant, contentColor = OnPrimary),
                     enabled = selectedPaymentMethod != null) {
                     Icon(Icons.Filled.CheckCircle, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("I've Made the Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        when (selectedPaymentMethod) {
+                            "PAYFAST" -> "Continue to PayFast"
+                            "CASH" -> "I Will Pay Cash at the Office"
+                            else -> "I've Made the Payment"
+                        },
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))

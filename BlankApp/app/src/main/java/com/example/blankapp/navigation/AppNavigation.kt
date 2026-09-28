@@ -156,11 +156,19 @@ fun AppNavigation(
                         navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
                     },
                     onNavigateToRegistration = { navController.navigate(Screen.RegistrationStart.route) },
+                    onNavigateToStationery = { navController.navigate(Screen.StationeryList.route) },
                     onNavigateToChildProfile = { studentId -> navController.navigate(Screen.ChildProfile.createRoute(studentId)) },
                     onNavigateToFinancePayment = { invoiceId, amount, description, studentName ->
                         navController.navigate(Screen.FinancePayment.createRoute(invoiceId, amount, description, studentName))
                     }
                 )
+            }
+        }
+
+        // Stationery List (parent quick action)
+        composable(Screen.StationeryList.route) {
+            RequireParent(navController = navController) {
+                StationeryListScreen(onBackClick = { navController.popBackStack() })
             }
         }
 
@@ -200,7 +208,7 @@ fun AppNavigation(
                         } else {
                             registrationDraft.apply { copyFrom(RegistrationDraft()) }
                         }
-                        navController.navigate(Screen.RegistrationStudentDetails.route)
+                        navController.navigate(Screen.RegistrationInfoAck.route)
                     },
                     onResumeDraft = {
                         // Parent tapped "Continue" to resume the saved draft.
@@ -209,9 +217,26 @@ fun AppNavigation(
                         if (existing != null) {
                             registrationDraft.apply { copyFrom(existing) }
                             navController.navigate(Screen.RegistrationStudentDetails.route)
+                        }                    },
+                    hasSavedDraft = { loadingDraft || savedDraft != null },
+                )
+            }
+        }
+
+        // Pre-registration acknowledgement (meals, hours, stationery, projects)
+        composable(Screen.RegistrationInfoAck.route) {
+            RequireParent(navController = navController) {
+                RegistrationInfoAckScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onExitFlow = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.RegistrationStart.route) { inclusive = true }
                         }
                     },
-                    hasSavedDraft = { loadingDraft || savedDraft != null },
+                    onAcknowledged = {
+                        saveDraft()
+                        navController.navigate(Screen.RegistrationStudentDetails.route)
+                    }
                 )
             }
         }
@@ -388,6 +413,8 @@ fun AppNavigation(
                         }
                     },
                     onPaymentComplete = {
+                        // 'eft' covers PayFast online payments (card/EFT/instant EFT);
+                        // the DB check constraint only allows eft/cash/later.
                         registrationDraft.paymentMethod = "eft"
                     },
                     onContinue = { navController.navigate(Screen.RegistrationSubmit.route) },
@@ -399,6 +426,7 @@ fun AppNavigation(
         composable(Screen.RegistrationSubmit.route) {
             RequireParent(navController = navController) {
                 val scope = rememberCoroutineScope()
+                var submitSucceeded by remember { mutableStateOf<Boolean?>(null) }
                 RegistrationSubmitScreen(
                     onBackClick = { navController.popBackStack() },
                     onExitFlow = {
@@ -420,6 +448,7 @@ fun AppNavigation(
                             } else {
                                 AuditLogger.log("registration_submit_fail", "parentId=$parentId")
                             }
+                            submitSucceeded = created != null
                             createdApplication = created
                         }
                     },
@@ -428,7 +457,8 @@ fun AppNavigation(
                             popUpTo(Screen.RegistrationStart.route) { inclusive = true }
                         }
                     },
-                    registrationDraft = registrationDraft
+                    registrationDraft = registrationDraft,
+                    submitSucceeded = submitSucceeded
                 )
             }
         }
@@ -440,7 +470,21 @@ fun AppNavigation(
         ) { backStackEntry ->
             RequireParent(navController = navController) {
                 val studentId = backStackEntry.arguments?.getString("studentId") ?: ""
-                ChildProfileScreen(studentId = studentId, onBackClick = { navController.popBackStack() })
+                ChildProfileScreen(
+                    studentId = studentId,
+                    onBackClick = { navController.popBackStack() },
+                    onOpenDocuments = {
+                        // Documents live in the profile; parents message the office for copies.
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.ParentDashboard.route) { inclusive = true }
+                        }
+                    },
+                    onOpenFinance = {
+                        navController.navigate(Screen.ParentDashboard.route) {
+                            popUpTo(Screen.ParentDashboard.route) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
 

@@ -32,7 +32,9 @@ private const val TAG = "ParentProfile"
 fun ParentProfileScreen(
     onLogout: () -> Unit,
     onNavigateToAbout: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onChangePassword: () -> Unit = {},
+    onOpenPrivacySecurity: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentUser = AuthRepository.getCurrentUser()
@@ -116,8 +118,8 @@ fun ParentProfileScreen(
             Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                 SettingsItem(
                     icon = Icons.Filled.Notifications,
-                    title = "Notifications",
-                    subtitle = "Manage notification preferences",
+                    title = "Notification Preferences",
+                    subtitle = "Choose which notifications you receive",
                     onClick = onNavigateToNotifications
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
@@ -125,7 +127,14 @@ fun ParentProfileScreen(
                     icon = Icons.Filled.Lock,
                     title = "Change Password",
                     subtitle = "Email yourself a reset link",
-                    onClick = { /* TODO */ }
+                    onClick = onChangePassword
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
+                SettingsItem(
+                    icon = Icons.Filled.Security,
+                    title = "Privacy & Security",
+                    subtitle = "How your family's data is protected",
+                    onClick = onOpenPrivacySecurity
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = OutlineVariant)
                 SettingsItem(

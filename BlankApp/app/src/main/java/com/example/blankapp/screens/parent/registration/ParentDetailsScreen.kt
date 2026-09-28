@@ -80,7 +80,7 @@ fun ParentDetailsScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 5 of 8 — Parent / Guardian Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 6 of 9 — Parent / Guardian Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

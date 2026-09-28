@@ -107,14 +107,15 @@ fun RegistrationStartScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RegistrationStepItem(1, "Student Details", "Name, grade, school, date of birth", Icons.Filled.Person, Primary)
-            RegistrationStepItem(2, "Sports & Activities", "Choose sports and aftercare activities", Icons.Filled.Sports, Secondary)
-            RegistrationStepItem(3, "Collection & Transport", "Who may collect your child", Icons.Filled.DirectionsBus, Tertiary)
-            RegistrationStepItem(4, "Medical Information", "Doctor, allergies, medical aid", Icons.Filled.MedicalServices, Error)
-            RegistrationStepItem(5, "Parent Details", "Mother and father/guardian info", Icons.Filled.FamilyRestroom, Success)
-            RegistrationStepItem(6, "Consent & Signature", "Photo consent and parent signature", Icons.Filled.Draw, Warning)
-            RegistrationStepItem(7, "Payment", "R500 registration fee (EFT or cash)", Icons.Filled.Payment, Primary)
-            RegistrationStepItem(8, "Submit", "Review and submit your application", Icons.Filled.Send, Secondary)
+            RegistrationStepItem(1, "Before You Register", "Meals, operating hours, stationery & projects — read and acknowledge", Icons.Filled.MenuBook, Warning)
+            RegistrationStepItem(2, "Student Details", "Name, grade, school, date of birth", Icons.Filled.Person, Primary)
+            RegistrationStepItem(3, "Sports & Activities", "Choose sports and aftercare activities", Icons.Filled.Sports, Secondary)
+            RegistrationStepItem(4, "Collection & Transport", "Who may collect your child", Icons.Filled.DirectionsBus, Tertiary)
+            RegistrationStepItem(5, "Medical Information", "Doctor, allergies, medical aid", Icons.Filled.MedicalServices, Error)
+            RegistrationStepItem(6, "Parent Details", "Mother and father/guardian info", Icons.Filled.FamilyRestroom, Success)
+            RegistrationStepItem(7, "Consent & Signature", "Photo consent and parent signature", Icons.Filled.Draw, Warning)
+            RegistrationStepItem(8, "Payment", "R500 registration fee (PayFast or cash)", Icons.Filled.Payment, Primary)
+            RegistrationStepItem(9, "Submit", "Review and submit your application", Icons.Filled.Send, Secondary)
 
             Spacer(modifier = Modifier.height(24.dp))
 

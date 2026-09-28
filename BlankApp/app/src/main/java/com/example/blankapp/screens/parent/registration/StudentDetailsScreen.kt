@@ -81,7 +81,7 @@ fun StudentDetailsScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 1 of 8 — Student Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 2 of 9 — Student Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

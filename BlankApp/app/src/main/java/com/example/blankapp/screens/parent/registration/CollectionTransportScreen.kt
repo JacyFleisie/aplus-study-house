@@ -76,7 +76,7 @@ fun CollectionTransportScreen(
                 color = Primary, trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 3 of 8 — Collection & Transport", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 4 of 9 — Collection & Transport", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 

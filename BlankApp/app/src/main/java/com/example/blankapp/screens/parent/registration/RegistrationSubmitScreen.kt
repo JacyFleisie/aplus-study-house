@@ -27,7 +27,8 @@ fun RegistrationSubmitScreen(
     onExitFlow: () -> Unit,
     onSubmit: (parentId: String) -> Unit,
     onContinue: () -> Unit,
-    registrationDraft: com.example.blankapp.data.RegistrationDraft? = null
+    registrationDraft: com.example.blankapp.data.RegistrationDraft? = null,
+    submitSucceeded: Boolean? = null
 ) {
     var submitted by rememberSaveable { mutableStateOf(false) }
     var agreedToTerms by rememberSaveable { mutableStateOf(false) }
@@ -64,7 +65,7 @@ fun RegistrationSubmitScreen(
                 color = Success, trackColor = SuccessContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 8 of 8 — Submit Application", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text("Step 9 of 9 — Submit Application", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -87,7 +88,7 @@ fun RegistrationSubmitScreen(
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
                         SummaryItem("Consent & Signature", "✓ Completed", Success)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                        SummaryItem("Registration Fee", "R500 — EFT", Success)
+                        SummaryItem("Registration Fee", "R500 — PayFast or cash", Success)
                     }
                 }
 
@@ -111,6 +112,27 @@ fun RegistrationSubmitScreen(
                     Icon(Icons.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Submit Application", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                }
+            } else if (submitSucceeded == false) {
+                // Submission failed server-side — never show a false success.
+                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = ErrorContainer), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Filled.ErrorOutline, contentDescription = null, modifier = Modifier.size(80.dp), tint = Error)
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text("Submission Failed", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("We could not submit your application — please check your connection and try again. Your answers have been saved.",
+                            style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant, textAlign = TextAlign.Center)
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(onClick = { submitted = false; onSubmit(AuthRepository.getCurrentUser()?.id ?: "") },
+                    modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)) {
+                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Try Again", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 }
             } else {
                 // Success

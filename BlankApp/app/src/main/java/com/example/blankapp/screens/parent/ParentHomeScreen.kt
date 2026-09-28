@@ -31,6 +31,7 @@ fun ParentHomeScreen(
     onNavigateToChildren: () -> Unit,
     onNavigateToFinance: () -> Unit,
     onNavigateToRegistration: () -> Unit = {},
+    onNavigateToStationery: () -> Unit = {},
     viewModel: ParentHomeViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
@@ -179,6 +180,17 @@ fun ParentHomeScreen(
                 modifier = Modifier.weight(1f)
             )
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Stationery List — full-width quick action
+        QuickActionButton(
+            icon = Icons.Filled.EditNote,
+            label = "Stationery List 2027",
+            color = Tertiary,
+            onClick = onNavigateToStationery,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
