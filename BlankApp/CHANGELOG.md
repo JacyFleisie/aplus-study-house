@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.14] — 2026-09-29
+
+### Fixed
+- **Auto-updater actually updates now**: the app checks GitHub for a new release automatically at startup (throttled to once per 6 hours) instead of only when someone opens About and taps "Check for Updates"
+- A failed update check (no network / GitHub rate limit) no longer shows "You're on the latest version" — the About screen now shows the real error
+- About screens open with the cached check result instantly and refresh themselves when stale
+
 ## [1.6.13] — 2026-09-29
 
 ### Added

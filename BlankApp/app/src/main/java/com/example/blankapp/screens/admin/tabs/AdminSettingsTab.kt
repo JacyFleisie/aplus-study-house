@@ -26,6 +26,8 @@ import com.example.blankapp.screens.settings.ChangePasswordScreen
 import com.example.blankapp.screens.settings.PrivacySecurityScreen
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.updater.AppUpdater
+import com.example.blankapp.updater.UpdateCheckCache
+import com.example.blankapp.updater.toUpdateInfo
 import com.example.blankapp.updater.UpdateInfo
 import kotlinx.coroutines.launch
 
@@ -227,12 +229,29 @@ fun AboutScreen(onBack: () -> Unit) {
             updateState = UpdateState.CHECKING
             errorMessage = null
             try {
-                updateInfo = AppUpdater.checkForUpdate()
+                val info = AppUpdater.checkForUpdate()
+                updateInfo = info
+                // Persist for the startup banner so the next launch shows
+                // the result without another API call.
+                UpdateCheckCache.save(context, info)
                 updateState = UpdateState.IDLE
             } catch (e: Exception) {
                 Log.e(TAG, "Check failed", e)
                 errorMessage = e.message ?: "Update check failed"
                 updateState = UpdateState.ERROR
+            }
+        }
+    }
+
+    // Seed from the cached startup check and refresh when stale so the
+    // screen already shows an available update before the user taps.
+    LaunchedEffect(Unit) {
+        UpdateCheckCache.load(context)?.let { (cached, checkedAt) ->
+            // A cache from a different app version is meaningless.
+            if (cached.currentVersion != AppUpdater.currentVersion()) return@let
+            if (updateInfo == null) updateInfo = cached.toUpdateInfo()
+            if (UpdateCheckCache.isStale(checkedAt)) {
+                checkForUpdates()
             }
         }
     }
@@ -382,10 +401,19 @@ fun AboutScreen(onBack: () -> Unit) {
                             }
                         } else if (updateInfo != null) {
                             Column {
-                                Text(
-                                    "You're on the latest version",
-                                    color = OnSurfaceVariant
-                                )
+                                if (updateInfo!!.latestVersion.isBlank()) {
+                                    // The check failed (network / rate limit):
+                                    // never pretend the app is up to date.
+                                    Text(
+                                        updateInfo!!.notes.ifBlank { "Update check failed" },
+                                        color = Error
+                                    )
+                                } else {
+                                    Text(
+                                        "You're on the latest version",
+                                        color = OnSurfaceVariant
+                                    )
+                                }
                                 Spacer(modifier = Modifier.height(12.dp))
                                 OutlinedButton(
                                     onClick = { checkForUpdates() },
