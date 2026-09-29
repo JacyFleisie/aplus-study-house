@@ -22,7 +22,7 @@ A+ Study House is a school management Android app built with Kotlin, Jetpack Com
 ## Project Structure
 
 ```
-app/src/main/java/com/example/blankapp/
+app/src/main/java/com/aplusstudyhouse/app/
 ├── data/                  # Supabase repository, models, auth, config
 │   ├── SupabaseRepository.kt      # All database operations
 │   ├── SupabaseConfig.kt          # URL, anon key, HTTP client setup

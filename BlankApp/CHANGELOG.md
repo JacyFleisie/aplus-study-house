@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.15] — 2026-09-29
+
+### Changed
+- **Package renamed** from `com.example.blankapp` (Android Studio template default) to `com.aplusstudyhouse.app` — proper branding in app listings, install prompts and logs
+- ⚠️ **One-time reinstall required**: Android treats the new id as a different app. Existing installs must install v1.6.15 manually (the old app's auto-updater cannot cross the rename); sign-in is required again after installing
+
 ## [1.6.14] — 2026-09-29
 
 ### Fixed

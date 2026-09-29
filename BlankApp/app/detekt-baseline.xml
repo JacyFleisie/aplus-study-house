@@ -37,7 +37,7 @@
     <ID>CyclomaticComplexMethod:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
     <ID>CyclomaticComplexMethod:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
     <ID>CyclomaticComplexMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
-    <ID>CyclomaticComplexMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null )</ID>
     <ID>CyclomaticComplexMethod:RegistrationViewModel.kt$RegistrationViewModel$fun validateCurrentStep(): Boolean</ID>
     <ID>CyclomaticComplexMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
     <ID>CyclomaticComplexMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun createStudentFromApplication(applicationId: String): Boolean</ID>
@@ -155,9 +155,9 @@
     <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@Composable private fun Bullet(text: String)</ID>
     <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@Composable private fun PolicySection( icon: androidx.compose.ui.graphics.vector.ImageVector, iconTint: androidx.compose.ui.graphics.Color, title: String, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationInfoAckScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onAcknowledged: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null )</ID>
     <ID>FunctionNaming:RegistrationStartScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationStartScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
-    <ID>FunctionNaming:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>FunctionNaming:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
     <ID>FunctionNaming:RouteGuard.kt$@Composable fun AccessDeniedScreen( requiredRole: String, actualRole: String, onGoBack: () -&gt; Unit, onGoHome: () -&gt; Unit )</ID>
     <ID>FunctionNaming:RouteGuard.kt$@Composable fun RequireAdmin( navController: androidx.navigation.NavHostController, content: @Composable () -&gt; Unit )</ID>
     <ID>FunctionNaming:RouteGuard.kt$@Composable fun RequireAuth( navController: androidx.navigation.NavHostController, content: @Composable () -&gt; Unit )</ID>
@@ -237,9 +237,9 @@
     <ID>LongMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>LongMethod:RegistrationGate.kt$@Composable fun RegistrationRequiredScreen(onRegisterChild: () -&gt; Unit)</ID>
     <ID>LongMethod:RegistrationInfoAckScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationInfoAckScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onAcknowledged: () -&gt; Unit )</ID>
-    <ID>LongMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>LongMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null )</ID>
     <ID>LongMethod:RegistrationStartScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationStartScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
-    <ID>LongMethod:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>LongMethod:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
     <ID>LongMethod:RouteGuard.kt$@Composable fun AccessDeniedScreen( requiredRole: String, actualRole: String, onGoBack: () -&gt; Unit, onGoHome: () -&gt; Unit )</ID>
     <ID>LongMethod:RouteGuard.kt$@Composable fun UnauthorizedScreen(onLogin: () -&gt; Unit)</ID>
     <ID>LongMethod:SettingsScreens.kt$@Composable fun ChangePasswordScreen(onBack: () -&gt; Unit)</ID>
@@ -257,7 +257,7 @@
     <ID>LongParameterList:FinancePaymentScreen.kt$( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
     <ID>LongParameterList:RegistrationComponents.kt$( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>LongParameterList:RegistrationStartScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
-    <ID>LongParameterList:RegistrationSubmitScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>LongParameterList:RegistrationSubmitScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
     <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null )</ID>
     <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String?, batchId: String? )</ID>
     <ID>MagicNumber:AdminFinancePaymentScreen.kt$20</ID>
@@ -411,7 +411,7 @@
     <ID>MaxLineLength:FinancePaymentScreen.kt$text = "You'll be redirected to PayFast's secure checkout where you can pay by credit/debit card, EFT or instant payment. A payment record is created immediately and marked as pending until PayFast confirms it."</ID>
     <ID>MaxLineLength:ForgotPasswordScreen.kt$text = "Click the link in your email to reset your password. If you don't see the email, check your spam folder."</ID>
     <ID>MaxLineLength:ForgotPasswordScreen.kt$text = "No worries! Enter your email address and we'll send you a link to reset your password."</ID>
-    <ID>MaxLineLength:LoginScreen.kt$val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT</ID>
+    <ID>MaxLineLength:LoginScreen.kt$val role = if (user?.role == com.aplusstudyhouse.app.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT</ID>
     <ID>MaxLineLength:MedicalInfoScreen.kt$onContinue(doctorName, doctorLocation, doctorContact, medicalPlan, medicalAidNumber, allergies, epilepsy, diabetic, asthma, noseBleeder, hasAllergies)</ID>
     <ID>MaxLineLength:NetworkResult.kt$NetworkResult$Error : NetworkResult</ID>
     <ID>MaxLineLength:ParentFinanceScreen.kt$"Online payments are not available right now. Please pay each invoice individually or contact the office."</ID>
@@ -516,11 +516,11 @@
     <ID>TooGenericExceptionCaught:SessionStore.kt$SessionStore$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SupabaseConfig.kt$SupabaseConfig$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SupabaseRepository.kt$SupabaseRepository$e: Exception</ID>
-    <ID>TooManyFunctions:AdminFinancePaymentScreen.kt$com.example.blankapp.screens.admin.AdminFinancePaymentScreen.kt</ID>
+    <ID>TooManyFunctions:AdminFinancePaymentScreen.kt$com.aplusstudyhouse.app.screens.admin.AdminFinancePaymentScreen.kt</ID>
     <ID>TooManyFunctions:AuthRepository.kt$AuthRepository</ID>
     <ID>TooManyFunctions:CrashReporter.kt$CrashReporter</ID>
     <ID>TooManyFunctions:InputSanitizer.kt$InputSanitizer</ID>
-    <ID>TooManyFunctions:MockData.kt$com.example.blankapp.data.MockData.kt</ID>
+    <ID>TooManyFunctions:MockData.kt$com.aplusstudyhouse.app.data.MockData.kt</ID>
     <ID>TooManyFunctions:RegistrationViewModel.kt$RegistrationViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:SupabaseRealtime.kt$SupabaseRealtime</ID>
     <ID>TooManyFunctions:SupabaseRepository.kt$SupabaseRepository</ID>
@@ -545,121 +545,121 @@
     <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminApplicationsTab.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminApplicationsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminCards.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminCards.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminCards.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminCards.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminCards.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminCards.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminDashboardScreen.kt$import com.example.blankapp.screens.admin.tabs.*</ID>
-    <ID>WildcardImport:AdminDashboardScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import com.aplusstudyhouse.app.screens.admin.tabs.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.screens.admin.components.*</ID>
-    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.aplusstudyhouse.app.screens.admin.components.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.screens.admin.components.*</ID>
-    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.ui.components.*</ID>
-    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.ui.theme.*</ID>
-    <ID>WildcardImport:AdminHomeViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.aplusstudyhouse.app.screens.admin.components.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.aplusstudyhouse.app.ui.components.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
+    <ID>WildcardImport:AdminHomeViewModel.kt$import com.aplusstudyhouse.app.data.*</ID>
     <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminMessagesScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminMessagesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminSettingsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AdminStudentsTab.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:AdminStudentsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AppNavigation.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:AppNavigation.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.*</ID>
-    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.admin.*</ID>
-    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.auth.*</ID>
-    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.parent.*</ID>
-    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.parent.registration.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.aplusstudyhouse.app.screens.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.aplusstudyhouse.app.screens.admin.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.aplusstudyhouse.app.screens.auth.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.aplusstudyhouse.app.screens.parent.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.aplusstudyhouse.app.screens.parent.registration.*</ID>
     <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ApplicationSubmitTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:AttendanceScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:AuthRepositoryErrorTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:AuthRepositoryTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ChildProfileScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ChildProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:CollectionTransportScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ConsentSignatureScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:CrashLogScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:CreateAccountScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:CreatePermissionScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:CreatePermissionScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:DataModelTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:ErrorStateHolder.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:ErrorStates.kt$import androidx.compose.animation.*</ID>
@@ -667,158 +667,158 @@
     <ID>WildcardImport:ErrorStates.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ErrorStates.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ErrorStates.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ErrorStates.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:FinancePaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ForgotPasswordScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:InputSanitizerTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:LoadingStates.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:LoadingStates.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:LoadingStates.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:LoadingStates.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:LoadingStates.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:LoginScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:LoginScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:MedicalInfoScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:MockDataTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.ui.components.*</ID>
-    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.ui.theme.*</ID>
-    <ID>WildcardImport:ParentChildrenViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.aplusstudyhouse.app.ui.components.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
+    <ID>WildcardImport:ParentChildrenViewModel.kt$import com.aplusstudyhouse.app.data.*</ID>
     <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentDashboardScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentDetailsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.ui.components.*</ID>
-    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.ui.theme.*</ID>
-    <ID>WildcardImport:ParentFinanceViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.aplusstudyhouse.app.ui.components.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
+    <ID>WildcardImport:ParentFinanceViewModel.kt$import com.aplusstudyhouse.app.data.*</ID>
     <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
     <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.ui.components.*</ID>
-    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.ui.theme.*</ID>
-    <ID>WildcardImport:ParentHomeViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.aplusstudyhouse.app.ui.components.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
+    <ID>WildcardImport:ParentHomeViewModel.kt$import com.aplusstudyhouse.app.data.*</ID>
     <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentMessagesScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ParentMessagesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ParentProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:PayFastRepositoryTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:PaymentSuccessScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:PaymentSuccessScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:PermissionHelpers.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:RegistrationComponents.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationComponents.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:RegistrationGate.kt$import com.example.blankapp.data.*</ID>
-    <ID>WildcardImport:RegistrationGate.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import com.aplusstudyhouse.app.data.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:RegistrationPaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:RegistrationStartScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationStartScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:RegistrationSubmitScreen.kt$import com.example.blankapp.ui.theme.*</ID>
-    <ID>WildcardImport:RegistrationViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationViewModel.kt$import com.aplusstudyhouse.app.data.*</ID>
     <ID>WildcardImport:RouteGuard.kt$import androidx.compose.animation.*</ID>
     <ID>WildcardImport:RouteGuard.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:RouteGuard.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:RouteGuard.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:RouteGuard.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:RouteGuardTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:RouteTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:SettingsScreens.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:SplashScreen.kt$import androidx.compose.animation.core.*</ID>
     <ID>WildcardImport:SplashScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:SplashScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:SplashScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:SplashScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:SportsActivitiesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:StationeryListScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
     <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:StudentDetailsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import com.aplusstudyhouse.app.ui.theme.*</ID>
     <ID>WildcardImport:SupabaseConfigTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:SupabaseRepositoryErrorTest.kt$import org.junit.Assert.*</ID>
     <ID>WildcardImport:SupabaseRepositoryTest.kt$import org.junit.Assert.*</ID>

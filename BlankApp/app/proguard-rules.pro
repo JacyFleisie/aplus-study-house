@@ -2,10 +2,10 @@
 # Keep the app working after R8 minify + obfuscation.
 
 # ---- Keep data model classes (org.json parsing relies on field names) ----
--keep class com.example.blankapp.data.models.** { *; }
--keep class com.example.blankapp.data.MockUser { *; }
--keep class com.example.blankapp.data.MockStudent { *; }
--keep class com.example.blankapp.data.MockInvoice { *; }
+-keep class com.aplusstudyhouse.app.data.models.** { *; }
+-keep class com.aplusstudyhouse.app.data.MockUser { *; }
+-keep class com.aplusstudyhouse.app.data.MockStudent { *; }
+-keep class com.aplusstudyhouse.app.data.MockInvoice { *; }
 
 # ---- Hilt / Dagger ----
 -keep class dagger.** { *; }
@@ -33,7 +33,7 @@
 # ---- Compose / AndroidX ----
 -keep class androidx.compose.** { *; }
 -dontwarn androidx.compose.**
--keep class com.example.blankapp.ui.** { *; }
+-keep class com.aplusstudyhouse.app.ui.** { *; }
 
 # ---- Enums (UserRole etc. used in serialization) ----
 -keepclassmembers enum * {
@@ -46,7 +46,7 @@
 -keep class * implements java.io.Serializable { *; }
 
 # ---- Supabase config / BuildConfig fields consumed at runtime ----
--keep class com.example.blankapp.BuildConfig { *; }
+-keep class com.aplusstudyhouse.app.BuildConfig { *; }
 
 # ---- General ----
 -keepattributes Signature,Exceptions,InnerClasses,EnclosingMethod

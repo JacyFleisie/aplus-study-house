@@ -1,0 +1,592 @@
+package com.aplusstudyhouse.app.screens.admin.tabs
+
+import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.aplusstudyhouse.app.screens.admin.components.SettingsItem
+import com.aplusstudyhouse.app.screens.parent.NotificationPreferencesScreen
+import com.aplusstudyhouse.app.screens.settings.AdminProfileScreen
+import com.aplusstudyhouse.app.screens.settings.ChangePasswordScreen
+import com.aplusstudyhouse.app.screens.settings.PrivacySecurityScreen
+import com.aplusstudyhouse.app.ui.theme.*
+import com.aplusstudyhouse.app.updater.AppUpdater
+import com.aplusstudyhouse.app.updater.UpdateCheckCache
+import com.aplusstudyhouse.app.updater.toUpdateInfo
+import com.aplusstudyhouse.app.updater.UpdateInfo
+import kotlinx.coroutines.launch
+
+private const val TAG = "AdminSettings"
+
+@Composable
+fun AdminSettingsTab(
+    onLogout: () -> Unit,
+    onNavigateToCrashLogs: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {}
+) {
+    val scope = rememberCoroutineScope()
+    var showNotifications by remember { mutableStateOf(false) }
+    var showProfile by remember { mutableStateOf(false) }
+    var showPasswordReset by remember { mutableStateOf(false) }
+    var showSecurityInfo by remember { mutableStateOf(false) }
+
+    // Full-screen sub-pages (no popups)
+    if (showNotifications) {
+        NotificationPreferencesScreen(onBack = { showNotifications = false })
+        return
+    }
+    if (showProfile) {
+        AdminProfileScreen(onBack = { showProfile = false })
+        return
+    }
+    if (showPasswordReset) {
+        ChangePasswordScreen(onBack = { showPasswordReset = false })
+        return
+    }
+    if (showSecurityInfo) {
+        PrivacySecurityScreen(onBack = { showSecurityInfo = false })
+        return
+    }
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+    ) {
+        // Account Section
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+            ) {
+                Text(
+                    text = "Account",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                SettingsItem(icon = Icons.Filled.Person, title = "Profile", subtitle = "Manage your account", onClick = {
+                    showProfile = true
+                })
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
+                SettingsItem(icon = Icons.Filled.Lock, title = "Change Password", subtitle = "Email yourself a reset link", onClick = {
+                    showPasswordReset = true
+                })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Application Section
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+            ) {
+                Text(
+                    text = "Application",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                SettingsItem(icon = Icons.Filled.Notifications, title = "Notification Preferences", subtitle = "Choose which notifications you receive", onClick = {
+                    showNotifications = true
+                })
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
+                SettingsItem(icon = Icons.Filled.Security, title = "Privacy & Security", subtitle = "Manage security settings", onClick = {
+                    showSecurityInfo = true
+                })
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
+                SettingsItem(
+                    icon = Icons.Filled.Info,
+                    title = "About",
+                    subtitle = "App version ${AppUpdater.currentVersion()}",
+                    onClick = onNavigateToAbout
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Developer Section
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+            ) {
+                Text(
+                    text = "Developer",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                SettingsItem(
+                    icon = Icons.Filled.BugReport,
+                    title = "Crash Logs",
+                    subtitle = "View crash reports and diagnostics",
+                    onClick = onNavigateToCrashLogs
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Logout Button
+        Button(
+            onClick = onLogout,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = ErrorContainer,
+                    contentColor = Error
+                )
+        ) {
+            Icon(Icons.Filled.Logout, contentDescription = null)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "Log Out",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+enum class UpdateState {
+    IDLE,
+    CHECKING,
+    DOWNLOADING,
+    INSTALLED,
+    ERROR
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AboutScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    var updateState by remember { mutableStateOf(UpdateState.IDLE) }
+    var downloadProgress by remember { mutableStateOf(0f) }
+    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = downloadProgress,
+        label = "progress"
+    )
+
+    fun checkForUpdates() {
+        scope.launch {
+            updateState = UpdateState.CHECKING
+            errorMessage = null
+            try {
+                val info = AppUpdater.checkForUpdate()
+                updateInfo = info
+                // Persist for the startup banner so the next launch shows
+                // the result without another API call.
+                UpdateCheckCache.save(context, info)
+                updateState = UpdateState.IDLE
+            } catch (e: Exception) {
+                Log.e(TAG, "Check failed", e)
+                errorMessage = e.message ?: "Update check failed"
+                updateState = UpdateState.ERROR
+            }
+        }
+    }
+
+    // Seed from the cached startup check and refresh when stale so the
+    // screen already shows an available update before the user taps.
+    LaunchedEffect(Unit) {
+        UpdateCheckCache.load(context)?.let { (cached, checkedAt) ->
+            // A cache from a different app version is meaningless.
+            if (cached.currentVersion != AppUpdater.currentVersion()) return@let
+            if (updateInfo == null) updateInfo = cached.toUpdateInfo()
+            if (UpdateCheckCache.isStale(checkedAt)) {
+                checkForUpdates()
+            }
+        }
+    }
+
+    fun downloadAndInstall() {
+        scope.launch {
+            updateState = UpdateState.DOWNLOADING
+            downloadProgress = 0f
+            errorMessage = null
+            try {
+                val result = updateInfo ?: AppUpdater.checkForUpdate()
+                if (result.available && result.downloadUrl != null) {
+                    Log.d(TAG, "Starting download from: ${result.downloadUrl}")
+                    val file =
+                        AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
+                            downloadProgress = progress
+                        }
+                    downloadProgress = 0.95f
+                    Log.d(TAG, "Download complete, launching installer")
+                    AppUpdater.installApk(context, file)
+                    downloadProgress = 1f
+                    updateState = UpdateState.INSTALLED
+                } else {
+                    errorMessage = "No download URL available"
+                    updateState = UpdateState.ERROR
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Update failed", e)
+                errorMessage = e.message ?: "Update failed"
+                updateState = UpdateState.ERROR
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("About") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+        ) {
+            // Hero Header
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Primary, PrimaryContainer)
+                            )
+                        )
+                        .padding(vertical = 48.dp, horizontal = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // App Icon
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Surface),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.School,
+                            contentDescription = null,
+                            tint = Primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "A+ Study House",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Version ${AppUpdater.currentVersion()}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = OnPrimary.copy(alpha = 0.8f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // App Info Section
+            InfoSection(title = "App Information") {
+                InfoRow(label = "Version", value = AppUpdater.currentVersion())
+                InfoRow(
+                    label = "Build Type",
+                    value = if (com.aplusstudyhouse.app.BuildConfig.DEBUG) "Debug" else "Release"
+                )
+                InfoRow(label = "Package", value = context.packageName)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Update Section
+            InfoSection(title = "Updates") {
+                when (updateState) {
+                    UpdateState.IDLE -> {
+                        if (updateInfo?.available == true) {
+                            Column {
+                                Text(
+                                    "Update available: ${updateInfo!!.latestVersion}",
+                                    color = Success,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                if (updateInfo!!.apkSizeBytes > 0) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        "Size: %.1f MB".format(updateInfo!!.apkSizeBytes / (1024.0 * 1024.0)),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = OnSurfaceVariant
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = { downloadAndInstall() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Download, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Download & Install")
+                                }
+                            }
+                        } else if (updateInfo != null) {
+                            Column {
+                                if (updateInfo!!.latestVersion.isBlank()) {
+                                    // The check failed (network / rate limit):
+                                    // never pretend the app is up to date.
+                                    Text(
+                                        updateInfo!!.notes.ifBlank { "Update check failed" },
+                                        color = Error
+                                    )
+                                } else {
+                                    Text(
+                                        "You're on the latest version",
+                                        color = OnSurfaceVariant
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                OutlinedButton(
+                                    onClick = { checkForUpdates() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Check Again")
+                                }
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check for Updates")
+                            }
+                        }
+                    }
+                    UpdateState.CHECKING -> {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Checking for updates...")
+                        }
+                    }
+                    UpdateState.DOWNLOADING -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text("Downloading update… ${(animatedProgress * 100).toInt()}%")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { animatedProgress },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                    UpdateState.INSTALLED -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "Install launched!",
+                                color = Success,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "Check your notifications or open the installer to complete the update.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    updateState = UpdateState.IDLE
+                                    checkForUpdates()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Check Again")
+                            }
+                        }
+                    }
+                    UpdateState.ERROR -> {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                errorMessage ?: "An error occurred",
+                                color = Error
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = { checkForUpdates() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Retry")
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Credits Section
+            InfoSection(title = "Credits") {
+                InfoRow(label = "Developer", value = "A+ Study House")
+                InfoRow(label = "Location", value = "Witpoortjie, Roodepoort")
+                InfoRow(label = "Contact", value = "admin@aplusstudy.co.za")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Description
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "About",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "A+ Study House is an aftercare, tutoring and study centre dedicated to helping students achieve their academic potential.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun InfoSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = OnBackground
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            content()
+        }
+    }
+}
+
+@Composable
+fun InfoRow(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = OnSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = OnBackground
+        )
+    }
+}

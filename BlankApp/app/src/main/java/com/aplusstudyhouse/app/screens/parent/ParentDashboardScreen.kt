@@ -1,0 +1,179 @@
+package com.aplusstudyhouse.app.screens.parent
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.aplusstudyhouse.app.ui.theme.*
+
+// Bottom navigation per spec: Home · Children · Finance · Messages · Profile
+enum class ParentTab(
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
+) {
+    HOME("Home", Icons.Filled.Home, Icons.Outlined.Home),
+    CHILDREN("Children", Icons.Filled.ChildCare, Icons.Outlined.ChildCare),
+    FINANCE("Finance", Icons.Filled.AccountBalanceWallet, Icons.Outlined.AccountBalanceWallet),
+    MESSAGES("Messages", Icons.Filled.Mail, Icons.Outlined.Mail),
+    PROFILE("Profile", Icons.Filled.Person, Icons.Outlined.Person)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ParentDashboardScreen(
+    onLogout: () -> Unit,
+    onNavigateToRegistration: () -> Unit = {},
+    onNavigateToStationery: () -> Unit = {},
+    onNavigateToChildProfile: (String) -> Unit = {},
+    onNavigateToFinancePayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> }
+) {
+    var selectedTab by remember { mutableStateOf(ParentTab.HOME) }
+    var showNotifications by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
+    var showPasswordReset by remember { mutableStateOf(false) }
+    var showSecurity by remember { mutableStateOf(false) }
+    var showNotificationPrefs by remember { mutableStateOf(false) }
+    var showPaymentStatus by remember { mutableStateOf(false) }
+
+    // Gate: Require at least one registered child
+    com.aplusstudyhouse.app.navigation.RequireRegisteredChild(
+        onRegisterChild = onNavigateToRegistration
+    ) {
+        // Full-screen sub-pages live ABOVE the Scaffold (safe composition pattern):
+        // they replace the whole tab layout including the bottom nav.
+        if (showAbout) {
+            ParentAboutScreen(onBack = { showAbout = false })
+            return@RequireRegisteredChild
+        }
+
+        if (showPasswordReset) {
+            com.aplusstudyhouse.app.screens.settings.ChangePasswordScreen(onBack = { showPasswordReset = false })
+            return@RequireRegisteredChild
+        }
+
+        if (showSecurity) {
+            com.aplusstudyhouse.app.screens.settings.PrivacySecurityScreen(onBack = { showSecurity = false })
+            return@RequireRegisteredChild
+        }
+
+        if (showNotificationPrefs) {
+            NotificationPreferencesScreen(onBack = { showNotificationPrefs = false })
+            return@RequireRegisteredChild
+        }
+
+        // Payment confirmation after returning from a PayFast checkout
+        if (showPaymentStatus) {
+            PaymentSuccessScreen(onBackClick = { showPaymentStatus = false })
+            return@RequireRegisteredChild
+        }
+
+        if (showNotifications) {
+            ParentNotificationsScreen(
+                onBack = { showNotifications = false }
+            )
+            return@RequireRegisteredChild
+        }
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text =
+                                when (selectedTab) {
+                                    ParentTab.HOME -> "A+ Study House"
+                                    ParentTab.CHILDREN -> "My Children"
+                                    ParentTab.FINANCE -> "Finance"
+                                    ParentTab.MESSAGES -> "Messages"
+                                    ParentTab.PROFILE -> "Profile"
+                                },
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = { showNotifications = true }) {
+                            Icon(
+                                Icons.Filled.Notifications,
+                                contentDescription = "Notifications",
+                                tint = OnBackground
+                            )
+                        }
+                    },
+                    colors =
+                        TopAppBarDefaults.topAppBarColors(
+                            containerColor = Surface,
+                            titleContentColor = OnBackground
+                        )
+                )
+            },
+            bottomBar = {
+                NavigationBar(
+                    containerColor = Surface,
+                    tonalElevation = NavigationBarDefaults.Elevation
+                ) {
+                    ParentTab.entries.forEach { tab ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    if (selectedTab == tab) tab.selectedIcon else tab.unselectedIcon,
+                                    contentDescription = tab.title
+                                )
+                            },
+                            label = { Text(tab.title) },
+                            selected = selectedTab == tab,
+                            onClick = { selectedTab = tab },
+                            colors =
+                                NavigationBarItemDefaults.colors(
+                                    selectedIconColor = Primary,
+                                    selectedTextColor = Primary,
+                                    unselectedIconColor = OnSurfaceVariant,
+                                    unselectedTextColor = OnSurfaceVariant,
+                                    indicatorColor = PrimaryContainer
+                                )
+                        )
+                    }
+                }
+            }
+        ) { paddingValues ->
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+            ) {
+                when (selectedTab) {
+                    ParentTab.HOME ->
+                        ParentHomeScreen(
+                            onNavigateToChildren = { selectedTab = ParentTab.CHILDREN },
+                            onNavigateToFinance = { selectedTab = ParentTab.FINANCE },
+                            onNavigateToRegistration = onNavigateToRegistration,
+                            onNavigateToStationery = onNavigateToStationery
+                        )
+                    ParentTab.CHILDREN ->
+                        ParentChildrenScreen(
+                            onChildClick = onNavigateToChildProfile
+                        )
+                    ParentTab.FINANCE ->
+                        ParentFinanceScreen(
+                            onNavigateToPayment = onNavigateToFinancePayment,
+                            onOpenPaymentStatus = { showPaymentStatus = true }
+                        )
+                    ParentTab.MESSAGES -> ParentMessagesScreen()
+                    ParentTab.PROFILE ->
+                        ParentProfileScreen(
+                            onLogout = onLogout,
+                            onNavigateToAbout = { showAbout = true },
+                            onNavigateToNotifications = { showNotificationPrefs = true },
+                            onChangePassword = { showPasswordReset = true },
+                            onOpenPrivacySecurity = { showSecurity = true }
+                        )
+                }
+            }
+        } // End Scaffold
+    } // End RequireRegisteredChild
+}
