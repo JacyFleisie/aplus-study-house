@@ -3,7 +3,6 @@ package com.example.blankapp.screens.admin
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -83,40 +82,45 @@ fun ApplicationReviewScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Status Banner
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = when (application.status) {
-                        ApplicationStatus.APPROVED -> SuccessContainer
-                        ApplicationStatus.SUBMITTED -> InfoContainer
-                        ApplicationStatus.UNDER_REVIEW -> WarningContainer
-                        ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
-                        ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
-                        ApplicationStatus.REJECTED -> ErrorContainer
-                    }
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor =
+                            when (application.status) {
+                                ApplicationStatus.APPROVED -> SuccessContainer
+                                ApplicationStatus.SUBMITTED -> InfoContainer
+                                ApplicationStatus.UNDER_REVIEW -> WarningContainer
+                                ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
+                                ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
+                                ApplicationStatus.REJECTED -> ErrorContainer
+                            }
+                    )
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -129,14 +133,15 @@ fun ApplicationReviewScreen(
                             ApplicationStatus.REJECTED -> Icons.Filled.Cancel
                         },
                         contentDescription = null,
-                        tint = when (application.status) {
-                            ApplicationStatus.APPROVED -> Success
-                            ApplicationStatus.SUBMITTED -> Info
-                            ApplicationStatus.UNDER_REVIEW -> Warning
-                            ApplicationStatus.CHANGES_REQUIRED -> Warning
-                            ApplicationStatus.PAYMENT_VERIFIED -> Success
-                            ApplicationStatus.REJECTED -> Error
-                        },
+                        tint =
+                            when (application.status) {
+                                ApplicationStatus.APPROVED -> Success
+                                ApplicationStatus.SUBMITTED -> Info
+                                ApplicationStatus.UNDER_REVIEW -> Warning
+                                ApplicationStatus.CHANGES_REQUIRED -> Warning
+                                ApplicationStatus.PAYMENT_VERIFIED -> Success
+                                ApplicationStatus.REJECTED -> Error
+                            },
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -166,9 +171,10 @@ fun ApplicationReviewScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -212,9 +218,10 @@ fun ApplicationReviewScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -253,9 +260,10 @@ fun ApplicationReviewScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -330,9 +338,10 @@ fun ApplicationReviewScreen(
                     colors = CardDefaults.cardColors(containerColor = WarningContainer)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -376,13 +385,15 @@ fun ApplicationReviewScreen(
                 if (!application.paymentProofUrl.isNullOrBlank()) {
                     OutlinedButton(
                         onClick = { showPopViewer = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Primary
-                        )
+                        colors =
+                            ButtonDefaults.outlinedButtonColors(
+                                contentColor = Primary
+                            )
                     ) {
                         Icon(Icons.Filled.Visibility, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
@@ -399,14 +410,16 @@ fun ApplicationReviewScreen(
                 // Approve Button
                 Button(
                     onClick = { showApproveDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Success,
-                        contentColor = OnPrimary
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = Success,
+                            contentColor = OnPrimary
+                        )
                 ) {
                     Icon(Icons.Filled.CheckCircle, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -422,13 +435,15 @@ fun ApplicationReviewScreen(
                 // Request Changes Button
                 OutlinedButton(
                     onClick = { showChangesDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Warning
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = Warning
+                        ),
                     border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
                 ) {
                     Icon(Icons.Filled.Edit, contentDescription = null)
@@ -445,13 +460,15 @@ fun ApplicationReviewScreen(
                 // Reject Button
                 OutlinedButton(
                     onClick = { showRejectDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Error
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = Error
+                        ),
                     border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
                 ) {
                     Icon(Icons.Filled.Cancel, contentDescription = null)
@@ -473,9 +490,10 @@ fun ApplicationReviewScreen(
                     colors = CardDefaults.cardColors(containerColor = SuccessContainer)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
@@ -523,11 +541,12 @@ fun ApplicationReviewScreen(
                 showApproveDialog = false
                 scope.launch {
                     AuditLogger.log("admin_decision_start", "appId=$applicationId action=approve")
-                    val statusOk = try {
-                        SupabaseRepository.updateApplicationStatus(applicationId, "approved")
-                    } catch (e: Exception) {
-                        false
-                    }
+                    val statusOk =
+                        try {
+                            SupabaseRepository.updateApplicationStatus(applicationId, "approved")
+                        } catch (e: Exception) {
+                            false
+                        }
 
                     if (!statusOk) {
                         approvalError = "Failed to update application status."
@@ -536,11 +555,12 @@ fun ApplicationReviewScreen(
                         return@launch
                     }
 
-                    val created = try {
-                        SupabaseRepository.createStudentFromApplication(applicationId)
-                    } catch (e: Exception) {
-                        false
-                    }
+                    val created =
+                        try {
+                            SupabaseRepository.createStudentFromApplication(applicationId)
+                        } catch (e: Exception) {
+                            false
+                        }
 
                     if (!created) {
                         approvalError = "Approved, but failed to create student profile. Please check the student list later."
@@ -565,15 +585,27 @@ fun ApplicationReviewScreen(
             title = { Text("Proof of Payment", fontWeight = FontWeight.Bold) },
             text = {
                 Column {
-                    Text("Payment proof has been uploaded for this application.", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                    Text(
+                        "Payment proof has been uploaded for this application.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("URL: ${application.paymentProofUrl}", style = MaterialTheme.typography.bodySmall, color = Primary)
+                    Text(
+                        "URL: ${application.paymentProofUrl}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Primary
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedButton(
                         onClick = {
                             // Open URL in browser
                             try {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(application.paymentProofUrl))
+                                val intent =
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse(application.paymentProofUrl)
+                                    )
                                 // context.startActivity(intent)
                             } catch (e: Exception) {
                                 // Handle error
@@ -739,11 +771,15 @@ fun DecisionDialog(
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
+fun InfoRow(
+    label: String,
+    value: String
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

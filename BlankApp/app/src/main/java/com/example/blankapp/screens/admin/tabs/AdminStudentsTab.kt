@@ -23,29 +23,32 @@ fun AdminStudentsTab(onNavigateToStudent: (String) -> Unit = {}) {
     var allStudents by remember { mutableStateOf<List<MockStudent>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
-        allStudents = try {
-            SupabaseRepository.getAllStudents()
-        } catch (e: Exception) {
-            emptyList()
-        }
+        allStudents =
+            try {
+                SupabaseRepository.getAllStudents()
+            } catch (e: Exception) {
+                emptyList()
+            }
         isLoading = false
     }
 
-    val filteredStudents = if (searchQuery.isBlank()) {
-        allStudents
-    } else {
-        allStudents.filter {
-            it.firstName.contains(searchQuery, ignoreCase = true) ||
-            it.lastName.contains(searchQuery, ignoreCase = true) ||
-            it.school.contains(searchQuery, ignoreCase = true)
+    val filteredStudents =
+        if (searchQuery.isBlank()) {
+            allStudents
+        } else {
+            allStudents.filter {
+                it.firstName.contains(searchQuery, ignoreCase = true) ||
+                    it.lastName.contains(searchQuery, ignoreCase = true) ||
+                    it.school.contains(searchQuery, ignoreCase = true)
+            }
         }
-    }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(16.dp)
     ) {
         OutlinedTextField(
             value = searchQuery,
@@ -82,13 +85,17 @@ fun AdminStudentsTab(onNavigateToStudent: (String) -> Unit = {}) {
                 colors = CardDefaults.cardColors(containerColor = Surface)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     androidx.compose.foundation.Image(
-                        painter = androidx.compose.ui.res.painterResource(id = com.example.blankapp.R.drawable.empty_students),
+                        painter =
+                            androidx.compose.ui.res.painterResource(
+                                id = com.example.blankapp.R.drawable.empty_students
+                            ),
                         contentDescription = "No students",
                         modifier = Modifier.size(140.dp)
                     )

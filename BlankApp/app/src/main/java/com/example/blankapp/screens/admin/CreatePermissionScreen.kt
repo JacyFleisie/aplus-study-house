@@ -19,10 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
-import kotlinx.coroutines.launch
 import com.example.blankapp.screens.parent.getPermissionCategoryColor
 import com.example.blankapp.screens.parent.getPermissionCategoryLabel
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,8 +41,18 @@ fun CreatePermissionScreen(
     var students by remember { mutableStateOf<List<MockStudent>>(emptyList()) }
     var parents by remember { mutableStateOf<List<MockUser>>(emptyList()) }
     LaunchedEffect(Unit) {
-        students = try { SupabaseRepository.getAllStudents() } catch (e: Exception) { emptyList() }
-        parents = try { SupabaseRepository.getAllParents() } catch (e: Exception) { emptyList() }
+        students =
+            try {
+                SupabaseRepository.getAllStudents()
+            } catch (e: Exception) {
+                emptyList()
+            }
+        parents =
+            try {
+                SupabaseRepository.getAllParents()
+            } catch (e: Exception) {
+                emptyList()
+            }
         students.forEach { selectedStudents[it.id] = false }
     }
 
@@ -65,11 +75,12 @@ fun CreatePermissionScreen(
             }
         ) { padding ->
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(Background)
-                    .padding(32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(Background)
+                        .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -125,9 +136,10 @@ fun CreatePermissionScreen(
                 shadowElevation = 8.dp
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                 ) {
                     if (selectedCount > 0) {
                         Text(
@@ -143,20 +155,21 @@ fun CreatePermissionScreen(
                                 val student = students.find { it.id == studentId }
                                 val parent = student?.let { s -> parents.find { u -> u.id == s.parentId } }
                                 if (student != null && parent != null) {
-                                    val newPermission = MockPermission(
-                                        id = "PERM${System.currentTimeMillis()}_${studentId}",
-                                        title = title,
-                                        description = description,
-                                        studentId = student.id,
-                                        studentName = "${student.firstName} ${student.lastName}",
-                                        parentId = parent.id,
-                                        parentName = parent.fullName,
-                                        createdBy = "A001",
-                                        createdDate = "Today",
-                                        dueDate = dueDate.ifBlank { null },
-                                        status = PermissionStatus.PENDING,
-                                        category = selectedCategory
-                                    )
+                                    val newPermission =
+                                        MockPermission(
+                                            id = "PERM${System.currentTimeMillis()}_$studentId",
+                                            title = title,
+                                            description = description,
+                                            studentId = student.id,
+                                            studentName = "${student.firstName} ${student.lastName}",
+                                            parentId = parent.id,
+                                            parentName = parent.fullName,
+                                            createdBy = "A001",
+                                            createdDate = "Today",
+                                            dueDate = dueDate.ifBlank { null },
+                                            status = PermissionStatus.PENDING,
+                                            category = selectedCategory
+                                        )
                                     kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
                                         SupabaseRepository.createPermission(newPermission)
                                     }
@@ -178,33 +191,37 @@ fun CreatePermissionScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Step 1: Select Students
             SectionHeader(number = "1", title = "Select Students")
             Spacer(modifier = Modifier.height(12.dp))
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        val newValue = !allSelected
-                        students.forEach { selectedStudents[it.id] = newValue }
-                    },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val newValue = !allSelected
+                            students.forEach { selectedStudents[it.id] = newValue }
+                        },
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (allSelected) PrimaryContainer else Surface
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = if (allSelected) PrimaryContainer else Surface
+                    )
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
@@ -259,12 +276,13 @@ fun CreatePermissionScreen(
                         Column {
                             groupStudents.forEachIndexed { index, student ->
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedStudents[student.id] = !(selectedStudents[student.id] ?: false)
-                                        }
-                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                selectedStudents[student.id] = !(selectedStudents[student.id] ?: false)
+                                            }
+                                            .padding(horizontal = 12.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Checkbox(
@@ -290,20 +308,22 @@ fun CreatePermissionScreen(
                                     }
                                     Surface(
                                         shape = RoundedCornerShape(6.dp),
-                                        color = when (student.status) {
-                                            StudentStatus.ACTIVE -> SuccessContainer
-                                            StudentStatus.PENDING -> WarningContainer
-                                            StudentStatus.INACTIVE -> ErrorContainer
-                                        }
+                                        color =
+                                            when (student.status) {
+                                                StudentStatus.ACTIVE -> SuccessContainer
+                                                StudentStatus.PENDING -> WarningContainer
+                                                StudentStatus.INACTIVE -> ErrorContainer
+                                            }
                                     ) {
                                         Text(
                                             text = student.status.name,
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = when (student.status) {
-                                                StudentStatus.ACTIVE -> Success
-                                                StudentStatus.PENDING -> Warning
-                                                StudentStatus.INACTIVE -> Error
-                                            },
+                                            color =
+                                                when (student.status) {
+                                                    StudentStatus.ACTIVE -> Success
+                                                    StudentStatus.PENDING -> Warning
+                                                    StudentStatus.INACTIVE -> Error
+                                                },
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }
@@ -335,10 +355,11 @@ fun CreatePermissionScreen(
                 Column(modifier = Modifier.padding(4.dp)) {
                     PermissionCategory.values().forEach { cat ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedCategory = cat }
-                                .padding(horizontal = 12.dp, vertical = 12.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedCategory = cat }
+                                    .padding(horizontal = 12.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
@@ -412,7 +433,10 @@ fun CreatePermissionScreen(
 }
 
 @Composable
-fun SectionHeader(number: String, title: String) {
+fun SectionHeader(
+    number: String,
+    title: String
+) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
             shape = CircleShape,

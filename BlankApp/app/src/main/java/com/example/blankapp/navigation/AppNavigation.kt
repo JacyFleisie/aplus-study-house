@@ -46,16 +46,18 @@ fun AppNavigation(
         navController = navController,
         startDestination = startDestination,
         enterTransition = {
-            fadeIn(animationSpec = tween(300)) + slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left, tween(300)
-            )
+            fadeIn(animationSpec = tween(300)) +
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left, tween(300)
+                )
         },
         exitTransition = { fadeOut(animationSpec = tween(300)) },
         popEnterTransition = { fadeIn(animationSpec = tween(300)) },
         popExitTransition = {
-            fadeOut(animationSpec = tween(300)) + slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Right, tween(300)
-            )
+            fadeOut(animationSpec = tween(300)) +
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right, tween(300)
+                )
         }
     ) {
         // ============================================
@@ -157,9 +159,14 @@ fun AppNavigation(
                     },
                     onNavigateToRegistration = { navController.navigate(Screen.RegistrationStart.route) },
                     onNavigateToStationery = { navController.navigate(Screen.StationeryList.route) },
-                    onNavigateToChildProfile = { studentId -> navController.navigate(Screen.ChildProfile.createRoute(studentId)) },
+                    onNavigateToChildProfile = {
+                            studentId ->
+                        navController.navigate(Screen.ChildProfile.createRoute(studentId))
+                    },
                     onNavigateToFinancePayment = { invoiceId, amount, description, studentName ->
-                        navController.navigate(Screen.FinancePayment.createRoute(invoiceId, amount, description, studentName))
+                        navController.navigate(
+                            Screen.FinancePayment.createRoute(invoiceId, amount, description, studentName)
+                        )
                     }
                 )
             }
@@ -217,7 +224,8 @@ fun AppNavigation(
                         if (existing != null) {
                             registrationDraft.apply { copyFrom(existing) }
                             navController.navigate(Screen.RegistrationStudentDetails.route)
-                        }                    },
+                        }
+                    },
                     hasSavedDraft = { loadingDraft || savedDraft != null },
                 )
             }
@@ -298,7 +306,14 @@ fun AppNavigation(
                             popUpTo(Screen.RegistrationStart.route) { inclusive = true }
                         }
                     },
-                    onContinue = { collectionPerson1, contact1, vehicleReg1, collectionPerson2, contact2, vehicleReg2, transportRequired ->
+                    onContinue = {
+                            collectionPerson1,
+                            contact1,
+                            vehicleReg1,
+                            collectionPerson2,
+                            contact2,
+                            vehicleReg2,
+                            transportRequired ->
                         registrationDraft.apply {
                             this.collectionPerson1 = collectionPerson1
                             this.contact1 = contact1
@@ -325,7 +340,18 @@ fun AppNavigation(
                             popUpTo(Screen.RegistrationStart.route) { inclusive = true }
                         }
                     },
-                    onContinue = { doctorName, doctorLocation, doctorContact, medicalPlan, medicalAidNumber, allergies, epilepsy, diabetic, asthma, noseBleeder, hasAllergies ->
+                    onContinue = {
+                            doctorName,
+                            doctorLocation,
+                            doctorContact,
+                            medicalPlan,
+                            medicalAidNumber,
+                            allergies,
+                            epilepsy,
+                            diabetic,
+                            asthma,
+                            noseBleeder,
+                            hasAllergies ->
                         registrationDraft.apply {
                             this.doctorName = doctorName
                             this.doctorLocation = doctorLocation
@@ -356,7 +382,21 @@ fun AppNavigation(
                             popUpTo(Screen.RegistrationStart.route) { inclusive = true }
                         }
                     },
-                    onContinue = { motherName, motherSurname, motherId, motherEmployer, motherWorkPhone, motherCell, motherEmail, fatherName, fatherSurname, fatherId, fatherEmployer, fatherWorkPhone, fatherCell, fatherEmail ->
+                    onContinue = {
+                            motherName,
+                            motherSurname,
+                            motherId,
+                            motherEmployer,
+                            motherWorkPhone,
+                            motherCell,
+                            motherEmail,
+                            fatherName,
+                            fatherSurname,
+                            fatherId,
+                            fatherEmployer,
+                            fatherWorkPhone,
+                            fatherCell,
+                            fatherEmail ->
                         registrationDraft.apply {
                             this.motherName = motherName
                             this.motherSurname = motherSurname
@@ -438,9 +478,11 @@ fun AppNavigation(
                         scope.launch {
                             val draftJson = registrationDraft.toApplicationJson(parentId)
                             AuditLogger.log("registration_submit_start", "parentId=$parentId draftJson=$draftJson")
-                            val created = SupabaseRepository.createApplication(
-                                draftJson, parentId
-                            )
+                            val created =
+                                SupabaseRepository.createApplication(
+                                    draftJson,
+                                    parentId
+                                )
                             if (created != null) {
                                 AuditLogger.log("registration_submit_ok", "appId=${created.id}")
                                 val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
@@ -491,22 +533,30 @@ fun AppNavigation(
         // Finance Payment
         composable(
             route = Screen.FinancePayment.ROUTE,
-            arguments = listOf(
-                navArgument("invoiceId") { type = NavType.StringType },
-                navArgument("amount") { type = NavType.FloatType },
-                navArgument("description") { type = NavType.StringType },
-                navArgument("studentName") { type = NavType.StringType; defaultValue = "" }
-            )
+            arguments =
+                listOf(
+                    navArgument("invoiceId") { type = NavType.StringType },
+                    navArgument("amount") { type = NavType.FloatType },
+                    navArgument("description") { type = NavType.StringType },
+                    navArgument("studentName") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
         ) { backStackEntry ->
             RequireParent(navController = navController) {
                 val invoiceId = backStackEntry.arguments?.getString("invoiceId") ?: ""
                 val amount = backStackEntry.arguments?.getFloat("amount")?.toDouble() ?: 0.0
-                val description = java.net.URLDecoder.decode(
-                    backStackEntry.arguments?.getString("description") ?: "", "UTF-8"
-                )
-                val studentName = java.net.URLDecoder.decode(
-                    backStackEntry.arguments?.getString("studentName") ?: "", "UTF-8"
-                )
+                val description =
+                    java.net.URLDecoder.decode(
+                        backStackEntry.arguments?.getString("description") ?: "",
+                        "UTF-8"
+                    )
+                val studentName =
+                    java.net.URLDecoder.decode(
+                        backStackEntry.arguments?.getString("studentName") ?: "",
+                        "UTF-8"
+                    )
                 FinancePaymentScreen(
                     invoiceId = invoiceId,
                     amount = amount,

@@ -28,7 +28,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blankapp.data.AuthRepository
@@ -71,18 +70,36 @@ fun CreateAccountScreen(
     // Validation functions
     fun validateFullName(): Boolean {
         return when {
-            fullName.isBlank() -> { fullNameError = "Full name is required"; false }
-            fullName.trim().split(" ").size < 2 -> { fullNameError = "Please enter first and last name"; false }
-            else -> { fullNameError = null; true }
+            fullName.isBlank() -> {
+                fullNameError = "Full name is required"
+                false
+            }
+            fullName.trim().split(" ").size < 2 -> {
+                fullNameError = "Please enter first and last name"
+                false
+            }
+            else -> {
+                fullNameError = null
+                true
+            }
         }
     }
 
     fun validateEmail(): Boolean {
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
         return when {
-            email.isBlank() -> { emailError = "Email is required"; false }
-            !emailRegex.matches(email) -> { emailError = "Please enter a valid email"; false }
-            else -> { emailError = null; true }
+            email.isBlank() -> {
+                emailError = "Email is required"
+                false
+            }
+            !emailRegex.matches(email) -> {
+                emailError = "Please enter a valid email"
+                false
+            }
+            else -> {
+                emailError = null
+                true
+            }
         }
     }
 
@@ -90,28 +107,64 @@ fun CreateAccountScreen(
         val phoneRegex = "^[0-9]{10}$".toRegex()
         val cleanPhone = phone.replace("\\s".toRegex(), "").replace("-", "")
         return when {
-            phone.isBlank() -> { phoneError = "Phone number is required"; false }
-            !phoneRegex.matches(cleanPhone) -> { phoneError = "Please enter a valid 10-digit phone number"; false }
-            else -> { phoneError = null; true }
+            phone.isBlank() -> {
+                phoneError = "Phone number is required"
+                false
+            }
+            !phoneRegex.matches(cleanPhone) -> {
+                phoneError = "Please enter a valid 10-digit phone number"
+                false
+            }
+            else -> {
+                phoneError = null
+                true
+            }
         }
     }
 
     fun validatePassword(): Boolean {
         return when {
-            password.isBlank() -> { passwordError = "Password is required"; false }
-            password.length < 8 -> { passwordError = "Password must be at least 8 characters"; false }
-            !password.any { it.isUpperCase() } -> { passwordError = "Password must contain an uppercase letter"; false }
-            !password.any { it.isLowerCase() } -> { passwordError = "Password must contain a lowercase letter"; false }
-            !password.any { it.isDigit() } -> { passwordError = "Password must contain a number"; false }
-            else -> { passwordError = null; true }
+            password.isBlank() -> {
+                passwordError = "Password is required"
+                false
+            }
+            password.length < 8 -> {
+                passwordError = "Password must be at least 8 characters"
+                false
+            }
+            !password.any { it.isUpperCase() } -> {
+                passwordError = "Password must contain an uppercase letter"
+                false
+            }
+            !password.any { it.isLowerCase() } -> {
+                passwordError = "Password must contain a lowercase letter"
+                false
+            }
+            !password.any { it.isDigit() } -> {
+                passwordError = "Password must contain a number"
+                false
+            }
+            else -> {
+                passwordError = null
+                true
+            }
         }
     }
 
     fun validateConfirmPassword(): Boolean {
         return when {
-            confirmPassword.isBlank() -> { confirmPasswordError = "Please confirm your password"; false }
-            confirmPassword != password -> { confirmPasswordError = "Passwords do not match"; false }
-            else -> { confirmPasswordError = null; true }
+            confirmPassword.isBlank() -> {
+                confirmPasswordError = "Please confirm your password"
+                false
+            }
+            confirmPassword != password -> {
+                confirmPasswordError = "Passwords do not match"
+                false
+            }
+            else -> {
+                confirmPasswordError = null
+                true
+            }
         }
     }
 
@@ -131,15 +184,19 @@ fun CreateAccountScreen(
     }
 
     // Password strength indicator
-    val passwordStrength = remember(password) {
-        when {
-            password.length < 4 -> 0
-            password.length < 8 -> 1
-            password.length >= 8 && password.any { it.isUpperCase() } && password.any { it.isLowerCase() } && password.any { it.isDigit() } -> 3
-            password.length >= 8 -> 2
-            else -> 0
+    val passwordStrength =
+        remember(password) {
+            when {
+                password.length < 4 -> 0
+                password.length < 8 -> 1
+                password.length >= 8 &&
+                    password.any {
+                        it.isUpperCase()
+                    } && password.any { it.isLowerCase() } && password.any { it.isDigit() } -> 3
+                password.length >= 8 -> 2
+                else -> 0
+            }
         }
-    }
 
     Scaffold(
         topBar = {
@@ -154,30 +211,34 @@ fun CreateAccountScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    )
             )
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .padding(paddingValues)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .padding(paddingValues)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Logo
                 Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                    .background(Primary, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(80.dp)
+                            .background(Primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -216,9 +277,10 @@ fun CreateAccountScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Error Message
@@ -230,14 +292,16 @@ fun CreateAccountScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = ErrorContainer
-                                )
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = ErrorContainer
+                                    )
                             ) {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
@@ -263,7 +327,11 @@ fun CreateAccountScreen(
                         // Full Name Field
                         OutlinedTextField(
                             value = fullName,
-                            onValueChange = { fullName = it; fullNameError = null; serverError = null },
+                            onValueChange = {
+                                fullName = it
+                                fullNameError = null
+                                serverError = null
+                            },
                             label = { Text("Full Name") },
                             placeholder = { Text("e.g., John Smith") },
                             leadingIcon = {
@@ -274,28 +342,33 @@ fun CreateAccountScreen(
                                 )
                             },
                             isError = fullNameError != null,
-                            supportingText = fullNameError?.let { error ->
-                                { Text(error, color = Error) }
-                            },
+                            supportingText =
+                                fullNameError?.let { error ->
+                                    { Text(error, color = Error) }
+                                },
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { emailFocusRequester.requestFocus() }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(FocusRequester()),
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onNext = { emailFocusRequester.requestFocus() }
+                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(FocusRequester()),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = Outline,
-                                errorBorderColor = Error,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = Outline,
+                                    errorBorderColor = Error,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                )
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -303,7 +376,11 @@ fun CreateAccountScreen(
                         // Email Field
                         OutlinedTextField(
                             value = email,
-                            onValueChange = { email = it; emailError = null; serverError = null },
+                            onValueChange = {
+                                email = it
+                                emailError = null
+                                serverError = null
+                            },
                             label = { Text("Email Address") },
                             placeholder = { Text("e.g., john@example.com") },
                             leadingIcon = {
@@ -314,28 +391,33 @@ fun CreateAccountScreen(
                                 )
                             },
                             isError = emailError != null,
-                            supportingText = emailError?.let { error ->
-                                { Text(error, color = Error) }
-                            },
+                            supportingText =
+                                emailError?.let { error ->
+                                    { Text(error, color = Error) }
+                                },
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { phoneFocusRequester.requestFocus() }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(emailFocusRequester),
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Email,
+                                    imeAction = ImeAction.Next
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onNext = { phoneFocusRequester.requestFocus() }
+                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(emailFocusRequester),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = Outline,
-                                errorBorderColor = Error,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = Outline,
+                                    errorBorderColor = Error,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                )
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -343,7 +425,11 @@ fun CreateAccountScreen(
                         // Phone Number Field
                         OutlinedTextField(
                             value = phone,
-                            onValueChange = { phone = it; phoneError = null; serverError = null },
+                            onValueChange = {
+                                phone = it
+                                phoneError = null
+                                serverError = null
+                            },
                             label = { Text("Phone Number") },
                             placeholder = { Text("e.g., 0821234567") },
                             leadingIcon = {
@@ -354,28 +440,33 @@ fun CreateAccountScreen(
                                 )
                             },
                             isError = phoneError != null,
-                            supportingText = phoneError?.let { error ->
-                                { Text(error, color = Error) }
-                            },
+                            supportingText =
+                                phoneError?.let { error ->
+                                    { Text(error, color = Error) }
+                                },
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Phone,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { passwordFocusRequester.requestFocus() }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(phoneFocusRequester),
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Phone,
+                                    imeAction = ImeAction.Next
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onNext = { passwordFocusRequester.requestFocus() }
+                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(phoneFocusRequester),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = Outline,
-                                errorBorderColor = Error,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = Outline,
+                                    errorBorderColor = Error,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                )
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -383,7 +474,11 @@ fun CreateAccountScreen(
                         // Password Field
                         OutlinedTextField(
                             value = password,
-                            onValueChange = { password = it; passwordError = null; serverError = null },
+                            onValueChange = {
+                                password = it
+                                passwordError = null
+                                serverError = null
+                            },
                             label = { Text("Password") },
                             placeholder = { Text("Create a strong password") },
                             leadingIcon = {
@@ -396,38 +491,50 @@ fun CreateAccountScreen(
                             trailingIcon = {
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(
-                                        if (passwordVisible) Icons.Filled.Visibility
-                                        else Icons.Filled.VisibilityOff,
+                                        if (passwordVisible) {
+                                            Icons.Filled.Visibility
+                                        } else {
+                                            Icons.Filled.VisibilityOff
+                                        },
                                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
                                         tint = OnSurfaceVariant
                                     )
                                 }
                             },
                             isError = passwordError != null,
-                            supportingText = passwordError?.let { error ->
-                                { Text(error, color = Error) }
-                            },
+                            supportingText =
+                                passwordError?.let { error ->
+                                    { Text(error, color = Error) }
+                                },
                             singleLine = true,
-                            visualTransformation = if (passwordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { confirmPasswordFocusRequester.requestFocus() }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(passwordFocusRequester),
+                            visualTransformation =
+                                if (passwordVisible) {
+                                    VisualTransformation.None
+                                } else {
+                                    PasswordVisualTransformation()
+                                },
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Password,
+                                    imeAction = ImeAction.Next
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onNext = { confirmPasswordFocusRequester.requestFocus() }
+                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(passwordFocusRequester),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = Outline,
-                                errorBorderColor = Error,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = Outline,
+                                    errorBorderColor = Error,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                )
                         )
 
                         // Password Strength Indicator
@@ -443,22 +550,24 @@ fun CreateAccountScreen(
                                     color = OnSurfaceVariant
                                 )
                                 Text(
-                                    text = when (passwordStrength) {
-                                        0 -> "Weak"
-                                        1 -> "Fair"
-                                        2 -> "Good"
-                                        3 -> "Strong"
-                                        else -> ""
-                                    },
+                                    text =
+                                        when (passwordStrength) {
+                                            0 -> "Weak"
+                                            1 -> "Fair"
+                                            2 -> "Good"
+                                            3 -> "Strong"
+                                            else -> ""
+                                        },
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = when (passwordStrength) {
-                                        0 -> Error
-                                        1 -> Warning
-                                        2 -> Primary
-                                        3 -> Success
-                                        else -> OnSurfaceVariant
-                                    }
+                                    color =
+                                        when (passwordStrength) {
+                                            0 -> Error
+                                            1 -> Warning
+                                            2 -> Primary
+                                            3 -> Success
+                                            else -> OnSurfaceVariant
+                                        }
                                 )
                             }
                             // Strength bars
@@ -468,21 +577,25 @@ fun CreateAccountScreen(
                             ) {
                                 repeat(4) { index ->
                                     Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(4.dp)
-                                            .background(
-                                                color = if (index < passwordStrength) {
-                                                    when (passwordStrength) {
-                                                        0 -> Error
-                                                        1 -> Warning
-                                                        2 -> Primary
-                                                        3 -> Success
-                                                        else -> Outline
-                                                    }
-                                                } else OutlineVariant,
-                                                shape = RoundedCornerShape(2.dp)
-                                            )
+                                        modifier =
+                                            Modifier
+                                                .weight(1f)
+                                                .height(4.dp)
+                                                .background(
+                                                    color =
+                                                        if (index < passwordStrength) {
+                                                            when (passwordStrength) {
+                                                                0 -> Error
+                                                                1 -> Warning
+                                                                2 -> Primary
+                                                                3 -> Success
+                                                                else -> Outline
+                                                            }
+                                                        } else {
+                                                            OutlineVariant
+                                                        },
+                                                    shape = RoundedCornerShape(2.dp)
+                                                )
                                     )
                                 }
                             }
@@ -493,7 +606,11 @@ fun CreateAccountScreen(
                         // Confirm Password Field
                         OutlinedTextField(
                             value = confirmPassword,
-                            onValueChange = { confirmPassword = it; confirmPasswordError = null; serverError = null },
+                            onValueChange = {
+                                confirmPassword = it
+                                confirmPasswordError = null
+                                serverError = null
+                            },
                             label = { Text("Confirm Password") },
                             placeholder = { Text("Re-enter your password") },
                             leadingIcon = {
@@ -506,64 +623,87 @@ fun CreateAccountScreen(
                             trailingIcon = {
                                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                                     Icon(
-                                        if (confirmPasswordVisible) Icons.Filled.Visibility
-                                        else Icons.Filled.VisibilityOff,
+                                        if (confirmPasswordVisible) {
+                                            Icons.Filled.Visibility
+                                        } else {
+                                            Icons.Filled.VisibilityOff
+                                        },
                                         contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
                                         tint = OnSurfaceVariant
                                     )
                                 }
                             },
                             isError = confirmPasswordError != null,
-                            supportingText = confirmPasswordError?.let { error ->
-                                { Text(error, color = Error) }
-                            },
+                            supportingText =
+                                confirmPasswordError?.let { error ->
+                                    { Text(error, color = Error) }
+                                },
                             singleLine = true,
-                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    focusManager.clearFocus()
-                                    if (validateAll()) {
-                                        isLoading = true
-                                        coroutineScope.launch {
-                                            val result = AuthRepository.createAccount(
-                                                fullName.trim(),
-                                                email.trim(),
-                                                phone.trim(),
-                                                password
-                                            )
-                                            if (result.success) {
-                                                // Auto-login the new user
-                                                val loginResult = AuthRepository.signIn(email.trim(), password)
-                                                if (loginResult.success) {
-                                                    onCreateAccountClick(fullName.trim(), email.trim(), phone.trim(), password)
+                            visualTransformation =
+                                if (confirmPasswordVisible) {
+                                    VisualTransformation.None
+                                } else {
+                                    PasswordVisualTransformation()
+                                },
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Password,
+                                    imeAction = ImeAction.Done
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onDone = {
+                                        focusManager.clearFocus()
+                                        if (validateAll()) {
+                                            isLoading = true
+                                            coroutineScope.launch {
+                                                val result =
+                                                    AuthRepository.createAccount(
+                                                        fullName.trim(),
+                                                        email.trim(),
+                                                        phone.trim(),
+                                                        password
+                                                    )
+                                                if (result.success) {
+                                                    // Auto-login the new user
+                                                    val loginResult = AuthRepository.signIn(email.trim(), password)
+                                                    if (loginResult.success) {
+                                                        onCreateAccountClick(
+                                                            fullName.trim(),
+                                                            email.trim(),
+                                                            phone.trim(),
+                                                            password
+                                                        )
+                                                    } else {
+                                                        // Account created but login failed, go to login screen
+                                                        onCreateAccountClick(
+                                                            fullName.trim(),
+                                                            email.trim(),
+                                                            phone.trim(),
+                                                            password
+                                                        )
+                                                    }
                                                 } else {
-                                                    // Account created but login failed, go to login screen
-                                                    onCreateAccountClick(fullName.trim(), email.trim(), phone.trim(), password)
+                                                    serverError = result.message
+                                                    isLoading = false
                                                 }
-                                            } else {
-                                                serverError = result.message
-                                                isLoading = false
                                             }
                                         }
                                     }
-                                }
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(confirmPasswordFocusRequester),
+                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(confirmPasswordFocusRequester),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = Outline,
-                                errorBorderColor = Error,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = Outline,
+                                    errorBorderColor = Error,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                )
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -575,11 +715,15 @@ fun CreateAccountScreen(
                         ) {
                             Checkbox(
                                 checked = agreeToTerms,
-                                onCheckedChange = { agreeToTerms = it; termsError = false },
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = Primary,
-                                    uncheckedColor = if (termsError) Error else Outline
-                                )
+                                onCheckedChange = {
+                                    agreeToTerms = it
+                                    termsError = false
+                                },
+                                colors =
+                                    CheckboxDefaults.colors(
+                                        checkedColor = Primary,
+                                        uncheckedColor = if (termsError) Error else Outline
+                                    )
                             )
                             Text(
                                 text = "I agree to the ",
@@ -625,19 +769,30 @@ fun CreateAccountScreen(
                                 if (validateAll()) {
                                     isLoading = true
                                     coroutineScope.launch {
-                                        val result = AuthRepository.createAccount(
-                                            fullName.trim(),
-                                            email.trim(),
-                                            phone.trim(),
-                                            password
-                                        )
+                                        val result =
+                                            AuthRepository.createAccount(
+                                                fullName.trim(),
+                                                email.trim(),
+                                                phone.trim(),
+                                                password
+                                            )
                                         if (result.success) {
                                             // Auto-login the new user
                                             val loginResult = AuthRepository.signIn(email.trim(), password)
                                             if (loginResult.success) {
-                                                onCreateAccountClick(fullName.trim(), email.trim(), phone.trim(), password)
+                                                onCreateAccountClick(
+                                                    fullName.trim(),
+                                                    email.trim(),
+                                                    phone.trim(),
+                                                    password
+                                                )
                                             } else {
-                                                onCreateAccountClick(fullName.trim(), email.trim(), phone.trim(), password)
+                                                onCreateAccountClick(
+                                                    fullName.trim(),
+                                                    email.trim(),
+                                                    phone.trim(),
+                                                    password
+                                                )
                                             }
                                         } else {
                                             serverError = result.message
@@ -646,14 +801,16 @@ fun CreateAccountScreen(
                                     }
                                 }
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Primary,
-                                contentColor = OnPrimary
-                            ),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Primary,
+                                    contentColor = OnPrimary
+                                ),
                             enabled = !isLoading
                         ) {
                             if (isLoading) {

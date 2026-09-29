@@ -25,7 +25,17 @@ import com.example.blankapp.ui.theme.*
 fun StudentDetailsScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
-    onContinue: (studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean) -> Unit,
+    onContinue: (
+        studentName: String,
+        grade: Int,
+        school: String,
+        dob: String,
+        address: String,
+        gender: String,
+        classNr: String,
+        teacherName: String,
+        lsen: Boolean
+    ) -> Unit,
     draft: RegistrationDraft? = null
 ) {
     var firstName by rememberSaveable { mutableStateOf(draft?.studentName?.substringBefore(" ") ?: "") }
@@ -68,17 +78,19 @@ fun StudentDetailsScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 0.14f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Primary, trackColor = PrimaryContainer
+                color = Primary,
+                trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text("Step 2 of 9 — Student Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
@@ -92,29 +104,54 @@ fun StudentDetailsScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text("Child's Information", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                    Text(
+                        "Child's Information",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = firstName, onValueChange = { firstName = it },
+                    OutlinedTextField(
+                        value = firstName,
+                        onValueChange = { firstName = it },
                         label = { Text("First Name *") },
                         isError = showFirstNameError,
-                        supportingText = if (showFirstNameError) {{ Text("First name is required") }} else null,
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showFirstNameError) Error else Primary,
-                            unfocusedBorderColor = if (showFirstNameError) Error else Outline
-                        ))
+                        supportingText =
+                            if (showFirstNameError) {
+                                { Text("First name is required") } 
+                            } else {
+                                null
+                            },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = if (showFirstNameError) Error else Primary,
+                                unfocusedBorderColor = if (showFirstNameError) Error else Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(if (showFirstNameError) 4.dp else 12.dp))
 
-                    OutlinedTextField(value = lastName, onValueChange = { lastName = it },
+                    OutlinedTextField(
+                        value = lastName,
+                        onValueChange = { lastName = it },
                         label = { Text("Last Name *") },
                         isError = showLastNameError,
-                        supportingText = if (showLastNameError) {{ Text("Last name is required") }} else null,
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showLastNameError) Error else Primary,
-                            unfocusedBorderColor = if (showLastNameError) Error else Outline
-                        ))
+                        supportingText =
+                            if (showLastNameError) {
+                                { Text("Last name is required") } 
+                            } else {
+                                null
+                            },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = if (showLastNameError) Error else Primary,
+                                unfocusedBorderColor = if (showLastNameError) Error else Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Date of Birth - Date Picker
@@ -124,101 +161,171 @@ fun StudentDetailsScreen(
                         label = { Text("Date of Birth") },
                         placeholder = { Text("Select date") },
                         readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showDatePicker = true },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { showDatePicker = true },
                         enabled = false,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            disabledBorderColor = Outline,
-                            disabledLabelColor = OnSurfaceVariant,
-                            disabledTextColor = OnBackground
-                        ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                disabledBorderColor = Outline,
+                                disabledLabelColor = OnSurfaceVariant,
+                                disabledTextColor = OnBackground
+                            ),
                         trailingIcon = {
                             Icon(Icons.Filled.CalendarMonth, contentDescription = "Pick date", tint = Primary)
                         }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    ExposedDropdownMenuBox(expanded = gradeExpanded, onExpandedChange = { gradeExpanded = !gradeExpanded }) {
+                    ExposedDropdownMenuBox(
+                        expanded = gradeExpanded,
+                        onExpandedChange = { gradeExpanded = !gradeExpanded }
+                    ) {
                         OutlinedTextField(
                             value = if (grade.isNotBlank()) "Grade $grade" else "",
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Grade *") },
                             isError = showGradeError,
-                            supportingText = if (showGradeError) {{ Text("Grade is required") }} else null,
+                            supportingText =
+                                if (showGradeError) {
+                                    { Text("Grade is required") } 
+                                } else {
+                                    null
+                                },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = gradeExpanded) },
                             modifier = Modifier.fillMaxWidth().menuAnchor(),
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = if (showGradeError) Error else Primary,
-                                unfocusedBorderColor = if (showGradeError) Error else Outline
-                            )
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = if (showGradeError) Error else Primary,
+                                    unfocusedBorderColor = if (showGradeError) Error else Outline
+                                )
                         )
                         ExposedDropdownMenu(expanded = gradeExpanded, onDismissRequest = { gradeExpanded = false }) {
                             availableGrades.forEach { g ->
                                 DropdownMenuItem(
                                     text = { Text("Grade $g") },
-                                    onClick = { grade = g.toString(); gradeExpanded = false }
+                                    onClick = {
+                                        grade = g.toString()
+                                        gradeExpanded = false
+                                    }
                                 )
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = school, onValueChange = { school = it },
+                    OutlinedTextField(
+                        value = school,
+                        onValueChange = { school = it },
                         label = { Text("School Name *") },
                         isError = showSchoolError,
-                        supportingText = if (showSchoolError) {{ Text("School name is required") }} else null,
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showSchoolError) Error else Primary,
-                            unfocusedBorderColor = if (showSchoolError) Error else Outline
-                        ))
+                        supportingText =
+                            if (showSchoolError) {
+                                { Text("School name is required") } 
+                            } else {
+                                null
+                            },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = if (showSchoolError) Error else Primary,
+                                unfocusedBorderColor = if (showSchoolError) Error else Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(if (showSchoolError) 4.dp else 12.dp))
 
-                    OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Home Address") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = address,
+                        onValueChange = { address = it },
+                        label = { Text("Home Address") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text("Gender *", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
-                        color = if (showGenderError) Error else OnBackground)
+                    Text(
+                        "Gender *",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (showGenderError) Error else OnBackground
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Row(modifier = Modifier.weight(1f).clickable { gender = "Male" }.padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = gender == "Male", onClick = { gender = "Male" },
-                                colors = RadioButtonDefaults.colors(selectedColor = Primary))
+                        Row(
+                            modifier = Modifier.weight(1f).clickable { gender = "Male" }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = gender == "Male",
+                                onClick = { gender = "Male" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Primary)
+                            )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Male", style = MaterialTheme.typography.bodyMedium)
                         }
-                        Row(modifier = Modifier.weight(1f).clickable { gender = "Female" }.padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = gender == "Female", onClick = { gender = "Female" },
-                                colors = RadioButtonDefaults.colors(selectedColor = Primary))
+                        Row(
+                            modifier = Modifier.weight(1f).clickable { gender = "Female" }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = gender == "Female",
+                                onClick = { gender = "Female" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Primary)
+                            )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Female", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = classNr, onValueChange = { classNr = it }, label = { Text("Class Nr") },
+                    OutlinedTextField(
+                        value = classNr,
+                        onValueChange = { classNr = it },
+                        label = { Text("Class Nr") },
                         placeholder = { Text("e.g. 5A") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = teacherName, onValueChange = { teacherName = it }, label = { Text("Teacher's Name") },
+                    OutlinedTextField(
+                        value = teacherName,
+                        onValueChange = { teacherName = it },
+                        label = { Text("Teacher's Name") },
                         placeholder = { Text("e.g. Mrs. Smith") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Row(modifier = Modifier.fillMaxWidth().clickable { lsen = !lsen }.padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = lsen, onCheckedChange = { lsen = it },
-                            colors = CheckboxDefaults.colors(checkedColor = Primary))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { lsen = !lsen }.padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = lsen,
+                            onCheckedChange = { lsen = it },
+                            colors = CheckboxDefaults.colors(checkedColor = Primary)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("LSEN Scholar", style = MaterialTheme.typography.bodyMedium)
                     }

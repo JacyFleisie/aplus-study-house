@@ -34,9 +34,10 @@ fun PipelineStage(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(color.copy(alpha = 0.15f), CircleShape),
+            modifier =
+                Modifier
+                    .size(28.dp)
+                    .background(color.copy(alpha = 0.15f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -86,15 +87,17 @@ fun AdminStatCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(color.copy(alpha = 0.1f), CircleShape),
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .background(color.copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -125,7 +128,10 @@ fun AdminStatCard(
 // ============================================
 
 @Composable
-fun StatRow(label: String, value: String) {
+fun StatRow(
+    label: String,
+    value: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -154,33 +160,36 @@ fun ApplicationCard(
     onClick: () -> Unit = {}
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        when (application.status) {
-                            ApplicationStatus.APPROVED -> SuccessContainer
-                            ApplicationStatus.SUBMITTED -> InfoContainer
-                            ApplicationStatus.UNDER_REVIEW -> WarningContainer
-                            ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
-                            ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
-                            ApplicationStatus.REJECTED -> ErrorContainer
-                        },
-                        CircleShape
-                    ),
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .background(
+                            when (application.status) {
+                                ApplicationStatus.APPROVED -> SuccessContainer
+                                ApplicationStatus.SUBMITTED -> InfoContainer
+                                ApplicationStatus.UNDER_REVIEW -> WarningContainer
+                                ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
+                                ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
+                                ApplicationStatus.REJECTED -> ErrorContainer
+                            },
+                            CircleShape
+                        ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -194,14 +203,15 @@ fun ApplicationCard(
                     },
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = when (application.status) {
-                        ApplicationStatus.APPROVED -> Success
-                        ApplicationStatus.SUBMITTED -> Info
-                        ApplicationStatus.UNDER_REVIEW -> Warning
-                        ApplicationStatus.CHANGES_REQUIRED -> Warning
-                        ApplicationStatus.PAYMENT_VERIFIED -> Success
-                        ApplicationStatus.REJECTED -> Error
-                    }
+                    tint =
+                        when (application.status) {
+                            ApplicationStatus.APPROVED -> Success
+                            ApplicationStatus.SUBMITTED -> Info
+                            ApplicationStatus.UNDER_REVIEW -> Warning
+                            ApplicationStatus.CHANGES_REQUIRED -> Warning
+                            ApplicationStatus.PAYMENT_VERIFIED -> Success
+                            ApplicationStatus.REJECTED -> Error
+                        }
                 )
             }
 
@@ -231,27 +241,29 @@ fun ApplicationCard(
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = when (application.status) {
-                    ApplicationStatus.APPROVED -> SuccessContainer
-                    ApplicationStatus.SUBMITTED -> InfoContainer
-                    ApplicationStatus.UNDER_REVIEW -> WarningContainer
-                    ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
-                    ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
-                    ApplicationStatus.REJECTED -> ErrorContainer
-                }
+                color =
+                    when (application.status) {
+                        ApplicationStatus.APPROVED -> SuccessContainer
+                        ApplicationStatus.SUBMITTED -> InfoContainer
+                        ApplicationStatus.UNDER_REVIEW -> WarningContainer
+                        ApplicationStatus.CHANGES_REQUIRED -> WarningContainer
+                        ApplicationStatus.PAYMENT_VERIFIED -> SuccessContainer
+                        ApplicationStatus.REJECTED -> ErrorContainer
+                    }
             ) {
                 Text(
                     text = application.status.name.replace("_", " "),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = when (application.status) {
-                        ApplicationStatus.APPROVED -> Success
-                        ApplicationStatus.SUBMITTED -> Info
-                        ApplicationStatus.UNDER_REVIEW -> Warning
-                        ApplicationStatus.CHANGES_REQUIRED -> Warning
-                        ApplicationStatus.PAYMENT_VERIFIED -> Success
-                        ApplicationStatus.REJECTED -> Error
-                    },
+                    color =
+                        when (application.status) {
+                            ApplicationStatus.APPROVED -> Success
+                            ApplicationStatus.SUBMITTED -> Info
+                            ApplicationStatus.UNDER_REVIEW -> Warning
+                            ApplicationStatus.CHANGES_REQUIRED -> Warning
+                            ApplicationStatus.PAYMENT_VERIFIED -> Success
+                            ApplicationStatus.REJECTED -> Error
+                        },
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -269,40 +281,44 @@ fun StudentCard(
     onClick: () -> Unit = {}
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        when (student.status) {
-                            StudentStatus.ACTIVE -> PrimaryContainer
-                            StudentStatus.PENDING -> WarningContainer
-                            StudentStatus.INACTIVE -> ErrorContainer
-                        },
-                        CircleShape
-                    ),
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .background(
+                            when (student.status) {
+                                StudentStatus.ACTIVE -> PrimaryContainer
+                                StudentStatus.PENDING -> WarningContainer
+                                StudentStatus.INACTIVE -> ErrorContainer
+                            },
+                            CircleShape
+                        ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = when (student.status) {
-                        StudentStatus.ACTIVE -> Primary
-                        StudentStatus.PENDING -> Warning
-                        StudentStatus.INACTIVE -> Error
-                    },
+                    color =
+                        when (student.status) {
+                            StudentStatus.ACTIVE -> Primary
+                            StudentStatus.PENDING -> Warning
+                            StudentStatus.INACTIVE -> Error
+                        },
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -325,21 +341,23 @@ fun StudentCard(
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = when (student.status) {
-                    StudentStatus.ACTIVE -> SuccessContainer
-                    StudentStatus.PENDING -> WarningContainer
-                    StudentStatus.INACTIVE -> ErrorContainer
-                }
+                color =
+                    when (student.status) {
+                        StudentStatus.ACTIVE -> SuccessContainer
+                        StudentStatus.PENDING -> WarningContainer
+                        StudentStatus.INACTIVE -> ErrorContainer
+                    }
             ) {
                 Text(
                     text = student.status.name,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = when (student.status) {
-                        StudentStatus.ACTIVE -> Success
-                        StudentStatus.PENDING -> Warning
-                        StudentStatus.INACTIVE -> Error
-                    },
+                    color =
+                        when (student.status) {
+                            StudentStatus.ACTIVE -> Success
+                            StudentStatus.PENDING -> Warning
+                            StudentStatus.INACTIVE -> Error
+                        },
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -364,15 +382,17 @@ fun FamilyBalanceCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(PrimaryContainer, CircleShape),
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .background(PrimaryContainer, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -426,23 +446,25 @@ fun InvoiceRow(invoice: MockInvoice) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .background(
-                        when (invoice.status) {
-                            InvoiceStatus.PAID -> Success
-                            InvoiceStatus.PENDING -> Warning
-                            InvoiceStatus.OVERDUE -> Error
-                            InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                        },
-                        CircleShape
-                    )
+                modifier =
+                    Modifier
+                        .size(8.dp)
+                        .background(
+                            when (invoice.status) {
+                                InvoiceStatus.PAID -> Success
+                                InvoiceStatus.PENDING -> Warning
+                                InvoiceStatus.OVERDUE -> Error
+                                InvoiceStatus.CANCELLED -> OnSurfaceVariant
+                            },
+                            CircleShape
+                        )
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -480,10 +502,11 @@ fun SettingsItem(
     onClick: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+                .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

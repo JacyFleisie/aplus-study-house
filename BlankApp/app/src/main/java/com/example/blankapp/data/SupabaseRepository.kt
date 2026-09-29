@@ -1,13 +1,12 @@
 package com.example.blankapp.data
 
 import android.util.Log
+import com.example.blankapp.utils.InputSanitizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
-import com.example.blankapp.utils.InputSanitizer
-import java.util.UUID
 
 /**
  * Supabase Data Repository
@@ -18,6 +17,7 @@ object SupabaseRepository {
     private const val TAG = "SupabaseRepository"
 
     private fun isUsingBackend(): Boolean = SupabaseConfig.isConfigured()
+
     private fun authToken(): String? = AuthRepository.getCurrentAuthToken()
 
     /**
@@ -28,7 +28,10 @@ object SupabaseRepository {
     var lastError: String? = null
         private set
 
-    private fun recordError(operation: String, e: Exception) {
+    private fun recordError(
+        operation: String,
+        e: Exception
+    ) {
         lastError = "$operation failed: ${e.message}"
         android.util.Log.e("SupabaseRepository", lastError, e)
     }
@@ -37,596 +40,666 @@ object SupabaseRepository {
     // STUDENTS
     // ============================================
 
-    suspend fun getParentStudents(parentId: String): List<MockStudent> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext getMockStudentsForParent(parentId)
+    suspend fun getParentStudents(parentId: String): List<MockStudent> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext getMockStudentsForParent(parentId)
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "students",
-                query = "parent_id=eq.$parentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "students",
+                        query = "parent_id=eq.$parentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            val students = mutableListOf<MockStudent>()
-            for (i in 0 until arr.length()) {
-                students.add(parseStudent(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val students = mutableListOf<MockStudent>()
+                for (i in 0 until arr.length()) {
+                    students.add(parseStudent(arr.getJSONObject(i)))
+                }
+                Log.d(TAG, "getParentStudents for $parentId: Found ${students.size} students")
+                students
+            } catch (e: Exception) {
+                recordError("getParentStudents", e)
+                emptyList()
             }
-            Log.d(TAG, "getParentStudents for $parentId: Found ${students.size} students")
-            students
-        } catch (e: Exception) {
-            recordError("getParentStudents", e)
-            emptyList()
         }
-    }
 
-    suspend fun getAllStudents(): List<MockStudent> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockStudents.toList()
+    suspend fun getAllStudents(): List<MockStudent> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockStudents.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "students",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "students",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            val students = mutableListOf<MockStudent>()
-            for (i in 0 until arr.length()) {
-                students.add(parseStudent(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val students = mutableListOf<MockStudent>()
+                for (i in 0 until arr.length()) {
+                    students.add(parseStudent(arr.getJSONObject(i)))
+                }
+                Log.d(TAG, "getAllStudents: Found ${students.size} students")
+                students
+            } catch (e: Exception) {
+                recordError("getAllStudents", e)
+                emptyList()
             }
-            Log.d(TAG, "getAllStudents: Found ${students.size} students")
-            students
-        } catch (e: Exception) {
-            recordError("getAllStudents", e)
-            emptyList()
         }
-    }
 
-    suspend fun getStudent(studentId: String): MockStudent? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockStudents.find { it.id == studentId }
+    suspend fun getStudent(studentId: String): MockStudent? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockStudents.find { it.id == studentId }
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "students",
-                query = "id=eq.$studentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockStudents.find { it.id == studentId }
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "students",
+                        query = "id=eq.$studentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockStudents.find { it.id == studentId }
 
-            val arr = JSONArray(result)
-            if (arr.length() > 0) parseStudent(arr.getJSONObject(0)) else null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockStudents.find { it.id == studentId }
+                val arr = JSONArray(result)
+                if (arr.length() > 0) parseStudent(arr.getJSONObject(0)) else null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockStudents.find { it.id == studentId }
+            }
         }
-    }
 
     // ============================================
     // APPLICATIONS
     // ============================================
 
-    suspend fun getParentApplications(parentId: String): List<MockApplication> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext getMockApplicationsForParent(parentId)
+    suspend fun getParentApplications(parentId: String): List<MockApplication> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext getMockApplicationsForParent(parentId)
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "applications",
-                query = "parent_id=eq.$parentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext getMockApplicationsForParent(parentId)
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "applications",
+                        query = "parent_id=eq.$parentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext getMockApplicationsForParent(parentId)
 
-            val arr = JSONArray(result)
-            val apps = mutableListOf<MockApplication>()
-            for (i in 0 until arr.length()) {
-                apps.add(parseApplication(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val apps = mutableListOf<MockApplication>()
+                for (i in 0 until arr.length()) {
+                    apps.add(parseApplication(arr.getJSONObject(i)))
+                }
+                apps
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                getMockApplicationsForParent(parentId)
             }
-            apps
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            getMockApplicationsForParent(parentId)
         }
-    }
 
-    suspend fun getAllApplications(): List<MockApplication> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockApplications.toList()
+    suspend fun getAllApplications(): List<MockApplication> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockApplications.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "applications",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockApplications.toList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "applications",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockApplications.toList()
 
-            val arr = JSONArray(result)
-            val apps = mutableListOf<MockApplication>()
-            for (i in 0 until arr.length()) {
-                apps.add(parseApplication(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val apps = mutableListOf<MockApplication>()
+                for (i in 0 until arr.length()) {
+                    apps.add(parseApplication(arr.getJSONObject(i)))
+                }
+                apps
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockApplications.toList()
             }
-            apps
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockApplications.toList()
         }
-    }
 
     // ============================================
     // INVOICES
     // ============================================
 
-    suspend fun getParentInvoices(parentId: String): List<MockInvoice> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext getMockInvoicesForParent(parentId)
+    suspend fun getParentInvoices(parentId: String): List<MockInvoice> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext getMockInvoicesForParent(parentId)
 
-        try {
-            // Get student IDs for this parent
-            val studentsResult = SupabaseConfig.supabaseGet(
-                table = "students",
-                query = "parent_id=eq.$parentId&select=id",
-                authToken = authToken()
-            ) ?: return@withContext getMockInvoicesForParent(parentId)
+            try {
+                // Get student IDs for this parent
+                val studentsResult =
+                    SupabaseConfig.supabaseGet(
+                        table = "students",
+                        query = "parent_id=eq.$parentId&select=id",
+                        authToken = authToken()
+                    ) ?: return@withContext getMockInvoicesForParent(parentId)
 
-            val studentsArr = JSONArray(studentsResult)
-            if (studentsArr.length() == 0) return@withContext emptyList()
+                val studentsArr = JSONArray(studentsResult)
+                if (studentsArr.length() == 0) return@withContext emptyList()
 
-            val studentIds = (0 until studentsArr.length()).map {
-                studentsArr.getJSONObject(it).getString("id")
+                val studentIds =
+                    (0 until studentsArr.length()).map {
+                        studentsArr.getJSONObject(it).getString("id")
+                    }
+
+                // Single batched query: invoices WHERE student_id IN (...) instead of
+                // one REST call per student (fixes the N+1 query pattern).
+                // PostgREST in.() filter expects comma-separated values without quotes
+                val inList = studentIds.joinToString(",")
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "invoices",
+                        query = "student_id=in.($inList)&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
+
+                val arr = JSONArray(result)
+                val invoices = mutableListOf<MockInvoice>()
+                for (i in 0 until arr.length()) {
+                    invoices.add(parseInvoice(arr.getJSONObject(i)))
+                }
+                invoices
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                getMockInvoicesForParent(parentId)
             }
-
-            // Single batched query: invoices WHERE student_id IN (...) instead of
-            // one REST call per student (fixes the N+1 query pattern).
-            // PostgREST in.() filter expects comma-separated values without quotes
-            val inList = studentIds.joinToString(",")
-            val result = SupabaseConfig.supabaseGet(
-                table = "invoices",
-                query = "student_id=in.($inList)&select=*",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
-
-            val arr = JSONArray(result)
-            val invoices = mutableListOf<MockInvoice>()
-            for (i in 0 until arr.length()) {
-                invoices.add(parseInvoice(arr.getJSONObject(i)))
-            }
-            invoices
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            getMockInvoicesForParent(parentId)
         }
-    }
 
-    suspend fun getAllInvoices(): List<MockInvoice> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockInvoices.toList()
+    suspend fun getAllInvoices(): List<MockInvoice> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockInvoices.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "invoices",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockInvoices.toList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "invoices",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockInvoices.toList()
 
-            val arr = JSONArray(result)
-            val invoices = mutableListOf<MockInvoice>()
-            for (i in 0 until arr.length()) {
-                invoices.add(parseInvoice(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val invoices = mutableListOf<MockInvoice>()
+                for (i in 0 until arr.length()) {
+                    invoices.add(parseInvoice(arr.getJSONObject(i)))
+                }
+                invoices
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockInvoices.toList()
             }
-            invoices
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockInvoices.toList()
         }
-    }
 
     // ============================================
     // PAYMENTS
     // ============================================
 
-    suspend fun getAllPayments(): List<MockPayment> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockPayments.toList()
+    suspend fun getAllPayments(): List<MockPayment> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockPayments.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "payments",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockPayments.toList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "payments",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockPayments.toList()
 
-            val arr = JSONArray(result)
-            val payments = mutableListOf<MockPayment>()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                payments.add(
-                    MockPayment(
-                        id = obj.optString("id"),
-                        invoiceId = obj.optString("invoice_id", ""),
-                        parentId = obj.optString("parent_id", ""),
-                        parentName = "",
-                        amount = obj.optDouble("amount", 0.0),
-                        paymentDate = obj.optString("payment_date", ""),
-                        paymentMethod = when (obj.optString("payment_method")) {
-                            "cash" -> PaymentMethod.CASH
-                            "payfast" -> PaymentMethod.PAYFAST
-                            else -> PaymentMethod.EFT
-                        },
-                        status = when (obj.optString("status")) {
-                            "verified" -> PaymentStatus.VERIFIED
-                            "rejected" -> PaymentStatus.REJECTED
-                            else -> PaymentStatus.PENDING
-                        },
-                        proofUrl = obj.optString("proof_url", ""),
-                        notes = obj.optString("admin_notes", ""),
-                        batchId = obj.optString("batch_id", "").ifBlank { null }
+                val arr = JSONArray(result)
+                val payments = mutableListOf<MockPayment>()
+                for (i in 0 until arr.length()) {
+                    val obj = arr.getJSONObject(i)
+                    payments.add(
+                        MockPayment(
+                            id = obj.optString("id"),
+                            invoiceId = obj.optString("invoice_id", ""),
+                            parentId = obj.optString("parent_id", ""),
+                            parentName = "",
+                            amount = obj.optDouble("amount", 0.0),
+                            paymentDate = obj.optString("payment_date", ""),
+                            paymentMethod =
+                                when (obj.optString("payment_method")) {
+                                    "cash" -> PaymentMethod.CASH
+                                    "payfast" -> PaymentMethod.PAYFAST
+                                    else -> PaymentMethod.EFT
+                                },
+                            status =
+                                when (obj.optString("status")) {
+                                    "verified" -> PaymentStatus.VERIFIED
+                                    "rejected" -> PaymentStatus.REJECTED
+                                    else -> PaymentStatus.PENDING
+                                },
+                            proofUrl = obj.optString("proof_url", ""),
+                            notes = obj.optString("admin_notes", ""),
+                            batchId = obj.optString("batch_id", "").ifBlank { null }
+                        )
                     )
-                )
+                }
+                payments
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockPayments.toList()
             }
-            payments
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockPayments.toList()
         }
-    }
 
-    suspend fun getStudentInvoices(studentId: String): List<MockInvoice> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockInvoices.filter { it.studentId == studentId }
+    suspend fun getStudentInvoices(studentId: String): List<MockInvoice> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockInvoices.filter { it.studentId == studentId }
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "invoices",
-                query = "student_id=eq.$studentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "invoices",
+                        query = "student_id=eq.$studentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            val invoices = mutableListOf<MockInvoice>()
-            for (i in 0 until arr.length()) {
-                invoices.add(parseInvoice(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val invoices = mutableListOf<MockInvoice>()
+                for (i in 0 until arr.length()) {
+                    invoices.add(parseInvoice(arr.getJSONObject(i)))
+                }
+                invoices
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                emptyList()
             }
-            invoices
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            emptyList()
         }
-    }
 
-    suspend fun getStudentDocuments(studentId: String): List<MockDocument> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockDocuments.filter { it.studentId == studentId }
+    suspend fun getStudentDocuments(studentId: String): List<MockDocument> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockDocuments.filter { it.studentId == studentId }
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "documents",
-                query = "student_id=eq.$studentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "documents",
+                        query = "student_id=eq.$studentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            val documents = mutableListOf<MockDocument>()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                documents.add(
-                    MockDocument(
-                        id = obj.optString("id"),
-                        studentId = obj.optString("student_id", ""),
-                        parentId = obj.optString("parent_id", ""),
-                        fileName = obj.optString("name", ""),
-                        category = when (obj.optString("category")) {
-                            "proof_of_payment" -> DocumentCategory.PROOF_OF_PAYMENT
-                            "medical" -> DocumentCategory.MEDICAL
-                            "id_document" -> DocumentCategory.ID_DOCUMENT
-                            "report" -> DocumentCategory.REPORT
-                            "photo" -> DocumentCategory.PHOTO
-                            "proof_of_payment" -> DocumentCategory.PROOF_OF_PAYMENT
-                            else -> DocumentCategory.OTHER
-                        },
-                        uploadDate = obj.optString("upload_date", ""),
-                        fileSize = obj.optString("file_size", ""),
-                        url = obj.optString("file_url", "")
+                val arr = JSONArray(result)
+                val documents = mutableListOf<MockDocument>()
+                for (i in 0 until arr.length()) {
+                    val obj = arr.getJSONObject(i)
+                    documents.add(
+                        MockDocument(
+                            id = obj.optString("id"),
+                            studentId = obj.optString("student_id", ""),
+                            parentId = obj.optString("parent_id", ""),
+                            fileName = obj.optString("name", ""),
+                            category =
+                                when (obj.optString("category")) {
+                                    "proof_of_payment" -> DocumentCategory.PROOF_OF_PAYMENT
+                                    "medical" -> DocumentCategory.MEDICAL
+                                    "id_document" -> DocumentCategory.ID_DOCUMENT
+                                    "report" -> DocumentCategory.REPORT
+                                    "photo" -> DocumentCategory.PHOTO
+                                    "proof_of_payment" -> DocumentCategory.PROOF_OF_PAYMENT
+                                    else -> DocumentCategory.OTHER
+                                },
+                            uploadDate = obj.optString("upload_date", ""),
+                            fileSize = obj.optString("file_size", ""),
+                            url = obj.optString("file_url", "")
+                        )
                     )
-                )
+                }
+                documents
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                emptyList()
             }
-            documents
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            emptyList()
         }
-    }
 
-    suspend fun getStudentMedical(studentId: String): MockMedical? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext null
+    suspend fun getStudentMedical(studentId: String): MockMedical? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext null
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "medical_info",
-                query = "student_id=eq.$studentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext null
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "medical_info",
+                        query = "student_id=eq.$studentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext null
 
-            val arr = JSONArray(result)
-            if (arr.length() > 0) parseMedical(arr.getJSONObject(0)) else null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            null
-        }
-    }
-
-    suspend fun getStudentCollectionPersons(studentId: String): List<MockCollectionPerson> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext emptyList()
-
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "collection_persons",
-                query = "student_id=eq.$studentId&select=*&order=person_order.asc",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
-
-            val arr = JSONArray(result)
-            val persons = mutableListOf<MockCollectionPerson>()
-            for (i in 0 until arr.length()) {
-                persons.add(parseCollectionPerson(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                if (arr.length() > 0) parseMedical(arr.getJSONObject(0)) else null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                null
             }
-            persons
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            emptyList()
         }
-    }
 
-    suspend fun getStudentSports(studentId: String): List<String> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext emptyList()
+    suspend fun getStudentCollectionPersons(studentId: String): List<MockCollectionPerson> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext emptyList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "student_sports",
-                query = "student_id=eq.$studentId&select=sport_name",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "collection_persons",
+                        query = "student_id=eq.$studentId&select=*&order=person_order.asc",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            val sports = mutableListOf<String>()
-            for (i in 0 until arr.length()) {
-                sports.add(arr.getJSONObject(i).optString("sport_name"))
+                val arr = JSONArray(result)
+                val persons = mutableListOf<MockCollectionPerson>()
+                for (i in 0 until arr.length()) {
+                    persons.add(parseCollectionPerson(arr.getJSONObject(i)))
+                }
+                persons
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                emptyList()
             }
-            sports
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            emptyList()
         }
-    }
 
-    suspend fun getAppConfig(key: String): String? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext null
+    suspend fun getStudentSports(studentId: String): List<String> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext emptyList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "app_config",
-                query = "key=eq.$key&select=value",
-                authToken = authToken()
-            ) ?: return@withContext null
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "student_sports",
+                        query = "student_id=eq.$studentId&select=sport_name",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
 
-            val arr = JSONArray(result)
-            if (arr.length() > 0) arr.getJSONObject(0).optString("value") else null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            null
+                val arr = JSONArray(result)
+                val sports = mutableListOf<String>()
+                for (i in 0 until arr.length()) {
+                    sports.add(arr.getJSONObject(i).optString("sport_name"))
+                }
+                sports
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                emptyList()
+            }
         }
-    }
+
+    suspend fun getAppConfig(key: String): String? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext null
+
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "app_config",
+                        query = "key=eq.$key&select=value",
+                        authToken = authToken()
+                    ) ?: return@withContext null
+
+                val arr = JSONArray(result)
+                if (arr.length() > 0) arr.getJSONObject(0).optString("value") else null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                null
+            }
+        }
 
     // ============================================
     // ATTENDANCE + DAILY FEES
     // ============================================
 
     /** Calls a PostgREST RPC (SECURITY DEFINER function) and returns the raw JSON body, or null. */
-    private suspend fun supabaseRpc(functionName: String, args: JSONObject): String? = withContext(Dispatchers.IO) {
-        try {
-            val url = "${SupabaseConfig.SUPABASE_URL}/rest/v1/rpc/$functionName"
-            val body = okhttp3.RequestBody.create(
-                "application/json; charset=utf-8".toMediaTypeOrNull(), args.toString()
-            )
-            val request = okhttp3.Request.Builder()
-                .url(url)
-                .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
-                .addHeader("Authorization", "Bearer ${authToken() ?: SupabaseConfig.SUPABASE_ANON_KEY}")
-                .post(body)
-                .build()
-            SupabaseConfig.httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    recordError("RPC $functionName", java.io.IOException("HTTP ${response.code}: ${response.body?.string()?:""}"))
-                    return@use null
+    private suspend fun supabaseRpc(
+        functionName: String,
+        args: JSONObject
+    ): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "${SupabaseConfig.SUPABASE_URL}/rest/v1/rpc/$functionName"
+                val body =
+                    okhttp3.RequestBody.create(
+                        "application/json; charset=utf-8".toMediaTypeOrNull(),
+                        args.toString()
+                    )
+                val request =
+                    okhttp3.Request.Builder()
+                        .url(url)
+                        .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
+                        .addHeader("Authorization", "Bearer ${authToken() ?: SupabaseConfig.SUPABASE_ANON_KEY}")
+                        .post(body)
+                        .build()
+                SupabaseConfig.httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        recordError(
+                            "RPC $functionName",
+                            java.io.IOException("HTTP ${response.code}: ${response.body?.string() ?: ""}")
+                        )
+                        return@use null
+                    }
+                    response.body?.string()
                 }
-                response.body?.string()
+            } catch (e: Exception) {
+                recordError("RPC $functionName", e)
+                null
             }
-        } catch (e: Exception) {
-            recordError("RPC $functionName", e)
-            null
         }
-    }
 
     /** Mark a student present/absent/late for a given date. Admin only. */
-    suspend fun markAttendance(studentId: String, date: String, status: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        val result = supabaseRpc(
-            "mark_attendance",
-            JSONObject().apply {
-                put("p_student_id", studentId)
-                put("p_date", date)
-                put("p_status", status)
+    suspend fun markAttendance(
+        studentId: String,
+        date: String,
+        status: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            val result =
+                supabaseRpc(
+                    "mark_attendance",
+                    JSONObject().apply {
+                        put("p_student_id", studentId)
+                        put("p_date", date)
+                        put("p_status", status)
+                    }
+                ) ?: return@withContext false
+            try {
+                JSONObject(result).optBoolean("ok", false)
+            } catch (e: Exception) {
+                false
             }
-        ) ?: return@withContext false
-        try {
-            JSONObject(result).optBoolean("ok", false)
-        } catch (e: Exception) {
-            false
         }
-    }
 
     /** Attendance status for ALL students on one date (studentId -> status). Admin only. */
-    suspend fun getAttendanceForDate(date: String): Map<String, String> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext emptyMap()
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "attendance",
-                query = "attendance_date=eq.$date&select=student_id,status",
-                authToken = authToken()
-            ) ?: return@withContext emptyMap()
-            val map = mutableMapOf<String, String>()
-            val arr = JSONArray(result)
-            for (i in 0 until arr.length()) {
-                val row = arr.getJSONObject(i)
-                map[row.optString("student_id")] = row.optString("status")
+    suspend fun getAttendanceForDate(date: String): Map<String, String> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext emptyMap()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "attendance",
+                        query = "attendance_date=eq.$date&select=student_id,status",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyMap()
+                val map = mutableMapOf<String, String>()
+                val arr = JSONArray(result)
+                for (i in 0 until arr.length()) {
+                    val row = arr.getJSONObject(i)
+                    map[row.optString("student_id")] = row.optString("status")
+                }
+                map
+            } catch (e: Exception) {
+                recordError("Get attendance for date", e)
+                emptyMap()
             }
-            map
-        } catch (e: Exception) {
-            recordError("Get attendance for date", e)
-            emptyMap()
         }
-    }
 
     /** Attendance status per date (yyyy-MM-dd) for one student, visible to admins and the owning parent. */
-    suspend fun getAttendance(studentId: String, from: String, to: String): Map<String, String> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext emptyMap()
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "attendance",
-                query = "student_id=eq.$studentId&attendance_date=gte.$from&attendance_date=lte.$to&select=attendance_date,status",
-                authToken = authToken()
-            ) ?: return@withContext emptyMap()
-            val map = mutableMapOf<String, String>()
-            val arr = JSONArray(result)
-            for (i in 0 until arr.length()) {
-                val row = arr.getJSONObject(i)
-                map[row.optString("attendance_date")] = row.optString("status")
+    suspend fun getAttendance(
+        studentId: String,
+        from: String,
+        to: String
+    ): Map<String, String> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext emptyMap()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "attendance",
+                        query = "student_id=eq.$studentId&attendance_date=gte.$from&attendance_date=lte.$to&select=attendance_date,status",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyMap()
+                val map = mutableMapOf<String, String>()
+                val arr = JSONArray(result)
+                for (i in 0 until arr.length()) {
+                    val row = arr.getJSONObject(i)
+                    map[row.optString("attendance_date")] = row.optString("status")
+                }
+                map
+            } catch (e: Exception) {
+                recordError("Get attendance", e)
+                emptyMap()
             }
-            map
-        } catch (e: Exception) {
-            recordError("Get attendance", e)
-            emptyMap()
         }
-    }
 
     /** Generate (or update) the monthly daily-fee invoice from attended days. Admin only. */
-    suspend fun generateAttendanceInvoice(studentId: String, month: String): AttendanceInvoiceResult? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext null
-        val result = supabaseRpc(
-            "generate_attendance_invoice",
-            JSONObject().apply {
-                put("p_student_id", studentId)
-                put("p_month", month)
+    suspend fun generateAttendanceInvoice(
+        studentId: String,
+        month: String
+    ): AttendanceInvoiceResult? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext null
+            val result =
+                supabaseRpc(
+                    "generate_attendance_invoice",
+                    JSONObject().apply {
+                        put("p_student_id", studentId)
+                        put("p_month", month)
+                    }
+                ) ?: return@withContext null
+            try {
+                val json = JSONObject(result)
+                if (!json.optBoolean("ok", false)) return@withContext null
+                AttendanceInvoiceResult(
+                    updated = json.optBoolean("updated", false),
+                    invoiceId = json.optString("invoice_id", ""),
+                    days = json.optInt("days", 0),
+                    amount = json.optDouble("amount", 0.0)
+                )
+            } catch (e: Exception) {
+                null
             }
-        ) ?: return@withContext null
-        try {
-            val json = JSONObject(result)
-            if (!json.optBoolean("ok", false)) return@withContext null
-            AttendanceInvoiceResult(
-                updated = json.optBoolean("updated", false),
-                invoiceId = json.optString("invoice_id", ""),
-                days = json.optInt("days", 0),
-                amount = json.optDouble("amount", 0.0)
-            )
-        } catch (e: Exception) {
-            null
         }
-    }
 
     // ============================================
     // PERMISSIONS
     // ============================================
 
-    suspend fun getParentPermissions(parentId: String): List<MockPermission> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext getMockPermissionsForParent(parentId)
+    suspend fun getParentPermissions(parentId: String): List<MockPermission> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext getMockPermissionsForParent(parentId)
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "permissions",
-                query = "parent_id=eq.$parentId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext getMockPermissionsForParent(parentId)
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "permissions",
+                        query = "parent_id=eq.$parentId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext getMockPermissionsForParent(parentId)
 
-            val arr = JSONArray(result)
-            val permissions = mutableListOf<MockPermission>()
-            for (i in 0 until arr.length()) {
-                permissions.add(parsePermission(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val permissions = mutableListOf<MockPermission>()
+                for (i in 0 until arr.length()) {
+                    permissions.add(parsePermission(arr.getJSONObject(i)))
+                }
+                permissions
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                getMockPermissionsForParent(parentId)
             }
-            permissions
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            getMockPermissionsForParent(parentId)
         }
-    }
 
-    suspend fun getAllPermissions(): List<MockPermission> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockPermissions.toList()
+    suspend fun getAllPermissions(): List<MockPermission> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockPermissions.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "permissions",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockPermissions.toList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "permissions",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockPermissions.toList()
 
-            val arr = JSONArray(result)
-            val permissions = mutableListOf<MockPermission>()
-            for (i in 0 until arr.length()) {
-                permissions.add(parsePermission(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val permissions = mutableListOf<MockPermission>()
+                for (i in 0 until arr.length()) {
+                    permissions.add(parsePermission(arr.getJSONObject(i)))
+                }
+                permissions
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockPermissions.toList()
             }
-            permissions
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockPermissions.toList()
         }
-    }
 
     // ============================================
     // MESSAGES
     // ============================================
 
-    suspend fun getUserMessages(userId: String): List<MockMessage> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext getMockMessagesForUser(userId)
+    suspend fun getUserMessages(userId: String): List<MockMessage> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext getMockMessagesForUser(userId)
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "messages",
-                query = "select=*",
-                authToken = authToken()
-            ) ?: return@withContext getMockMessagesForUser(userId)
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "messages",
+                        query = "select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext getMockMessagesForUser(userId)
 
-            val arr = JSONArray(result)
-            val messages = mutableListOf<MockMessage>()
-            for (i in 0 until arr.length()) {
-                val msg = parseMessage(arr.getJSONObject(i))
-                // RLS filters, but also filter client-side for 'ALL'
-                if (msg.senderId == userId || msg.recipientId == userId || msg.recipientId == "ALL") {
-                    messages.add(msg)
+                val arr = JSONArray(result)
+                val messages = mutableListOf<MockMessage>()
+                for (i in 0 until arr.length()) {
+                    val msg = parseMessage(arr.getJSONObject(i))
+                    // RLS filters, but also filter client-side for 'ALL'
+                    if (msg.senderId == userId || msg.recipientId == userId || msg.recipientId == "ALL") {
+                        messages.add(msg)
+                    }
                 }
+                messages
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                getMockMessagesForUser(userId)
             }
-            messages
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            getMockMessagesForUser(userId)
         }
-    }
 
     // ============================================
     // NOTIFICATIONS
     // ============================================
 
-    suspend fun getUserNotifications(userId: String): List<MockNotification> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockNotifications.toList()
+    suspend fun getUserNotifications(userId: String): List<MockNotification> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockNotifications.toList()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "notifications",
-                query = "user_id=eq.$userId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext mockNotifications.toList()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "notifications",
+                        query = "user_id=eq.$userId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext mockNotifications.toList()
 
-            val arr = JSONArray(result)
-            val notifications = mutableListOf<MockNotification>()
-            for (i in 0 until arr.length()) {
-                notifications.add(parseNotification(arr.getJSONObject(i)))
+                val arr = JSONArray(result)
+                val notifications = mutableListOf<MockNotification>()
+                for (i in 0 until arr.length()) {
+                    notifications.add(parseNotification(arr.getJSONObject(i)))
+                }
+                notifications
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                mockNotifications.toList()
             }
-            notifications
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            mockNotifications.toList()
         }
-    }
 
     // ============================================
     // NOTIFICATION PREFERENCES
@@ -636,153 +709,184 @@ object SupabaseRepository {
      * Load the signed-in user's notification preferences from the DB.
      * Returns defaults if no row exists yet.
      */
-    suspend fun getNotificationPreferences(userId: String): NotificationPreference = withContext(Dispatchers.IO) {
-        if (!isUsingBackend() || userId.isBlank()) return@withContext NotificationPreference()
+    suspend fun getNotificationPreferences(userId: String): NotificationPreference =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend() || userId.isBlank()) return@withContext NotificationPreference()
 
-        try {
-            val result = SupabaseConfig.supabaseGet(
-                table = "notification_preferences",
-                query = "user_id=eq.$userId&select=*",
-                authToken = authToken()
-            ) ?: return@withContext NotificationPreference()
+            try {
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "notification_preferences",
+                        query = "user_id=eq.$userId&select=*",
+                        authToken = authToken()
+                    ) ?: return@withContext NotificationPreference()
 
-            val arr = JSONArray(result)
-            if (arr.length() == 0) return@withContext NotificationPreference()
-            val obj = arr.getJSONObject(0)
-            NotificationPreference(
-                paymentNotifications = obj.optBoolean("payment_notifications", true),
-                documentNotifications = obj.optBoolean("document_notifications", true),
-                applicationNotifications = obj.optBoolean("application_notifications", true),
-                permissionNotifications = obj.optBoolean("permission_notifications", true),
-                messageNotifications = obj.optBoolean("message_notifications", true),
-                reminderNotifications = obj.optBoolean("reminder_notifications", true),
-                announcementNotifications = obj.optBoolean("announcement_notifications", true)
-            )
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            NotificationPreference()
+                val arr = JSONArray(result)
+                if (arr.length() == 0) return@withContext NotificationPreference()
+                val obj = arr.getJSONObject(0)
+                NotificationPreference(
+                    paymentNotifications = obj.optBoolean("payment_notifications", true),
+                    documentNotifications = obj.optBoolean("document_notifications", true),
+                    applicationNotifications = obj.optBoolean("application_notifications", true),
+                    permissionNotifications = obj.optBoolean("permission_notifications", true),
+                    messageNotifications = obj.optBoolean("message_notifications", true),
+                    reminderNotifications = obj.optBoolean("reminder_notifications", true),
+                    announcementNotifications = obj.optBoolean("announcement_notifications", true)
+                )
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                NotificationPreference()
+            }
         }
-    }
 
     /**
      * Persist preferences for the user. Updates the existing row, or inserts one
      * on first save (upsert pattern since PATCH on a missing row is a no-op).
      */
-    suspend fun saveNotificationPreferences(userId: String, prefs: NotificationPreference): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend() || userId.isBlank()) return@withContext false
+    suspend fun saveNotificationPreferences(
+        userId: String,
+        prefs: NotificationPreference
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend() || userId.isBlank()) return@withContext false
 
-        try {
-            val body = JSONObject().apply {
-                put("payment_notifications", prefs.paymentNotifications)
-                put("document_notifications", prefs.documentNotifications)
-                put("application_notifications", prefs.applicationNotifications)
-                put("permission_notifications", prefs.permissionNotifications)
-                put("message_notifications", prefs.messageNotifications)
-                put("reminder_notifications", prefs.reminderNotifications)
-                put("announcement_notifications", prefs.announcementNotifications)
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("payment_notifications", prefs.paymentNotifications)
+                        put("document_notifications", prefs.documentNotifications)
+                        put("application_notifications", prefs.applicationNotifications)
+                        put("permission_notifications", prefs.permissionNotifications)
+                        put("message_notifications", prefs.messageNotifications)
+                        put("reminder_notifications", prefs.reminderNotifications)
+                        put("announcement_notifications", prefs.announcementNotifications)
+                    }
+                val updated =
+                    SupabaseConfig.supabasePatch(
+                        table = "notification_preferences",
+                        query = "user_id=eq.$userId",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                if (updated != null && JSONArray(updated).length() > 0) {
+                    true
+                } else {
+                    // No row yet — insert it (RLS restricts to own user_id)
+                    body.put("user_id", userId)
+                    val inserted =
+                        SupabaseConfig.supabasePost(
+                            table = "notification_preferences",
+                            body = body.toString(),
+                            authToken = authToken()
+                        )
+                    inserted != null
+                }
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                false
             }
-            val updated = SupabaseConfig.supabasePatch(
-                table = "notification_preferences",
-                query = "user_id=eq.$userId",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            if (updated != null && JSONArray(updated).length() > 0) {
-                true
-            } else {
-                // No row yet — insert it (RLS restricts to own user_id)
-                body.put("user_id", userId)
-                val inserted = SupabaseConfig.supabasePost(
-                    table = "notification_preferences",
-                    body = body.toString(),
-                    authToken = authToken()
-                )
-                inserted != null
-            }
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            false
         }
-    }
 
-    suspend fun sendMessage(message: MockMessage): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    suspend fun sendMessage(message: MockMessage): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
 
-        try {
-            val body = JSONObject().apply {
-                put("thread_id", message.threadId)
-                put("sender_id", message.senderId)
-                put("recipient_id", message.recipientId)
-                put("subject", message.subject)
-                put("content", message.content)
-                put("category", when (message.category) {
-                    MessageCategory.APPLICATION -> "application"
-                    MessageCategory.FINANCE -> "finance"
-                    MessageCategory.PERMISSION -> "permission"
-                    MessageCategory.ANNOUNCEMENT -> "announcement"
-                    else -> "general"
-                })
-                put("is_read", message.isRead)
-                put("is_announcement", message.isAnnouncement)
-                if (message.parentMessageId != null) put("parent_message_id", message.parentMessageId)
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("thread_id", message.threadId)
+                        put("sender_id", message.senderId)
+                        put("recipient_id", message.recipientId)
+                        put("subject", message.subject)
+                        put("content", message.content)
+                        put(
+                            "category",
+                            when (message.category) {
+                                MessageCategory.APPLICATION -> "application"
+                                MessageCategory.FINANCE -> "finance"
+                                MessageCategory.PERMISSION -> "permission"
+                                MessageCategory.ANNOUNCEMENT -> "announcement"
+                                else -> "general"
+                            }
+                        )
+                        put("is_read", message.isRead)
+                        put("is_announcement", message.isAnnouncement)
+                        if (message.parentMessageId != null) put("parent_message_id", message.parentMessageId)
+                    }
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "messages",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                false
             }
-            val result = SupabaseConfig.supabasePost(
-                table = "messages",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            false
         }
-    }
 
     /**
      * Send a simple text message between two users.
      */
+
     /**
      * Send via Socket.io when available; fall back to REST when socket is disconnected.
      */
-    suspend fun sendMessage(senderId: String, recipientId: String, content: String, type: String = "message"): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    suspend fun sendMessage(
+        senderId: String,
+        recipientId: String,
+        content: String,
+        type: String = "message"
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
 
-        try {
-            val threadId = "thread_${minOf(senderId.hashCode(), recipientId.hashCode())}_${maxOf(senderId.hashCode(), recipientId.hashCode())}"
-            val category = when (type) {
-                "application" -> "application"
-                "finance" -> "finance"
-                "permission" -> "permission"
-                "announcement" -> "announcement"
-                else -> "general"
-            }
-            val sanitized = InputSanitizer.sanitizeText(content)
-            val payload = JSONObject().apply {
-                put("sender_id", senderId)
-                put("recipient_id", recipientId)
-                put("subject", "Message")
-                put("content", sanitized)
-                put("category", category)
-                put("is_read", false)
-                put("thread_id", threadId)
-                put("is_announcement", false)
-            }
+            try {
+                val threadId = "thread_${minOf(
+                    senderId.hashCode(),
+                    recipientId.hashCode()
+                )}_${maxOf(senderId.hashCode(), recipientId.hashCode())}"
+                val category =
+                    when (type) {
+                        "application" -> "application"
+                        "finance" -> "finance"
+                        "permission" -> "permission"
+                        "announcement" -> "announcement"
+                        else -> "general"
+                    }
+                val sanitized = InputSanitizer.sanitizeText(content)
+                val payload =
+                    JSONObject().apply {
+                        put("sender_id", senderId)
+                        put("recipient_id", recipientId)
+                        put("subject", "Message")
+                        put("content", sanitized)
+                        put("category", category)
+                        put("is_read", false)
+                        put("thread_id", threadId)
+                        put("is_announcement", false)
+                    }
 
-            lastSendMessageResult = "rest_send"
-            val result = SupabaseConfig.supabasePost(
-                table = "messages",
-                body = payload.toString(),
-                authToken = authToken()
-            )
-            lastSendMessageResult = result
-            result != null
-        } catch (e: Exception) {
-            recordError("Send message", e)
-            AuditLogger.log("send_message_error", "parent_chat exception=${e.javaClass.simpleName} msg=${e.message ?: "null"} cause=${e.cause?.javaClass?.simpleName ?: "null"} stack=${e.stackTrace?.take(4)?.joinToString("|") ?: "null"}")
-            lastSendMessageResult = null
-            false
+                lastSendMessageResult = "rest_send"
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "messages",
+                        body = payload.toString(),
+                        authToken = authToken()
+                    )
+                lastSendMessageResult = result
+                result != null
+            } catch (e: Exception) {
+                recordError("Send message", e)
+                AuditLogger.log(
+                    "send_message_error",
+                    "parent_chat exception=${e.javaClass.simpleName} msg=${e.message ?: "null"} cause=${e.cause?.javaClass?.simpleName ?: "null"} stack=${e.stackTrace?.take(4)?.joinToString("|") ?: "null"}"
+                )
+                lastSendMessageResult = null
+                false
+            }
         }
-    }
 
     @Volatile var lastSendMessageResult: String? = null
         private set
@@ -790,215 +894,264 @@ object SupabaseRepository {
     /**
      * Get conversation messages between two users.
      */
-    suspend fun getConversation(userId: String, otherUserId: String): List<MockMessage> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext emptyList()
+    suspend fun getConversation(
+        userId: String,
+        otherUserId: String
+    ): List<MockMessage> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext emptyList()
 
-        try {
-            // Supabase OR filter can 400 on UUIDs; split into two simple queries
-            val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
-            val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
-            val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
-            val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
+            try {
+                // Supabase OR filter can 400 on UUIDs; split into two simple queries
+                val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
+                val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
+                val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
+                val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
 
-            val messages = mutableListOf<MockMessage>()
-            r1?.let { for (i in 0 until JSONArray(it).length()) messages.add(parseMessage(JSONArray(it).getJSONObject(i))) }
-            r2?.let { for (i in 0 until JSONArray(it).length()) messages.add(parseMessage(JSONArray(it).getJSONObject(i))) }
-            messages.sortedBy { it.timestamp }
-        } catch (e: Exception) {
-            recordError("Get conversation", e)
-            emptyList()
-        }
-    }
-
-    suspend fun getConversationRaw(userId: String, otherUserId: String): String = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext "backend_disabled"
-
-        try {
-            val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
-            val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
-            val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
-            val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
-            val len1 = r1?.length ?: 0
-            val len2 = r2?.length ?: 0
-            "q1_len=$len1 q2_len=$len2 q1=${r1?.take(120) ?: "null"} q2=${r2?.take(120) ?: "null"}"
-        } catch (e: Exception) {
-            "exception=${e.javaClass.simpleName} msg=${e.message ?: "null"}"
-        }
-    }
-
-    suspend fun getAdminUser(): MockUser? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockUsers.firstOrNull { it.role == UserRole.ADMIN }
-
-        try {
-            // Try by role=admin first
-            var result = SupabaseConfig.supabaseGet(
-                table = "profiles",
-                query = "role=eq.admin&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
-                authToken = authToken()
-            )
-
-            // Fallback: try by known admin email
-            if (result == null || result == "[]") {
-                result = SupabaseConfig.supabaseGet(
-                    table = "profiles",
-                    query = "email=eq.admin@aplusstudy.co.za&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at",
-                    authToken = authToken()
-                )
-            }
-
-            if (result == null || result == "[]") return@withContext null
-            val arr = JSONArray(result)
-            if (arr.length() == 0) return@withContext null
-            val obj = arr.getJSONObject(0)
-            MockUser(
-                id = obj.optString("id"),
-                fullName = obj.optString("full_name", ""),
-                email = obj.optString("email", ""),
-                phone = obj.optString("phone", ""),
-                password = "",
-                role = UserRole.ADMIN,
-                surname = obj.optString("surname", "")
-            )
-        } catch (e: Exception) {
-            recordError("getAdminUser", e)
-            null
-        }
-    }
-
-    suspend fun findAdminIdFromMessages(parentId: String): String? = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext null
-        try {
-            val q = "recipient_id=eq.$parentId&select=sender_id&limit=1"
-            val result = SupabaseConfig.supabaseGet(table = "messages", query = q, authToken = authToken())
-            if (result == null || result == "[]") return@withContext null
-            val arr = JSONArray(result)
-            if (arr.length() == 0) return@withContext null
-            arr.getJSONObject(0).optString("sender_id")
-        } catch (e: Exception) {
-            recordError("findAdminIdFromMessages", e)
-            null
-        }
-    }
-
-    suspend fun getAllParents(): List<MockUser> = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext mockUsers.filter { it.role == UserRole.PARENT }
-
-        try {
-            // Only count parents who have at least one approved application or active student
-            val result = SupabaseConfig.supabaseGet(
-                table = "profiles",
-                query = "role=eq.parent&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
-                authToken = authToken()
-            ) ?: return@withContext emptyList()
-
-            val arr = JSONArray(result)
-            val parents = mutableListOf<MockUser>()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                val parentId = obj.optString("id")
-                
-                // Check if this parent has any approved applications
-                val approvedApps = try {
-                    val appsResult = SupabaseConfig.supabaseGet(
-                        table = "applications",
-                        query = "parent_id=eq.$parentId&status=eq.approved&select=id",
-                        authToken = authToken()
-                    )
-                    if (appsResult != null && appsResult != "[]") {
-                        JSONArray(appsResult).length() > 0
-                    } else false
-                } catch (e: Exception) { false }
-                
-                // Check if this parent has any active students
-                val activeStudents = if (!approvedApps) {
-                    try {
-                        val studentsResult = SupabaseConfig.supabaseGet(
-                            table = "students",
-                            query = "parent_id=eq.$parentId&status=eq.active&select=id",
-                            authToken = authToken()
-                        )
-                        if (studentsResult != null && studentsResult != "[]") {
-                            JSONArray(studentsResult).length() > 0
-                        } else false
-                    } catch (e: Exception) { false }
-                } else true
-                
-                // Only include parents with approved applications or active students
-                if (approvedApps || activeStudents) {
-                    parents.add(
-                        MockUser(
-                            id = parentId,
-                            fullName = obj.optString("full_name", ""),
-                            email = obj.optString("email", ""),
-                            phone = obj.optString("phone", ""),
-                            password = "",
-                            role = UserRole.PARENT,
-                            surname = obj.optString("surname", "")
-                        )
+                val messages = mutableListOf<MockMessage>()
+                r1?.let {
+                    for (i in 0 until JSONArray(it).length()) messages.add(
+                        parseMessage(JSONArray(it).getJSONObject(i))
                     )
                 }
+                r2?.let {
+                    for (i in 0 until JSONArray(it).length()) messages.add(
+                        parseMessage(JSONArray(it).getJSONObject(i))
+                    )
+                }
+                messages.sortedBy { it.timestamp }
+            } catch (e: Exception) {
+                recordError("Get conversation", e)
+                emptyList()
             }
-            Log.d(TAG, "getAllParents: Found ${parents.size} valid parents out of ${arr.length()} profiles")
-            parents
-        } catch (e: Exception) {
-            recordError("getAllParents", e)
-            emptyList()
         }
-    }
 
-    suspend fun createPermission(permission: MockPermission): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    suspend fun getConversationRaw(
+        userId: String,
+        otherUserId: String
+    ): String =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext "backend_disabled"
 
-        try {
-            val body = JSONObject().apply {
-                put("title", permission.title)
-                put("description", permission.description)
-                put("student_id", permission.studentId)
-                put("parent_id", permission.parentId)
-                put("created_by", permission.createdBy)
-                put("category", when (permission.category) {
-                    PermissionCategory.EXCURSION -> "excursion"
-                    PermissionCategory.MEDICAL -> "medical"
-                    PermissionCategory.PHOTO -> "photo"
-                    PermissionCategory.SPORTS -> "sports"
-                    else -> "general"
-                })
-                put("status", "pending")
-                if (!permission.dueDate.isNullOrBlank()) put("due_date", permission.dueDate)
+            try {
+                val q1 = "sender_id=eq.$userId&recipient_id=eq.$otherUserId&order=created_at.asc"
+                val q2 = "sender_id=eq.$otherUserId&recipient_id=eq.$userId&order=created_at.asc"
+                val r1 = SupabaseConfig.supabaseGet(table = "messages", query = q1, authToken = authToken())
+                val r2 = SupabaseConfig.supabaseGet(table = "messages", query = q2, authToken = authToken())
+                val len1 = r1?.length ?: 0
+                val len2 = r2?.length ?: 0
+                "q1_len=$len1 q2_len=$len2 q1=${r1?.take(120) ?: "null"} q2=${r2?.take(120) ?: "null"}"
+            } catch (e: Exception) {
+                "exception=${e.javaClass.simpleName} msg=${e.message ?: "null"}"
             }
-            val result = SupabaseConfig.supabasePost(
-                table = "permissions",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            false
         }
-    }
 
-    suspend fun respondToPermission(permissionId: String, granted: Boolean, notes: String?): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
+    suspend fun getAdminUser(): MockUser? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockUsers.firstOrNull { it.role == UserRole.ADMIN }
 
-        try {
-            val body = JSONObject().apply {
-                put("status", "responded")
-                put("response", if (granted) "granted" else "declined")
-                put("response_notes", notes ?: "")
+            try {
+                // Try by role=admin first
+                var result =
+                    SupabaseConfig.supabaseGet(
+                        table = "profiles",
+                        query = "role=eq.admin&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
+                        authToken = authToken()
+                    )
+
+                // Fallback: try by known admin email
+                if (result == null || result == "[]") {
+                    result =
+                        SupabaseConfig.supabaseGet(
+                            table = "profiles",
+                            query = "email=eq.admin@aplusstudy.co.za&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at",
+                            authToken = authToken()
+                        )
+                }
+
+                if (result == null || result == "[]") return@withContext null
+                val arr = JSONArray(result)
+                if (arr.length() == 0) return@withContext null
+                val obj = arr.getJSONObject(0)
+                MockUser(
+                    id = obj.optString("id"),
+                    fullName = obj.optString("full_name", ""),
+                    email = obj.optString("email", ""),
+                    phone = obj.optString("phone", ""),
+                    password = "",
+                    role = UserRole.ADMIN,
+                    surname = obj.optString("surname", "")
+                )
+            } catch (e: Exception) {
+                recordError("getAdminUser", e)
+                null
             }
-            val result = SupabaseConfig.supabasePatch(
-                table = "permissions",
-                query = "id=eq.$permissionId",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            false
         }
-    }
+
+    suspend fun findAdminIdFromMessages(parentId: String): String? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext null
+            try {
+                val q = "recipient_id=eq.$parentId&select=sender_id&limit=1"
+                val result = SupabaseConfig.supabaseGet(table = "messages", query = q, authToken = authToken())
+                if (result == null || result == "[]") return@withContext null
+                val arr = JSONArray(result)
+                if (arr.length() == 0) return@withContext null
+                arr.getJSONObject(0).optString("sender_id")
+            } catch (e: Exception) {
+                recordError("findAdminIdFromMessages", e)
+                null
+            }
+        }
+
+    suspend fun getAllParents(): List<MockUser> =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext mockUsers.filter { it.role == UserRole.PARENT }
+
+            try {
+                // Only count parents who have at least one approved application or active student
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "profiles",
+                        query = "role=eq.parent&select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&order=created_at.desc",
+                        authToken = authToken()
+                    ) ?: return@withContext emptyList()
+
+                val arr = JSONArray(result)
+                val parents = mutableListOf<MockUser>()
+                for (i in 0 until arr.length()) {
+                    val obj = arr.getJSONObject(i)
+                    val parentId = obj.optString("id")
+
+                    // Check if this parent has any approved applications
+                    val approvedApps =
+                        try {
+                            val appsResult =
+                                SupabaseConfig.supabaseGet(
+                                    table = "applications",
+                                    query = "parent_id=eq.$parentId&status=eq.approved&select=id",
+                                    authToken = authToken()
+                                )
+                            if (appsResult != null && appsResult != "[]") {
+                                JSONArray(appsResult).length() > 0
+                            } else {
+                                false
+                            }
+                        } catch (e: Exception) {
+                            false
+                        }
+
+                    // Check if this parent has any active students
+                    val activeStudents =
+                        if (!approvedApps) {
+                            try {
+                                val studentsResult =
+                                    SupabaseConfig.supabaseGet(
+                                        table = "students",
+                                        query = "parent_id=eq.$parentId&status=eq.active&select=id",
+                                        authToken = authToken()
+                                    )
+                                if (studentsResult != null && studentsResult != "[]") {
+                                    JSONArray(studentsResult).length() > 0
+                                } else {
+                                    false
+                                }
+                            } catch (e: Exception) {
+                                false
+                            }
+                        } else {
+                            true
+                        }
+
+                    // Only include parents with approved applications or active students
+                    if (approvedApps || activeStudents) {
+                        parents.add(
+                            MockUser(
+                                id = parentId,
+                                fullName = obj.optString("full_name", ""),
+                                email = obj.optString("email", ""),
+                                phone = obj.optString("phone", ""),
+                                password = "",
+                                role = UserRole.PARENT,
+                                surname = obj.optString("surname", "")
+                            )
+                        )
+                    }
+                }
+                Log.d(TAG, "getAllParents: Found ${parents.size} valid parents out of ${arr.length()} profiles")
+                parents
+            } catch (e: Exception) {
+                recordError("getAllParents", e)
+                emptyList()
+            }
+        }
+
+    suspend fun createPermission(permission: MockPermission): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("title", permission.title)
+                        put("description", permission.description)
+                        put("student_id", permission.studentId)
+                        put("parent_id", permission.parentId)
+                        put("created_by", permission.createdBy)
+                        put(
+                            "category",
+                            when (permission.category) {
+                                PermissionCategory.EXCURSION -> "excursion"
+                                PermissionCategory.MEDICAL -> "medical"
+                                PermissionCategory.PHOTO -> "photo"
+                                PermissionCategory.SPORTS -> "sports"
+                                else -> "general"
+                            }
+                        )
+                        put("status", "pending")
+                        if (!permission.dueDate.isNullOrBlank()) put("due_date", permission.dueDate)
+                    }
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "permissions",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                false
+            }
+        }
+
+    suspend fun respondToPermission(
+        permissionId: String,
+        granted: Boolean,
+        notes: String?
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("status", "responded")
+                        put("response", if (granted) "granted" else "declined")
+                        put("response_notes", notes ?: "")
+                    }
+                val result =
+                    SupabaseConfig.supabasePatch(
+                        table = "permissions",
+                        query = "id=eq.$permissionId",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                false
+            }
+        }
 
     // ============================================
     // CREATE APPLICATION
@@ -1010,43 +1163,49 @@ object SupabaseRepository {
      * or null on failure. When the backend is not configured it returns a local
      * mock record so the flow can continue in demo mode.
      */
-    suspend fun createApplication(app: JSONObject, parentId: String): MockApplication? = withContext(Dispatchers.IO) {
-        AuditLogger.log("createApplication_start", "parentId=$parentId appKeys=${app.keys().asSequence().toList()}")
-        if (!isUsingBackend()) {
-            val mock = parseApplication(app).copy(
-                id = "APP-${(1000..9999).random()}",
-                parentId = parentId,
-                status = ApplicationStatus.SUBMITTED
-            )
-            mockApplications.add(mock)
-            AuditLogger.log("createApplication_mock", "appId=${mock.id}")
-            return@withContext mock
-        }
-
-        try {
-            val result = SupabaseConfig.supabasePost(
-                table = "applications",
-                body = app.toString(),
-                authToken = authToken()
-            ) ?: run {
-                AuditLogger.log("createApplication_fail", "supabasePost returned null")
-                return@withContext null
+    suspend fun createApplication(
+        app: JSONObject,
+        parentId: String
+    ): MockApplication? =
+        withContext(Dispatchers.IO) {
+            AuditLogger.log("createApplication_start", "parentId=$parentId appKeys=${app.keys().asSequence().toList()}")
+            if (!isUsingBackend()) {
+                val mock =
+                    parseApplication(app).copy(
+                        id = "APP-${(1000..9999).random()}",
+                        parentId = parentId,
+                        status = ApplicationStatus.SUBMITTED
+                    )
+                mockApplications.add(mock)
+                AuditLogger.log("createApplication_mock", "appId=${mock.id}")
+                return@withContext mock
             }
-            val arr = JSONArray(result)
-            if (arr.length() > 0) {
-                val created = parseApplication(arr.getJSONObject(0))
-                AuditLogger.log("createApplication_ok", "appId=${created.id} status=${created.status}")
-                created
-            } else {
-                AuditLogger.log("createApplication_fail", "empty result array")
+
+            try {
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "applications",
+                        body = app.toString(),
+                        authToken = authToken()
+                    ) ?: run {
+                        AuditLogger.log("createApplication_fail", "supabasePost returned null")
+                        return@withContext null
+                    }
+                val arr = JSONArray(result)
+                if (arr.length() > 0) {
+                    val created = parseApplication(arr.getJSONObject(0))
+                    AuditLogger.log("createApplication_ok", "appId=${created.id} status=${created.status}")
+                    created
+                } else {
+                    AuditLogger.log("createApplication_fail", "empty result array")
+                    null
+                }
+            } catch (e: Exception) {
+                recordError("Backend query", e)
+                AuditLogger.log("createApplication_error", e.message ?: "")
                 null
             }
-        } catch (e: Exception) {
-            recordError("Backend query", e)
-            AuditLogger.log("createApplication_error", e.message ?: "")
-            null
         }
-    }
 
     // ============================================
     // PROOF OF PAYMENT UPLOAD + APPLICATION STATUS
@@ -1062,30 +1221,38 @@ object SupabaseRepository {
         applicationId: String,
         bytes: ByteArray,
         contentType: String
-    ): String? = withContext(Dispatchers.IO) {
-        AuditLogger.log("uploadProofOfPayment_start", "parentId=$parentId appId=$applicationId contentType=$contentType size=${bytes.size}")
-        if (!isUsingBackend()) {
-            AuditLogger.log("uploadProofOfPayment_skip", "backend disabled")
-            return@withContext null
-        }
-        try {
-            val result = SupabaseConfig.supabaseStorageUpload(
-                bucket = "proof-of-payment",
-                path = "$parentId/$applicationId.${contentTypeToExt(contentType)}",
-                bytes = bytes,
-                contentType = contentType,
-                authToken = authToken()
+    ): String? =
+        withContext(Dispatchers.IO) {
+            AuditLogger.log(
+                "uploadProofOfPayment_start",
+                "parentId=$parentId appId=$applicationId contentType=$contentType size=${bytes.size}"
             )
-            AuditLogger.log("uploadProofOfPayment_${
-                if (result != null) "ok" else "fail"
-            }", "path=$parentId/$applicationId.${contentTypeToExt(contentType)}")
-            result
-        } catch (e: Exception) {
-            recordError("POP upload", e)
-            AuditLogger.log("uploadProofOfPayment_error", e.message ?: "")
-            null
+            if (!isUsingBackend()) {
+                AuditLogger.log("uploadProofOfPayment_skip", "backend disabled")
+                return@withContext null
+            }
+            try {
+                val result =
+                    SupabaseConfig.supabaseStorageUpload(
+                        bucket = "proof-of-payment",
+                        path = "$parentId/$applicationId.${contentTypeToExt(contentType)}",
+                        bytes = bytes,
+                        contentType = contentType,
+                        authToken = authToken()
+                    )
+                AuditLogger.log(
+                    "uploadProofOfPayment_${
+                        if (result != null) "ok" else "fail"
+                    }",
+                    "path=$parentId/$applicationId.${contentTypeToExt(contentType)}"
+                )
+                result
+            } catch (e: Exception) {
+                recordError("POP upload", e)
+                AuditLogger.log("uploadProofOfPayment_error", e.message ?: "")
+                null
+            }
         }
-    }
 
     /**
      * Persist an admin decision (status change) on an application, optionally
@@ -1095,74 +1262,97 @@ object SupabaseRepository {
         applicationId: String,
         status: String,
         paymentProofUrl: String? = null
-    ): Boolean = withContext(Dispatchers.IO) {
-        AuditLogger.log("updateApplicationStatus_start", "appId=$applicationId status=$status proofUrl=${paymentProofUrl ?: "null"}")
-        if (!isUsingBackend()) {
-            AuditLogger.log("updateApplicationStatus_skip", "backend disabled")
-            return@withContext false
-        }
-        try {
-            val body = JSONObject().apply {
-                put("status", status)
-                if (status == "payment_verified" || status == "approved") {
-                    put("payment_verified_at", "now()")
-                }
-                if (status == "approved") {
-                    put("approved_at", "now()")
-                }
-                if (status == "rejected") {
-                    put("rejected_at", "now()")
-                }
-                if (paymentProofUrl != null) {
-                    put("payment_proof_url", paymentProofUrl)
-                }
-            }
-            val result = SupabaseConfig.supabasePatch(
-                table = "applications",
-                query = "id=eq.$applicationId",
-                body = body.toString(),
-                authToken = authToken()
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            AuditLogger.log(
+                "updateApplicationStatus_start",
+                "appId=$applicationId status=$status proofUrl=${paymentProofUrl ?: "null"}"
             )
-            val ok = result != null
-            AuditLogger.log("updateApplicationStatus_${if (ok) "ok" else "fail"}", "appId=$applicationId status=$status")
-            ok
-        } catch (e: Exception) {
-            recordError("Update application status", e)
-            AuditLogger.log("updateApplicationStatus_error", "appId=$applicationId error=${e.message ?: ""}")
-            false
+            if (!isUsingBackend()) {
+                AuditLogger.log("updateApplicationStatus_skip", "backend disabled")
+                return@withContext false
+            }
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("status", status)
+                        if (status == "payment_verified" || status == "approved") {
+                            put("payment_verified_at", "now()")
+                        }
+                        if (status == "approved") {
+                            put("approved_at", "now()")
+                        }
+                        if (status == "rejected") {
+                            put("rejected_at", "now()")
+                        }
+                        if (paymentProofUrl != null) {
+                            put("payment_proof_url", paymentProofUrl)
+                        }
+                    }
+                val result =
+                    SupabaseConfig.supabasePatch(
+                        table = "applications",
+                        query = "id=eq.$applicationId",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                val ok = result != null
+                AuditLogger.log(
+                    "updateApplicationStatus_${if (ok) "ok" else "fail"}",
+                    "appId=$applicationId status=$status"
+                )
+                ok
+            } catch (e: Exception) {
+                recordError("Update application status", e)
+                AuditLogger.log("updateApplicationStatus_error", "appId=$applicationId error=${e.message ?: ""}")
+                false
+            }
         }
-    }
 
     // ============================================
+
     /**
      * Update payment status (verified/rejected).
      */
-    suspend fun createPayment(invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null): Boolean =
-        createPaymentInternal(invoiceId, studentId, parentId, amount, paymentMethod, proofUrl, batchId = null)
+    suspend fun createPayment(
+        invoiceId: String,
+        studentId: String,
+        parentId: String,
+        amount: Double,
+        paymentMethod: String,
+        proofUrl: String? = null
+    ): Boolean = createPaymentInternal(invoiceId, studentId, parentId, amount, paymentMethod, proofUrl, batchId = null)
 
     /** Pay-All: creates one pending payment per invoice, all sharing [batchId]. */
-    suspend fun createBatchPayments(invoiceIds: List<String>, parentId: String, amountPerInvoice: Map<String, Double>, batchId: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            var allOk = true
-            for (invoiceId in invoiceIds) {
-                val ok = createPaymentInternal(
-                    invoiceId = invoiceId,
-                    studentId = "",
-                    parentId = parentId,
-                    amount = amountPerInvoice[invoiceId] ?: 0.0,
-                    paymentMethod = "payfast",
-                    proofUrl = null,
-                    batchId = batchId
-                )
-                if (!ok) allOk = false
+    suspend fun createBatchPayments(
+        invoiceIds: List<String>,
+        parentId: String,
+        amountPerInvoice: Map<String, Double>,
+        batchId: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                var allOk = true
+                for (invoiceId in invoiceIds) {
+                    val ok =
+                        createPaymentInternal(
+                            invoiceId = invoiceId,
+                            studentId = "",
+                            parentId = parentId,
+                            amount = amountPerInvoice[invoiceId] ?: 0.0,
+                            paymentMethod = "payfast",
+                            proofUrl = null,
+                            batchId = batchId
+                        )
+                    if (!ok) allOk = false
+                }
+                allOk
+            } catch (e: Exception) {
+                recordError("Create batch payments", e)
+                false
             }
-            allOk
-        } catch (e: Exception) {
-            recordError("Create batch payments", e)
-            false
         }
-    }
 
     private suspend fun createPaymentInternal(
         invoiceId: String,
@@ -1172,235 +1362,275 @@ object SupabaseRepository {
         paymentMethod: String,
         proofUrl: String?,
         batchId: String?
-    ): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            val body = JSONObject().apply {
-                put("invoice_id", invoiceId)
-                if (studentId.isNotBlank()) put("student_id", studentId)
-                put("parent_id", parentId)
-                put("amount", amount)
-                put("payment_method", paymentMethod)
-                put("status", "pending")
-                if (proofUrl != null) put("proof_url", proofUrl)
-                if (batchId != null) put("batch_id", batchId)
-                put("payment_date", "now()")
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("invoice_id", invoiceId)
+                        if (studentId.isNotBlank()) put("student_id", studentId)
+                        put("parent_id", parentId)
+                        put("amount", amount)
+                        put("payment_method", paymentMethod)
+                        put("status", "pending")
+                        if (proofUrl != null) put("proof_url", proofUrl)
+                        if (batchId != null) put("batch_id", batchId)
+                        put("payment_date", "now()")
+                    }
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "payments",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Create payment", e)
+                false
             }
-            val result = SupabaseConfig.supabasePost(
-                table = "payments",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Create payment", e)
-            false
         }
-    }
 
-    suspend fun generateMonthlyInvoices(): Int = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext 0
-        try {
-            // Get all active students
-            val studentsResult = SupabaseConfig.supabaseGet(
-                table = "students",
-                query="status=eq.active&select=id,parent_id",
-                authToken = authToken()
-            ) ?: return@withContext 0
+    suspend fun generateMonthlyInvoices(): Int =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext 0
+            try {
+                // Get all active students
+                val studentsResult =
+                    SupabaseConfig.supabaseGet(
+                        table = "students",
+                        query = "status=eq.active&select=id,parent_id",
+                        authToken = authToken()
+                    ) ?: return@withContext 0
 
-            val studentsArr = JSONArray(studentsResult)
-            var created = 0
+                val studentsArr = JSONArray(studentsResult)
+                var created = 0
 
-            for (i in 0 until studentsArr.length()) {
-                val student = studentsArr.getJSONObject(i)
-                val studentId = student.optString("id")
-                val parentId = student.optString("parent_id")
+                for (i in 0 until studentsArr.length()) {
+                    val student = studentsArr.getJSONObject(i)
+                    val studentId = student.optString("id")
+                    val parentId = student.optString("parent_id")
 
-                // Check if invoice already exists for this month
-                val existingResult = SupabaseConfig.supabaseGet(
-                    table = "invoices",
-                    query = "student_id=eq.$studentId&status=eq.pending&select=id",
-                    authToken = authToken()
-                )
+                    // Check if invoice already exists for this month
+                    val existingResult =
+                        SupabaseConfig.supabaseGet(
+                            table = "invoices",
+                            query = "student_id=eq.$studentId&status=eq.pending&select=id",
+                            authToken = authToken()
+                        )
 
-                val existingArr = JSONArray(existingResult ?: "[]")
-                if (existingArr.length() > 0) continue // Already has pending invoice
+                    val existingArr = JSONArray(existingResult ?: "[]")
+                    if (existingArr.length() > 0) continue // Already has pending invoice
 
-                // Create monthly school fee invoice
-                val body = JSONObject().apply {
-                    put("student_id", studentId)
-                    put("amount", if (i == 0) 1700.00 else 1650.00) // Monthly school fee: R1700 first child, R1650 siblings
-                    put("description", "Monthly School Fee")
-                    put("status", "pending")
-                    put("category", "registration")
-                    put("due_date", "now() + interval '30 days'")
-                    put("created_at", "now()")
-                }
-                val result = SupabaseConfig.supabasePost(
-                    table = "invoices",
-                    body = body.toString(),
-                    authToken = authToken()
-                )
-                if (result != null) created++
-            }
-            created
-        } catch (e: Exception) {
-            recordError("Generate monthly invoices", e)
-            0
-        }
-    }
-
-    suspend fun markOverdueInvoices(): Int = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext 0
-        try {
-            // Find pending invoices past due date
-            val result = SupabaseConfig.supabaseGet(
-                table = "invoices",
-                query = "status=eq.pending&due_date=lt.now()&select=id",
-                authToken = authToken()
-            ) ?: return@withContext 0
-
-            val arr = JSONArray(result)
-            var updated = 0
-            for (i in 0 until arr.length()) {
-                val invoiceId = arr.getJSONObject(i).optString("id")
-                val body = JSONObject().apply {
-                    put("status", "overdue")
-                }
-                val patchResult = SupabaseConfig.supabasePatch(
-                    table = "invoices",
-                    query = "id=eq.$invoiceId",
-                    body = body.toString(),
-                    authToken = authToken()
-                )
-                if (patchResult != null) updated++
-            }
-            updated
-        } catch (e: Exception) {
-            recordError("Mark overdue invoices", e)
-            0
-        }
-    }
-
-    suspend fun updatePaymentStatus(paymentId: String, status: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            // Get the payment to find the invoice_id
-            val paymentResult = SupabaseConfig.supabaseGet(
-                table = "payments",
-                query = "id=eq.$paymentId&select=invoice_id",
-                authToken = authToken()
-            )
-
-            val body = JSONObject().apply {
-                put("status", status)
-                if (status == "verified") {
-                    put("verified_at", "now()")
-                }
-                if (status == "rejected") {
-                    put("rejected_at", "now()")
-                }
-            }
-            val result = SupabaseConfig.supabasePatch(
-                table = "payments",
-                query = "id=eq.$paymentId",
-                body = body.toString(),
-                authToken = authToken()
-            )
-
-            // If payment verified, also update invoice status to paid
-            if (status == "verified" && paymentResult != null) {
-                val arr = JSONArray(paymentResult)
-                if (arr.length() > 0) {
-                    val invoiceId = arr.getJSONObject(0).optString("invoice_id")
-                    if (invoiceId.isNotBlank()) {
-                        val invoiceBody = JSONObject().apply {
-                            put("status", "paid")
-                            put("paid_date", "now()")
+                    // Create monthly school fee invoice
+                    val body =
+                        JSONObject().apply {
+                            put("student_id", studentId)
+                            put(
+                                "amount",
+                                if (i == 0) 1700.00 else 1650.00
+                            ) // Monthly school fee: R1700 first child, R1650 siblings
+                            put("description", "Monthly School Fee")
+                            put("status", "pending")
+                            put("category", "registration")
+                            put("due_date", "now() + interval '30 days'")
+                            put("created_at", "now()")
                         }
+                    val result =
+                        SupabaseConfig.supabasePost(
+                            table = "invoices",
+                            body = body.toString(),
+                            authToken = authToken()
+                        )
+                    if (result != null) created++
+                }
+                created
+            } catch (e: Exception) {
+                recordError("Generate monthly invoices", e)
+                0
+            }
+        }
+
+    suspend fun markOverdueInvoices(): Int =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext 0
+            try {
+                // Find pending invoices past due date
+                val result =
+                    SupabaseConfig.supabaseGet(
+                        table = "invoices",
+                        query = "status=eq.pending&due_date=lt.now()&select=id",
+                        authToken = authToken()
+                    ) ?: return@withContext 0
+
+                val arr = JSONArray(result)
+                var updated = 0
+                for (i in 0 until arr.length()) {
+                    val invoiceId = arr.getJSONObject(i).optString("id")
+                    val body =
+                        JSONObject().apply {
+                            put("status", "overdue")
+                        }
+                    val patchResult =
                         SupabaseConfig.supabasePatch(
                             table = "invoices",
                             query = "id=eq.$invoiceId",
-                            body = invoiceBody.toString(),
+                            body = body.toString(),
                             authToken = authToken()
                         )
+                    if (patchResult != null) updated++
+                }
+                updated
+            } catch (e: Exception) {
+                recordError("Mark overdue invoices", e)
+                0
+            }
+        }
+
+    suspend fun updatePaymentStatus(
+        paymentId: String,
+        status: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                // Get the payment to find the invoice_id
+                val paymentResult =
+                    SupabaseConfig.supabaseGet(
+                        table = "payments",
+                        query = "id=eq.$paymentId&select=invoice_id",
+                        authToken = authToken()
+                    )
+
+                val body =
+                    JSONObject().apply {
+                        put("status", status)
+                        if (status == "verified") {
+                            put("verified_at", "now()")
+                        }
+                        if (status == "rejected") {
+                            put("rejected_at", "now()")
+                        }
+                    }
+                val result =
+                    SupabaseConfig.supabasePatch(
+                        table = "payments",
+                        query = "id=eq.$paymentId",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+
+                // If payment verified, also update invoice status to paid
+                if (status == "verified" && paymentResult != null) {
+                    val arr = JSONArray(paymentResult)
+                    if (arr.length() > 0) {
+                        val invoiceId = arr.getJSONObject(0).optString("invoice_id")
+                        if (invoiceId.isNotBlank()) {
+                            val invoiceBody =
+                                JSONObject().apply {
+                                    put("status", "paid")
+                                    put("paid_date", "now()")
+                                }
+                            SupabaseConfig.supabasePatch(
+                                table = "invoices",
+                                query = "id=eq.$invoiceId",
+                                body = invoiceBody.toString(),
+                                authToken = authToken()
+                            )
+                        }
                     }
                 }
-            }
 
-            result != null
-        } catch (e: Exception) {
-            recordError("Update payment status", e)
-            false
+                result != null
+            } catch (e: Exception) {
+                recordError("Update payment status", e)
+                false
+            }
         }
-    }
 
     /**
      * Save a cash payment record.
      */
-    suspend fun saveCashPayment(studentName: String, amount: String, description: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            val body = JSONObject().apply {
-                put("student_name", InputSanitizer.sanitizeName(studentName))
-                put("amount", amount.toDoubleOrNull() ?: 0.0)
-                put("description", InputSanitizer.sanitizeText(description))
-                put("payment_method", "cash")
-                put("status", "verified")
-                put("created_at", "now()")
+    suspend fun saveCashPayment(
+        studentName: String,
+        amount: String,
+        description: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                val body =
+                    JSONObject().apply {
+                        put("student_name", InputSanitizer.sanitizeName(studentName))
+                        put("amount", amount.toDoubleOrNull() ?: 0.0)
+                        put("description", InputSanitizer.sanitizeText(description))
+                        put("payment_method", "cash")
+                        put("status", "verified")
+                        put("created_at", "now()")
+                    }
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "payments",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Save cash payment", e)
+                false
             }
-            val result = SupabaseConfig.supabasePost(
-                table = "payments",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Save cash payment", e)
-            false
         }
-    }
 
-    suspend fun createInvoice(studentId: String, parentId: String, amount: Double, description: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            // Calculate due date 30 days from now in ISO format
-            val dueDate = java.time.LocalDate.now().plusDays(30).toString()
-            val body = JSONObject().apply {
-                put("student_id", studentId)
-                put("parent_id", parentId)
-                put("amount", amount)
-                put("description", InputSanitizer.sanitizeText(description))
-                put("status", "pending")
-                put("due_date", dueDate)
-                put("created_at", "now()")
+    suspend fun createInvoice(
+        studentId: String,
+        parentId: String,
+        amount: Double,
+        description: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                // Calculate due date 30 days from now in ISO format
+                val dueDate = java.time.LocalDate.now().plusDays(30).toString()
+                val body =
+                    JSONObject().apply {
+                        put("student_id", studentId)
+                        put("parent_id", parentId)
+                        put("amount", amount)
+                        put("description", InputSanitizer.sanitizeText(description))
+                        put("status", "pending")
+                        put("due_date", dueDate)
+                        put("created_at", "now()")
+                    }
+                val result =
+                    SupabaseConfig.supabasePost(
+                        table = "invoices",
+                        body = body.toString(),
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Create invoice", e)
+                false
             }
-            val result = SupabaseConfig.supabasePost(
-                table = "invoices",
-                body = body.toString(),
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Create invoice", e)
-            false
         }
-    }
 
-    suspend fun deletePayment(paymentId: String): Boolean = withContext(Dispatchers.IO) {
-        if (!isUsingBackend()) return@withContext false
-        try {
-            val result = SupabaseConfig.supabaseDelete(
-                table = "payments",
-                query = "id=eq.$paymentId",
-                authToken = authToken()
-            )
-            result != null
-        } catch (e: Exception) {
-            recordError("Delete payment", e)
-            false
+    suspend fun deletePayment(paymentId: String): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                val result =
+                    SupabaseConfig.supabaseDelete(
+                        table = "payments",
+                        query = "id=eq.$paymentId",
+                        authToken = authToken()
+                    )
+                result != null
+            } catch (e: Exception) {
+                recordError("Delete payment", e)
+                false
+            }
         }
-    }
 
     // ============================================
     // STUDENT CREATION FROM APPLICATION
@@ -1410,202 +1640,272 @@ object SupabaseRepository {
      * Create a student row from an approved application.
      * Called when admin approves an application.
      */
-    suspend fun createStudentFromApplication(applicationId: String): Boolean = withContext(Dispatchers.IO) {
-        AuditLogger.log("createStudentFromApplication_start", "appId=$applicationId")
-        if (!isUsingBackend()) {
-            AuditLogger.log("createStudentFromApplication_skip", "backend disabled")
-            return@withContext false
-        }
-        try {
-            val appResult = SupabaseConfig.supabaseGet(
-                table = "applications",
-                query = "id=eq.$applicationId&select=*",
-                authToken = authToken()
-            ) ?: run {
-                AuditLogger.log("createStudentFromApplication_fail", "application not found")
+    suspend fun createStudentFromApplication(applicationId: String): Boolean =
+        withContext(Dispatchers.IO) {
+            AuditLogger.log("createStudentFromApplication_start", "appId=$applicationId")
+            if (!isUsingBackend()) {
+                AuditLogger.log("createStudentFromApplication_skip", "backend disabled")
                 return@withContext false
             }
-
-            val appObj = JSONArray(appResult).optJSONObject(0) ?: run {
-                AuditLogger.log("createStudentFromApplication_fail", "empty application result")
-                return@withContext false
-            }
-
-            val parentId = appObj.optString("parent_id")
-            val firstName = appObj.optString("student_first_name").trim()
-            val lastName = appObj.optString("student_last_name").trim()
-
-            if (firstName.isBlank() || lastName.isBlank()) {
-                recordError("Create student from application", Exception("First name and last name are required"))
-                AuditLogger.log("createStudentFromApplication_fail", "missing name")
-                return@withContext false
-            }
-
-            val validGrade = appObj.optInt("student_grade").let { if (it in 1..7) it else 1 }
-
-            val studentBody = JSONObject().apply {
-                put("parent_id", parentId)
-                put("first_name", firstName)
-                put("last_name", lastName)
-                val dob = appObj.optString("student_dob")
-                if (dob.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) put("date_of_birth", dob)
-                put("grade", validGrade)
-                if (appObj.optString("student_school").isNotBlank()) put("school", appObj.optString("student_school").trim())
-                if (appObj.optString("student_address").isNotBlank()) put("address", appObj.optString("student_address").trim())
-                if (appObj.optString("student_gender").isNotBlank()) put("gender", appObj.optString("student_gender"))
-                if (appObj.optString("student_class_number").isNotBlank()) put("class_number", appObj.optString("student_class_number").trim())
-                if (appObj.optString("student_teacher_name").isNotBlank()) put("teacher_name", appObj.optString("student_teacher_name").trim())
-                put("lsen", appObj.optString("student_lsen").equals("true", ignoreCase = true) || appObj.optString("student_lsen") == "Yes")
-                put("photo_consent", appObj.optBoolean("photo_consent", false))
-                if (appObj.optString("signature_data").isNotBlank()) put("signature_data", appObj.optString("signature_data"))
-                put("status", "active")
-            }
-
-            Log.d(TAG, "Creating student from application: ${studentBody.toString()}")
-
-            val studentResult = SupabaseConfig.supabasePost(
-                table = "students",
-                body = studentBody.toString(),
-                authToken = authToken()
-            )
-
-            if (studentResult == null) {
-                Log.e(TAG, "Create student failed: null result from API")
-                AuditLogger.log("createStudentFromApplication_fail", "null api result")
-                return@withContext false
-            }
-
-            // PostgREST returns the created row(s) as a JSON array
-            val studentId = runCatching {
-                JSONArray(studentResult).optJSONObject(0)?.optString("id") ?: ""
-            }.getOrElse {
-                // Fallback: some configurations return a single object
-                runCatching { JSONObject(studentResult).optString("id") }.getOrElse { "" }
-            }
-            Log.d(TAG, "Student created successfully: $studentResult")
-            AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
-
-            if (studentId.isNotBlank()) {
-                // Generate registration fee invoice (R500) — due_date is a real date column,
-                // so compute the ISO date client-side instead of sending SQL expressions
-                val dueIn30Days = java.time.LocalDate.now().plusDays(30).toString()
-                val registrationInvoice = JSONObject().apply {
-                    put("student_id", studentId)
-                    put("amount", 500.00)
-                    put("description", "Registration Fee")
-                    put("status", "pending")
-                    put("category", "registration")
-                    put("due_date", dueIn30Days)
-                }
-                val regResult = SupabaseConfig.supabasePost(
-                    table = "invoices",
-                    body = registrationInvoice.toString(),
-                    authToken = authToken()
-                )
-                AuditLogger.log("createStudentFromApplication_invoice", "studentId=$studentId type=registration result=${regResult != null}")
-
-                // Auto-generate Project Fee (R380) for Grade 6 students in Q3
-                val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
-                val isQ3 = currentMonth in 7..9
-                val isGrade6 = appObj.optInt("student_grade", 0) == 6
-                if (isQ3 && isGrade6) {
-                    val projectInvoice = JSONObject().apply {
-                        put("student_id", studentId)
-                        put("amount", 380.00)
-                        put("description", "Project Fee — Q3 2026 (Grade 6)")
-                        put("status", "pending")
-                        put("category", "project")
-                        put("due_date", dueIn30Days)
+            try {
+                val appResult =
+                    SupabaseConfig.supabaseGet(
+                        table = "applications",
+                        query = "id=eq.$applicationId&select=*",
+                        authToken = authToken()
+                    ) ?: run {
+                        AuditLogger.log("createStudentFromApplication_fail", "application not found")
+                        return@withContext false
                     }
-                    val projectResult = SupabaseConfig.supabasePost(
-                        table = "invoices",
-                        body = projectInvoice.toString(),
+
+                val appObj =
+                    JSONArray(appResult).optJSONObject(0) ?: run {
+                        AuditLogger.log("createStudentFromApplication_fail", "empty application result")
+                        return@withContext false
+                    }
+
+                val parentId = appObj.optString("parent_id")
+                val firstName = appObj.optString("student_first_name").trim()
+                val lastName = appObj.optString("student_last_name").trim()
+
+                if (firstName.isBlank() || lastName.isBlank()) {
+                    recordError("Create student from application", Exception("First name and last name are required"))
+                    AuditLogger.log("createStudentFromApplication_fail", "missing name")
+                    return@withContext false
+                }
+
+                val validGrade = appObj.optInt("student_grade").let { if (it in 1..7) it else 1 }
+
+                val studentBody =
+                    JSONObject().apply {
+                        put("parent_id", parentId)
+                        put("first_name", firstName)
+                        put("last_name", lastName)
+                        val dob = appObj.optString("student_dob")
+                        if (dob.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) put("date_of_birth", dob)
+                        put("grade", validGrade)
+                        if (appObj.optString(
+                                "student_school"
+                            ).isNotBlank()
+                        ) {
+                            put("school", appObj.optString("student_school").trim())
+                        }
+                        if (appObj.optString(
+                                "student_address"
+                            ).isNotBlank()
+                        ) {
+                            put("address", appObj.optString("student_address").trim())
+                        }
+                        if (appObj.optString(
+                                "student_gender"
+                            ).isNotBlank()
+                        ) {
+                            put("gender", appObj.optString("student_gender"))
+                        }
+                        if (appObj.optString(
+                                "student_class_number"
+                            ).isNotBlank()
+                        ) {
+                            put("class_number", appObj.optString("student_class_number").trim())
+                        }
+                        if (appObj.optString(
+                                "student_teacher_name"
+                            ).isNotBlank()
+                        ) {
+                            put("teacher_name", appObj.optString("student_teacher_name").trim())
+                        }
+                        put(
+                            "lsen",
+                            appObj.optString("student_lsen").equals("true", ignoreCase = true) || appObj.optString("student_lsen") == "Yes"
+                        )
+                        put("photo_consent", appObj.optBoolean("photo_consent", false))
+                        if (appObj.optString(
+                                "signature_data"
+                            ).isNotBlank()
+                        ) {
+                            put("signature_data", appObj.optString("signature_data"))
+                        }
+                        put("status", "active")
+                    }
+
+                Log.d(TAG, "Creating student from application: $studentBody")
+
+                val studentResult =
+                    SupabaseConfig.supabasePost(
+                        table = "students",
+                        body = studentBody.toString(),
                         authToken = authToken()
                     )
-                    AuditLogger.log("createStudentFromApplication_projectFee", "studentId=$studentId grade=6 month=$currentMonth result=${projectResult != null}")
+
+                if (studentResult == null) {
+                    Log.e(TAG, "Create student failed: null result from API")
+                    AuditLogger.log("createStudentFromApplication_fail", "null api result")
+                    return@withContext false
                 }
 
-                // Transport fee removed — A+ Study House does not offer transport services
+                // PostgREST returns the created row(s) as a JSON array
+                val studentId =
+                    runCatching {
+                        JSONArray(studentResult).optJSONObject(0)?.optString("id") ?: ""
+                    }.getOrElse {
+                        // Fallback: some configurations return a single object
+                        runCatching { JSONObject(studentResult).optString("id") }.getOrElse { "" }
+                    }
+                Log.d(TAG, "Student created successfully: $studentResult")
+                AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
 
-                val medicalBody = JSONObject().apply {
-                    put("student_id", studentId)
-                    put("doctor_name", InputSanitizer.sanitizeName(appObj.optString("doctor_name")))
-                    put("doctor_location", InputSanitizer.sanitizeText(appObj.optString("doctor_location")))
-                    put("doctor_contact", InputSanitizer.sanitizePhone(appObj.optString("doctor_contact")))
-                    put("medical_plan", InputSanitizer.sanitizeText(appObj.optString("medical_plan")))
-                    put("medical_aid_number", InputSanitizer.sanitizeText(appObj.optString("medical_aid_number")))
-                    put("allergies", InputSanitizer.sanitizeText(appObj.optString("allergies")))
-                    put("has_allergies", appObj.optBoolean("has_allergies"))
-                    put("epilepsy", appObj.optBoolean("epilepsy"))
-                    put("diabetic", appObj.optBoolean("diabetic"))
-                    put("asthma", appObj.optBoolean("asthma"))
-                    put("nose_bleeder", appObj.optBoolean("nose_bleeder"))
-                }
-                val medicalResult = SupabaseConfig.supabasePost(
-                    table = "medical_info",
-                    body = medicalBody.toString(),
-                    authToken = authToken()
-                )
-                AuditLogger.log("createStudentFromApplication_medical", "studentId=$studentId medical=${medicalResult != null}")
-
-                val collectionPersons = listOf(
-                    1 to Triple(
-                        appObj.optString("collection_person_1"),
-                        appObj.optString("collection_contact_1"),
-                        appObj.optString("collection_vehicle_1")
-                    ),
-                    2 to Triple(
-                        appObj.optString("collection_person_2"),
-                        appObj.optString("collection_contact_2"),
-                        appObj.optString("collection_vehicle_2")
-                    )
-                )
-
-                collectionPersons.forEach { (order, triple) ->
-                    val (person, contact, vehicle) = triple
-                    if (!person.isNullOrBlank()) {
-                        val body = JSONObject().apply {
+                if (studentId.isNotBlank()) {
+                    // Generate registration fee invoice (R500) — due_date is a real date column,
+                    // so compute the ISO date client-side instead of sending SQL expressions
+                    val dueIn30Days = java.time.LocalDate.now().plusDays(30).toString()
+                    val registrationInvoice =
+                        JSONObject().apply {
                             put("student_id", studentId)
-                            put("person_name", InputSanitizer.sanitizeName(person))
-                            put("contact_number", InputSanitizer.sanitizePhone(contact ?: ""))
-                            put("vehicle_registration", InputSanitizer.sanitizeVehicleReg(vehicle ?: ""))
-                            put("person_order", order)
+                            put("amount", 500.00)
+                            put("description", "Registration Fee")
+                            put("status", "pending")
+                            put("category", "registration")
+                            put("due_date", dueIn30Days)
                         }
-                        val result = SupabaseConfig.supabasePost(
-                            table = "collection_persons",
-                            body = body.toString(),
+                    val regResult =
+                        SupabaseConfig.supabasePost(
+                            table = "invoices",
+                            body = registrationInvoice.toString(),
                             authToken = authToken()
                         )
-                        AuditLogger.log("createStudentFromApplication_collection", "studentId=$studentId order=$order result=${result != null}")
-                    }
-                }
+                    AuditLogger.log(
+                        "createStudentFromApplication_invoice",
+                        "studentId=$studentId type=registration result=${regResult != null}"
+                    )
 
-                val sports = appObj.optString("sports")
-                if (sports.isNotBlank()) {
-                    sports.split(",").forEach { sport ->
-                        if (sport.isNotBlank()) {
-                            val body = JSONObject().apply {
+                    // Auto-generate Project Fee (R380) for Grade 6 students in Q3
+                    val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+                    val isQ3 = currentMonth in 7..9
+                    val isGrade6 = appObj.optInt("student_grade", 0) == 6
+                    if (isQ3 && isGrade6) {
+                        val projectInvoice =
+                            JSONObject().apply {
                                 put("student_id", studentId)
-                                put("sport_name", InputSanitizer.sanitizeText(sport))
+                                put("amount", 380.00)
+                                put("description", "Project Fee — Q3 2026 (Grade 6)")
+                                put("status", "pending")
+                                put("category", "project")
+                                put("due_date", dueIn30Days)
                             }
-                            val result = SupabaseConfig.supabasePost(
-                                table = "student_sports",
-                                body = body.toString(),
+                        val projectResult =
+                            SupabaseConfig.supabasePost(
+                                table = "invoices",
+                                body = projectInvoice.toString(),
                                 authToken = authToken()
                             )
-                            AuditLogger.log("createStudentFromApplication_sport", "studentId=$studentId sport=$sport result=${result != null}")
+                        AuditLogger.log(
+                            "createStudentFromApplication_projectFee",
+                            "studentId=$studentId grade=6 month=$currentMonth result=${projectResult != null}"
+                        )
+                    }
+
+                    // Transport fee removed — A+ Study House does not offer transport services
+
+                    val medicalBody =
+                        JSONObject().apply {
+                            put("student_id", studentId)
+                            put("doctor_name", InputSanitizer.sanitizeName(appObj.optString("doctor_name")))
+                            put("doctor_location", InputSanitizer.sanitizeText(appObj.optString("doctor_location")))
+                            put("doctor_contact", InputSanitizer.sanitizePhone(appObj.optString("doctor_contact")))
+                            put("medical_plan", InputSanitizer.sanitizeText(appObj.optString("medical_plan")))
+                            put(
+                                "medical_aid_number",
+                                InputSanitizer.sanitizeText(appObj.optString("medical_aid_number"))
+                            )
+                            put("allergies", InputSanitizer.sanitizeText(appObj.optString("allergies")))
+                            put("has_allergies", appObj.optBoolean("has_allergies"))
+                            put("epilepsy", appObj.optBoolean("epilepsy"))
+                            put("diabetic", appObj.optBoolean("diabetic"))
+                            put("asthma", appObj.optBoolean("asthma"))
+                            put("nose_bleeder", appObj.optBoolean("nose_bleeder"))
+                        }
+                    val medicalResult =
+                        SupabaseConfig.supabasePost(
+                            table = "medical_info",
+                            body = medicalBody.toString(),
+                            authToken = authToken()
+                        )
+                    AuditLogger.log(
+                        "createStudentFromApplication_medical",
+                        "studentId=$studentId medical=${medicalResult != null}"
+                    )
+
+                    val collectionPersons =
+                        listOf(
+                            1 to
+                                Triple(
+                                    appObj.optString("collection_person_1"),
+                                    appObj.optString("collection_contact_1"),
+                                    appObj.optString("collection_vehicle_1")
+                                ),
+                            2 to
+                                Triple(
+                                    appObj.optString("collection_person_2"),
+                                    appObj.optString("collection_contact_2"),
+                                    appObj.optString("collection_vehicle_2")
+                                )
+                        )
+
+                    collectionPersons.forEach { (order, triple) ->
+                        val (person, contact, vehicle) = triple
+                        if (!person.isNullOrBlank()) {
+                            val body =
+                                JSONObject().apply {
+                                    put("student_id", studentId)
+                                    put("person_name", InputSanitizer.sanitizeName(person))
+                                    put("contact_number", InputSanitizer.sanitizePhone(contact ?: ""))
+                                    put("vehicle_registration", InputSanitizer.sanitizeVehicleReg(vehicle ?: ""))
+                                    put("person_order", order)
+                                }
+                            val result =
+                                SupabaseConfig.supabasePost(
+                                    table = "collection_persons",
+                                    body = body.toString(),
+                                    authToken = authToken()
+                                )
+                            AuditLogger.log(
+                                "createStudentFromApplication_collection",
+                                "studentId=$studentId order=$order result=${result != null}"
+                            )
+                        }
+                    }
+
+                    val sports = appObj.optString("sports")
+                    if (sports.isNotBlank()) {
+                        sports.split(",").forEach { sport ->
+                            if (sport.isNotBlank()) {
+                                val body =
+                                    JSONObject().apply {
+                                        put("student_id", studentId)
+                                        put("sport_name", InputSanitizer.sanitizeText(sport))
+                                    }
+                                val result =
+                                    SupabaseConfig.supabasePost(
+                                        table = "student_sports",
+                                        body = body.toString(),
+                                        authToken = authToken()
+                                    )
+                                AuditLogger.log(
+                                    "createStudentFromApplication_sport",
+                                    "studentId=$studentId sport=$sport result=${result != null}"
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            true
-        } catch (e: Exception) {
-            recordError("Create student from application", e)
-            AuditLogger.log("createStudentFromApplication_error", e.message ?: "")
-            false
+                true
+            } catch (e: Exception) {
+                recordError("Create student from application", e)
+                AuditLogger.log("createStudentFromApplication_error", e.message ?: "")
+                false
+            }
         }
-    }
     // MOCK DATA HELPERS
     // ============================================
 
@@ -1657,12 +1957,13 @@ object SupabaseRepository {
             school = obj.optString("school", ""),
             address = obj.optStringOrNullSafe("address"),
             parentId = obj.optString("parent_id"),
-            status = when (obj.optString("status")) {
-                "active" -> StudentStatus.ACTIVE
-                "pending" -> StudentStatus.PENDING
-                "inactive" -> StudentStatus.INACTIVE
-                else -> StudentStatus.PENDING
-            },
+            status =
+                when (obj.optString("status")) {
+                    "active" -> StudentStatus.ACTIVE
+                    "pending" -> StudentStatus.PENDING
+                    "inactive" -> StudentStatus.INACTIVE
+                    else -> StudentStatus.PENDING
+                },
             gender = obj.optStringOrNullSafe("gender"),
             classNr = obj.optStringOrNullSafe("class_number"),
             teacherName = obj.optStringOrNullSafe("teacher_name"),
@@ -1723,15 +2024,16 @@ object SupabaseRepository {
             grade = obj.optInt("student_grade", 0),
             school = obj.optString("student_school", ""),
             submittedDate = obj.optString("submitted_at", ""),
-            status = when (obj.optString("status")) {
-                "submitted" -> ApplicationStatus.SUBMITTED
-                "under_review" -> ApplicationStatus.UNDER_REVIEW
-                "changes_required" -> ApplicationStatus.CHANGES_REQUIRED
-                "payment_verified" -> ApplicationStatus.PAYMENT_VERIFIED
-                "approved" -> ApplicationStatus.APPROVED
-                "rejected" -> ApplicationStatus.REJECTED
-                else -> ApplicationStatus.SUBMITTED
-            },
+            status =
+                when (obj.optString("status")) {
+                    "submitted" -> ApplicationStatus.SUBMITTED
+                    "under_review" -> ApplicationStatus.UNDER_REVIEW
+                    "changes_required" -> ApplicationStatus.CHANGES_REQUIRED
+                    "payment_verified" -> ApplicationStatus.PAYMENT_VERIFIED
+                    "approved" -> ApplicationStatus.APPROVED
+                    "rejected" -> ApplicationStatus.REJECTED
+                    else -> ApplicationStatus.SUBMITTED
+                },
             lastUpdated = obj.optString("updated_at", ""),
             notes = notesRaw.ifBlank { null },
             registrationFeePaid = obj.optBoolean("payment_amount", false),
@@ -1753,51 +2055,57 @@ object SupabaseRepository {
             description = obj.optString("description"),
             amount = obj.optDouble("amount", 0.0),
             dueDate = obj.optStringOrNullSafe("due_date"),
-            status = when (obj.optString("status")) {
-                "paid" -> InvoiceStatus.PAID
-                "pending" -> InvoiceStatus.PENDING
-                "overdue" -> InvoiceStatus.OVERDUE
-                else -> InvoiceStatus.PENDING
-            },
+            status =
+                when (obj.optString("status")) {
+                    "paid" -> InvoiceStatus.PAID
+                    "pending" -> InvoiceStatus.PENDING
+                    "overdue" -> InvoiceStatus.OVERDUE
+                    else -> InvoiceStatus.PENDING
+                },
             paidDate = obj.optStringOrNullSafe("paid_date"),
-            category = when (obj.optString("category")) {
-                "aftercare" -> InvoiceCategory.AFTERCARE
-                "transport" -> InvoiceCategory.TRANSPORT
-                "stationery" -> InvoiceCategory.STATIONERY
-                "registration" -> InvoiceCategory.REGISTRATION
-                else -> InvoiceCategory.AFTERCARE
-            }
+            category =
+                when (obj.optString("category")) {
+                    "aftercare" -> InvoiceCategory.AFTERCARE
+                    "transport" -> InvoiceCategory.TRANSPORT
+                    "stationery" -> InvoiceCategory.STATIONERY
+                    "registration" -> InvoiceCategory.REGISTRATION
+                    else -> InvoiceCategory.AFTERCARE
+                }
         )
     }
 
-    private fun parsePermission(obj: JSONObject): MockPermission {        return MockPermission(
+    private fun parsePermission(obj: JSONObject): MockPermission {
+        return MockPermission(
             id = obj.optString("id"),
             title = obj.optString("title"),
             description = obj.optString("description", ""),
-            category = when (obj.optString("category")) {
-                "excursion" -> PermissionCategory.EXCURSION
-                "medical" -> PermissionCategory.MEDICAL
-                "photo" -> PermissionCategory.PHOTO
-                "sports" -> PermissionCategory.SPORTS
-                else -> PermissionCategory.OTHER
-            },
+            category =
+                when (obj.optString("category")) {
+                    "excursion" -> PermissionCategory.EXCURSION
+                    "medical" -> PermissionCategory.MEDICAL
+                    "photo" -> PermissionCategory.PHOTO
+                    "sports" -> PermissionCategory.SPORTS
+                    else -> PermissionCategory.OTHER
+                },
             createdBy = obj.optString("created_by"),
             createdDate = obj.optString("created_at", ""),
             expiryDate = obj.optString("expiry_date", ""),
-            status = when (obj.optString("status")) {
-                "pending" -> PermissionStatus.PENDING
-                "approved" -> PermissionStatus.APPROVED
-                "declined" -> PermissionStatus.DECLINED
-                "expired" -> PermissionStatus.EXPIRED
-                else -> PermissionStatus.PENDING
-            },
+            status =
+                when (obj.optString("status")) {
+                    "pending" -> PermissionStatus.PENDING
+                    "approved" -> PermissionStatus.APPROVED
+                    "declined" -> PermissionStatus.DECLINED
+                    "expired" -> PermissionStatus.EXPIRED
+                    else -> PermissionStatus.PENDING
+                },
             parentId = obj.optString("parent_id"),
             parentName = obj.optString("parent_name", ""),
-            response = when (obj.optString("response", "")) {
-                "granted" -> PermissionResponse.GRANTED
-                "declined" -> PermissionResponse.DECLINED
-                else -> null
-            },
+            response =
+                when (obj.optString("response", "")) {
+                    "granted" -> PermissionResponse.GRANTED
+                    "declined" -> PermissionResponse.DECLINED
+                    else -> null
+                },
             responseDate = obj.optString("response_date", ""),
             notes = obj.optString("notes", "")
         )
@@ -1810,18 +2118,27 @@ object SupabaseRepository {
             senderId = obj.optString("sender_id"),
             senderName = obj.optString("sender_name", ""),
             recipientId = obj.optString("recipient_id"),
-            recipientName = if (obj.optString("recipient_id") == "ALL") "All Parents" else obj.optString("recipient_name", ""),
+            recipientName =
+                if (obj.optString("recipient_id") == "ALL") {
+                    "All Parents"
+                } else {
+                    obj.optString(
+                        "recipient_name",
+                        ""
+                    )
+                },
             subject = obj.optString("subject"),
             content = obj.optString("content"),
             timestamp = obj.optString("created_at", ""),
             isRead = obj.optBoolean("is_read", false),
-            category = when (obj.optString("category")) {
-                "application" -> MessageCategory.APPLICATION
-                "finance" -> MessageCategory.FINANCE
-                "permission" -> MessageCategory.PERMISSION
-                "announcement" -> MessageCategory.ANNOUNCEMENT
-                else -> MessageCategory.GENERAL
-            },
+            category =
+                when (obj.optString("category")) {
+                    "application" -> MessageCategory.APPLICATION
+                    "finance" -> MessageCategory.FINANCE
+                    "permission" -> MessageCategory.PERMISSION
+                    "announcement" -> MessageCategory.ANNOUNCEMENT
+                    else -> MessageCategory.GENERAL
+                },
             parentMessageId = obj.optString("parent_message_id", ""),
             isAnnouncement = obj.optBoolean("is_announcement", false)
         )
@@ -1835,15 +2152,16 @@ object SupabaseRepository {
             message = obj.optString("message"),
             timestamp = obj.optString("created_at", ""),
             isRead = obj.optBoolean("is_read", false),
-            type = when (obj.optString("type")) {
-                "payment" -> NotificationType.PAYMENT
-                "document" -> NotificationType.DOCUMENT
-                "application" -> NotificationType.APPLICATION
-                "permission" -> NotificationType.PERMISSION
-                "message" -> NotificationType.MESSAGE
-                "reminder" -> NotificationType.REMINDER
-                else -> NotificationType.GENERAL
-            },
+            type =
+                when (obj.optString("type")) {
+                    "payment" -> NotificationType.PAYMENT
+                    "document" -> NotificationType.DOCUMENT
+                    "application" -> NotificationType.APPLICATION
+                    "permission" -> NotificationType.PERMISSION
+                    "message" -> NotificationType.MESSAGE
+                    "reminder" -> NotificationType.REMINDER
+                    else -> NotificationType.GENERAL
+                },
             relatedId = obj.optString("related_id", "")
         )
     }
@@ -1861,7 +2179,7 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
     val first = InputSanitizer.sanitizeName(parts.firstOrNull() ?: "")
     val last = InputSanitizer.sanitizeName(parts.getOrNull(1) ?: "")
     return JSONObject().apply {
-        put("parent_id", parentId)  // ← CRITICAL: RLS needs this
+        put("parent_id", parentId) // ← CRITICAL: RLS needs this
         put("student_first_name", first)
         put("student_last_name", last)
         put("child_first_name", first)
@@ -1875,11 +2193,12 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
             put("student_dob", JSONObject.NULL)
         } else {
             val dobParts = dobClean.split("/")
-            val dobIso = if (dobParts.size == 3 && dobParts[2].length == 4) {
-                "%04d-%02d-%02d".format(dobParts[2].toInt(), dobParts[1].toInt(), dobParts[0].toInt())
-            } else {
-                dobClean
-            }
+            val dobIso =
+                if (dobParts.size == 3 && dobParts[2].length == 4) {
+                    "%04d-%02d-%02d".format(dobParts[2].toInt(), dobParts[1].toInt(), dobParts[0].toInt())
+                } else {
+                    dobClean
+                }
             put("student_dob", dobIso)
         }
         put("student_school", InputSanitizer.sanitizeText(school))

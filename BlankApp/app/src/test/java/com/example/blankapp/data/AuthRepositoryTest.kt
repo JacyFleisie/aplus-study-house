@@ -1,7 +1,7 @@
 package com.example.blankapp.data
 
-import org.junit.Assert.*
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
@@ -16,7 +16,6 @@ import org.junit.Test
  *  - a logged-in session survives until signOut
  */
 class AuthRepositoryTest {
-
     @Before
     fun setup() {
         // Force mock mode so tests run deterministically regardless of supabase.properties.
@@ -34,66 +33,74 @@ class AuthRepositoryTest {
     // ============================================
 
     @Test
-    fun `admin login succeeds and yields ADMIN role`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
-        assertTrue("Admin login should succeed", result.success)
-        assertEquals(UserRole.ADMIN, result.user?.role)
-    }
+    fun `admin login succeeds and yields ADMIN role`() =
+        kotlinx.coroutines.runBlocking {
+            val result = AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
+            assertTrue("Admin login should succeed", result.success)
+            assertEquals(UserRole.ADMIN, result.user?.role)
+        }
 
     @Test
-    fun `admin wrong password is rejected`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("admin@aplusstudy.co.za", "WrongPassword")
-        assertFalse("Admin login with wrong password must fail", result.success)
-    }
+    fun `admin wrong password is rejected`() =
+        kotlinx.coroutines.runBlocking {
+            val result = AuthRepository.signIn("admin@aplusstudy.co.za", "WrongPassword")
+            assertFalse("Admin login with wrong password must fail", result.success)
+        }
 
     @Test
-    fun `unknown email is rejected`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.signIn("nobody@example.com", "Password1")
-        assertFalse("Unknown email must fail", result.success)
-        assertNull("No user returned on failure", result.user)
-    }
+    fun `unknown email is rejected`() =
+        kotlinx.coroutines.runBlocking {
+            val result = AuthRepository.signIn("nobody@example.com", "Password1")
+            assertFalse("Unknown email must fail", result.success)
+            assertNull("No user returned on failure", result.user)
+        }
 
     @Test
-    fun `empty email or password is rejected`() = kotlinx.coroutines.runBlocking {
-        assertFalse(AuthRepository.signIn("", "Password1").success)
-        assertFalse(AuthRepository.signIn("admin@aplusstudy.co.za", "").success)
-    }
+    fun `empty email or password is rejected`() =
+        kotlinx.coroutines.runBlocking {
+            assertFalse(AuthRepository.signIn("", "Password1").success)
+            assertFalse(AuthRepository.signIn("admin@aplusstudy.co.za", "").success)
+        }
 
     // ============================================
     // CREATE ACCOUNT (PARENT)
     // ============================================
 
     @Test
-    fun `createAccount mints a PARENT account`() = kotlinx.coroutines.runBlocking {
-        val result = AuthRepository.createAccount(
-            fullName = "Test Parent",
-            email = "parent${System.currentTimeMillis()}@example.com",
-            phone = "0821234567",
-            password = "Password1"
-        )
-        assertTrue("createAccount should succeed", result.success)
-        assertEquals(UserRole.PARENT, result.user?.role)
-    }
+    fun `createAccount mints a PARENT account`() =
+        kotlinx.coroutines.runBlocking {
+            val result =
+                AuthRepository.createAccount(
+                    fullName = "Test Parent",
+                    email = "parent${System.currentTimeMillis()}@example.com",
+                    phone = "0821234567",
+                    password = "Password1"
+                )
+            assertTrue("createAccount should succeed", result.success)
+            assertEquals(UserRole.PARENT, result.user?.role)
+        }
 
     // ============================================
     // SESSION / ROLE STATE
     // ============================================
 
     @Test
-    fun `signIn establishes a logged-in ADMIN session`() = kotlinx.coroutines.runBlocking {
-        AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
-        assertTrue("Should be logged in", AuthRepository.isLoggedIn())
-        assertEquals(UserRole.ADMIN, AuthRepository.getCurrentUser()?.role)
-    }
+    fun `signIn establishes a logged-in ADMIN session`() =
+        kotlinx.coroutines.runBlocking {
+            AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
+            assertTrue("Should be logged in", AuthRepository.isLoggedIn())
+            assertEquals(UserRole.ADMIN, AuthRepository.getCurrentUser()?.role)
+        }
 
     @Test
-    fun `signOut clears the session`() = kotlinx.coroutines.runBlocking {
-        AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
-        assertTrue(AuthRepository.isLoggedIn())
-        AuthRepository.signOut()
-        assertFalse("Should not be logged in after signOut", AuthRepository.isLoggedIn())
-        assertNull("No current user after signOut", AuthRepository.getCurrentUser())
-    }
+    fun `signOut clears the session`() =
+        kotlinx.coroutines.runBlocking {
+            AuthRepository.signIn("admin@aplusstudy.co.za", "Admin123")
+            assertTrue(AuthRepository.isLoggedIn())
+            AuthRepository.signOut()
+            assertFalse("Should not be logged in after signOut", AuthRepository.isLoggedIn())
+            assertNull("No current user after signOut", AuthRepository.getCurrentUser())
+        }
 
     @Test
     fun `no session before login`() {

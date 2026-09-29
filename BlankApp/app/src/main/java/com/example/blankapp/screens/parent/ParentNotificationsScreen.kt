@@ -1,7 +1,6 @@
 package com.example.blankapp.screens.parent
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -86,9 +85,7 @@ fun getNotificationContainer(type: NotificationType): Color {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParentNotificationsScreen(
-    onBack: () -> Unit
-) {
+fun ParentNotificationsScreen(onBack: () -> Unit) {
     var notifications by remember { mutableStateOf<List<MockNotification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showPreferences by remember { mutableStateOf(false) }
@@ -98,11 +95,12 @@ fun ParentNotificationsScreen(
     // Load notifications from backend (Supabase) — no mock data
     LaunchedEffect(reloadKey) {
         val userId = AuthRepository.getCurrentUser()?.id.orEmpty()
-        notifications = try {
-            SupabaseRepository.getUserNotifications(userId)
-        } catch (e: Exception) {
-            emptyList()
-        }
+        notifications =
+            try {
+                SupabaseRepository.getUserNotifications(userId)
+            } catch (e: Exception) {
+                emptyList()
+            }
         isLoading = false
     }
 
@@ -131,32 +129,36 @@ fun ParentNotificationsScreen(
                         Icon(Icons.Filled.Settings, contentDescription = "Preferences")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
         ) {
             // Header
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -200,23 +202,24 @@ fun ParentNotificationsScreen(
                     CircularProgressIndicator(color = Primary)
                 }
             } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                items(notifications) { notification ->
-                    NotificationCard(
-                        notification = notification,
-                        onMarkRead = {
-                            notifications = notifications.map {
-                                if (it.id == notification.id) it.copy(isRead = true) else it
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(notifications) { notification ->
+                        NotificationCard(
+                            notification = notification,
+                            onMarkRead = {
+                                notifications =
+                                    notifications.map {
+                                        if (it.id == notification.id) it.copy(isRead = true) else it
+                                    }
                             }
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
                 }
-                item { Spacer(modifier = Modifier.height(24.dp)) }
-            }
             }
         }
     }
@@ -230,24 +233,27 @@ fun NotificationCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (notification.isRead) Surface else PrimaryContainer.copy(alpha = 0.25f)
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = if (notification.isRead) Surface else PrimaryContainer.copy(alpha = 0.25f)
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
             // Unread indicator
             if (!notification.isRead) {
                 Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .padding(top = 6.dp)
-                        .background(Primary, CircleShape)
+                    modifier =
+                        Modifier
+                            .size(8.dp)
+                            .padding(top = 6.dp)
+                            .background(Primary, CircleShape)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             } else {
@@ -256,9 +262,10 @@ fun NotificationCard(
 
             // Icon based on type
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(getNotificationContainer(notification.type), CircleShape),
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .background(getNotificationContainer(notification.type), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -313,9 +320,7 @@ fun NotificationCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationPreferencesScreen(
-    onBack: () -> Unit
-) {
+fun NotificationPreferencesScreen(onBack: () -> Unit) {
     var prefs by remember { mutableStateOf(NotificationPreference()) }
     var isLoading by remember { mutableStateOf(true) }
     var isSaving by remember { mutableStateOf(false) }
@@ -325,11 +330,12 @@ fun NotificationPreferencesScreen(
     // Load preferences from Supabase for this user
     LaunchedEffect(Unit) {
         val userId = AuthRepository.getCurrentUser()?.id.orEmpty()
-        prefs = try {
-            SupabaseRepository.getNotificationPreferences(userId)
-        } catch (e: Exception) {
-            NotificationPreference()
-        }
+        prefs =
+            try {
+                SupabaseRepository.getNotificationPreferences(userId)
+            } catch (e: Exception) {
+                NotificationPreference()
+            }
         isLoading = false
     }
 
@@ -342,19 +348,21 @@ fun NotificationPreferencesScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .padding(16.dp)
         ) {
             Text(
                 text = "Choose which notifications you receive",
@@ -443,11 +451,12 @@ fun NotificationPreferencesScreen(
                         isSaving = true
                         saveError = null
                         val userId = AuthRepository.getCurrentUser()?.id.orEmpty()
-                        val ok = try {
-                            SupabaseRepository.saveNotificationPreferences(userId, prefs)
-                        } catch (e: Exception) {
-                            false
-                        }
+                        val ok =
+                            try {
+                                SupabaseRepository.saveNotificationPreferences(userId, prefs)
+                            } catch (e: Exception) {
+                                false
+                            }
                         isSaving = false
                         if (ok) {
                             onBack()
@@ -482,9 +491,10 @@ fun PreferenceToggle(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {

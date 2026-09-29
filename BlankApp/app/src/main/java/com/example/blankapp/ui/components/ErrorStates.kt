@@ -28,10 +28,11 @@ fun ErrorScreen(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Background)
-            .padding(32.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {
         Card(
@@ -41,16 +42,18 @@ fun ErrorScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Error Icon
                 Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .background(ErrorContainer, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(80.dp)
+                            .background(ErrorContainer, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -88,14 +91,16 @@ fun ErrorScreen(
                     // Retry Button
                     Button(
                         onClick = onRetry,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Primary,
-                            contentColor = OnPrimary
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Primary,
+                                contentColor = OnPrimary
+                            )
                     ) {
                         Icon(
                             Icons.Filled.Refresh,
@@ -131,9 +136,10 @@ fun ErrorCard(
         colors = CardDefaults.cardColors(containerColor = ErrorContainer)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -253,10 +259,11 @@ fun EmptyStateWithError(
         }
         isEmpty -> {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Background)
-                    .padding(32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Background)
+                        .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(

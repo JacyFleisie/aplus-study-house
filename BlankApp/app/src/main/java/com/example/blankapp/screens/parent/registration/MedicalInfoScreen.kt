@@ -26,9 +26,17 @@ fun MedicalInfoScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
     onContinue: (
-        doctorName: String, doctorLocation: String, doctorContact: String,
-        medicalPlan: String, medicalAidNumber: String, allergies: String,
-        epilepsy: Boolean, diabetic: Boolean, asthma: Boolean, noseBleeder: Boolean, hasAllergies: Boolean
+        doctorName: String,
+        doctorLocation: String,
+        doctorContact: String,
+        medicalPlan: String,
+        medicalAidNumber: String,
+        allergies: String,
+        epilepsy: Boolean,
+        diabetic: Boolean,
+        asthma: Boolean,
+        noseBleeder: Boolean,
+        hasAllergies: Boolean
     ) -> Unit,
     draft: RegistrationDraft? = null
 ) {
@@ -63,20 +71,26 @@ fun MedicalInfoScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 0.57f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Primary, trackColor = PrimaryContainer
+                color = Primary,
+                trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 5 of 9 — Medical Information", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text(
+                "Step 5 of 9 — Medical Information",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -88,28 +102,65 @@ fun MedicalInfoScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.MedicalServices, contentDescription = null, tint = Error, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.MedicalServices,
+                            contentDescription = null,
+                            tint = Error,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Doctor Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Doctor Details",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = doctorName, onValueChange = { doctorName = it },
-                        label = { Text("Doctor's Name") }, placeholder = { Text("e.g. Dr. van der Merwe") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = doctorName,
+                        onValueChange = { doctorName = it },
+                        label = { Text("Doctor's Name") },
+                        placeholder = { Text("e.g. Dr. van der Merwe") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = doctorLocation, onValueChange = { doctorLocation = it },
-                        label = { Text("Location of Doctor") }, placeholder = { Text("e.g. Witpoortjie Medical Centre") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = doctorLocation,
+                        onValueChange = { doctorLocation = it },
+                        label = { Text("Location of Doctor") },
+                        placeholder = { Text("e.g. Witpoortjie Medical Centre") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = doctorContact, onValueChange = { doctorContact = it },
-                        label = { Text("Doctor's Phone Nr") }, placeholder = { Text("e.g. 011 456 7890") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = doctorContact,
+                        onValueChange = { doctorContact = it },
+                        label = { Text("Doctor's Phone Nr") },
+                        placeholder = { Text("e.g. 011 456 7890") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                 }
             }
 
@@ -123,35 +174,70 @@ fun MedicalInfoScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Warning, contentDescription = null, tint = Warning, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.Warning,
+                            contentDescription = null,
+                            tint = Warning,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Allergies & Conditions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Allergies & Conditions",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = allergies, onValueChange = { allergies = it },
-                        label = { Text("Allergies") }, placeholder = { Text("e.g. Peanuts, Penicillin") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = allergies,
+                        onValueChange = { allergies = it },
+                        label = { Text("Allergies") },
+                        placeholder = { Text("e.g. Peanuts, Penicillin") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text("Please note all conditions (tick if applicable):", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = OnBackground)
+                    Text(
+                        "Please note all conditions (tick if applicable):",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OnBackground
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     data class ConditionItem(val label: String, val checked: Boolean, val onToggle: (Boolean) -> Unit)
-                    val conditionsList = listOf(
-                        ConditionItem("Epilepsy", epilepsy) { epilepsy = it },
-                        ConditionItem("Diabetic", diabetic) { diabetic = it },
-                        ConditionItem("Asthma", asthma) { asthma = it },
-                        ConditionItem("Nose Bleeder", noseBleeder) { noseBleeder = it },
-                        ConditionItem("Allergies", hasAllergies) { hasAllergies = it }
-                    )
+                    val conditionsList =
+                        listOf(
+                            ConditionItem("Epilepsy", epilepsy) { epilepsy = it },
+                            ConditionItem("Diabetic", diabetic) { diabetic = it },
+                            ConditionItem("Asthma", asthma) { asthma = it },
+                            ConditionItem("Nose Bleeder", noseBleeder) { noseBleeder = it },
+                            ConditionItem("Allergies", hasAllergies) { hasAllergies = it }
+                        )
 
                     conditionsList.forEach { item ->
-                        Row(modifier = Modifier.fillMaxWidth().clickable { item.onToggle(!item.checked) }.padding(vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(checked = item.checked, onCheckedChange = { item.onToggle(it) },
-                                colors = CheckboxDefaults.colors(checkedColor = Primary))
+                        Row(
+                            modifier =
+                                Modifier.fillMaxWidth().clickable {
+                                    item.onToggle(
+                                        !item.checked
+                                    )
+                                }.padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = item.checked,
+                                onCheckedChange = { item.onToggle(it) },
+                                colors = CheckboxDefaults.colors(checkedColor = Primary)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = item.label, style = MaterialTheme.typography.bodyMedium, color = OnBackground)
                         }
@@ -169,29 +255,59 @@ fun MedicalInfoScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.HealthAndSafety, contentDescription = null, tint = Success, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.HealthAndSafety,
+                            contentDescription = null,
+                            tint = Success,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Medical Aid", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Medical Aid",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = medicalPlan, onValueChange = { medicalPlan = it },
-                        label = { Text("Medical Plan") }, placeholder = { Text("e.g. Discovery Health") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = medicalPlan,
+                        onValueChange = { medicalPlan = it },
+                        label = { Text("Medical Plan") },
+                        placeholder = { Text("e.g. Discovery Health") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedTextField(value = medicalAidNumber, onValueChange = { medicalAidNumber = it },
-                        label = { Text("Medical Aid Number") }, placeholder = { Text("e.g. DH-123456") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = medicalAidNumber,
+                        onValueChange = { medicalAidNumber = it },
+                        label = { Text("Medical Aid Number") },
+                        placeholder = { Text("e.g. DH-123456") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onContinue(doctorName, doctorLocation, doctorContact, medicalPlan, medicalAidNumber, allergies, epilepsy, diabetic, asthma, noseBleeder, hasAllergies) },
+                onClick = {
+                    onContinue(doctorName, doctorLocation, doctorContact, medicalPlan, medicalAidNumber, allergies, epilepsy, diabetic, asthma, noseBleeder, hasAllergies)
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)

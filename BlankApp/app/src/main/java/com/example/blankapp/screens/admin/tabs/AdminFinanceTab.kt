@@ -12,9 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.blankapp.R
 import com.example.blankapp.data.*
 import com.example.blankapp.screens.admin.components.*
 import com.example.blankapp.ui.theme.*
@@ -37,22 +35,25 @@ fun AdminFinanceTab(onNavigateToFinance: () -> Unit = {}) {
         isLoading = false
     }
 
-    val totalOutstanding = allInvoices
-        .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
-        .sumOf { it.amount }
+    val totalOutstanding =
+        allInvoices
+            .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
+            .sumOf { it.amount }
 
-    val totalPaid = allInvoices
-        .filter { it.status == InvoiceStatus.PAID }
-        .sumOf { it.amount }
+    val totalPaid =
+        allInvoices
+            .filter { it.status == InvoiceStatus.PAID }
+            .sumOf { it.amount }
 
     val overdueCount = allInvoices.count { it.status == InvoiceStatus.OVERDUE }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Finance Summary
         Card(
@@ -62,9 +63,10 @@ fun AdminFinanceTab(onNavigateToFinance: () -> Unit = {}) {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
             ) {
                 Text(
                     text = "Finance Overview",
@@ -170,9 +172,12 @@ fun AdminFinanceTab(onNavigateToFinance: () -> Unit = {}) {
         val parentGroups = allStudents.groupBy { it.parentId }
         parentUsers.forEach { parent ->
             val familyStudentIds = (parentGroups[parent.id] ?: emptyList()).map { it.id }.toSet()
-            val familyBalance = allInvoices
-                .filter { it.studentId in familyStudentIds && (it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE) }
-                .sumOf { it.amount }
+            val familyBalance =
+                allInvoices
+                    .filter {
+                        it.studentId in familyStudentIds && (it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE)
+                    }
+                    .sumOf { it.amount }
             FamilyBalanceCard(
                 parentName = parent.fullName,
                 studentCount = familyStudentIds.size,

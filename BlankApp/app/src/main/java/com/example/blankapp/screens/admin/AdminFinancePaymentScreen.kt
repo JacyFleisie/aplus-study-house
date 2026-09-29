@@ -1,5 +1,7 @@
 package com.example.blankapp.screens.admin
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,17 +18,14 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
-import android.content.Intent
-import android.net.Uri
 import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,12 +42,12 @@ fun AdminFinancePaymentScreen(
     var selectedPayment by remember { mutableStateOf<MockPayment?>(null) }
     var rejectionReason by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    
+
     // Cash payment data
     var cashStudentName by remember { mutableStateOf("") }
     var cashAmount by remember { mutableStateOf("") }
     var cashDescription by remember { mutableStateOf("") }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -58,18 +57,20 @@ fun AdminFinancePaymentScreen(
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
         ) {
             // Tab Row
             TabRow(
@@ -108,35 +109,37 @@ fun AdminFinancePaymentScreen(
                     icon = { Icon(Icons.Filled.Layers, contentDescription = null) }
                 )
             }
-            
+
             when (selectedTab) {
-                0 -> PendingPaymentsTab(
-                    onVerify = { payment ->
-                        selectedPayment = payment
-                        showVerifyDialog = true
-                    },
-                    onReject = { payment ->
-                        selectedPayment = payment
-                        rejectionReason = ""
-                        showRejectDialog = true
-                    },
-                    onViewProof = { payment ->
-                        selectedPayment = payment
-                        showProofDialog = true
-                    }
-                )
+                0 ->
+                    PendingPaymentsTab(
+                        onVerify = { payment ->
+                            selectedPayment = payment
+                            showVerifyDialog = true
+                        },
+                        onReject = { payment ->
+                            selectedPayment = payment
+                            rejectionReason = ""
+                            showRejectDialog = true
+                        },
+                        onViewProof = { payment ->
+                            selectedPayment = payment
+                            showProofDialog = true
+                        }
+                    )
                 1 -> VerifiedPaymentsTab()
-                2 -> RecordCashTab(
-                    onRecordCash = {
-                        showRecordCashDialog = true
-                    }
-                )
+                2 ->
+                    RecordCashTab(
+                        onRecordCash = {
+                            showRecordCashDialog = true
+                        }
+                    )
                 3 -> OutstandingPaymentsTab()
                 4 -> BatchPaymentsTab()
             }
         }
     }
-    
+
     // Verify Dialog
     if (showVerifyDialog && selectedPayment != null) {
         AlertDialog(
@@ -185,7 +188,7 @@ fun AdminFinancePaymentScreen(
             }
         )
     }
-    
+
     // Reject Dialog
     if (showRejectDialog && selectedPayment != null) {
         AlertDialog(
@@ -228,7 +231,7 @@ fun AdminFinancePaymentScreen(
             }
         )
     }
-    
+
     // Proof of Payment Preview Dialog
     if (showProofDialog && selectedPayment != null) {
         AlertDialog(
@@ -257,7 +260,11 @@ fun AdminFinancePaymentScreen(
                             Text("Open in Browser")
                         }
                     } else {
-                        Text("No proof of payment uploaded.", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                        Text(
+                            "No proof of payment uploaded.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant
+                        )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -368,18 +375,20 @@ fun PendingPaymentsTab(
     // Load payments from backend (Supabase) — no mock data
     var pendingPayments by remember { mutableStateOf<List<MockPayment>>(emptyList()) }
     LaunchedEffect(Unit) {
-        pendingPayments = try {
-            SupabaseRepository.getAllPayments().filter { it.status == PaymentStatus.PENDING }
-        } catch (e: Exception) {
-            emptyList()
-        }
+        pendingPayments =
+            try {
+                SupabaseRepository.getAllPayments().filter { it.status == PaymentStatus.PENDING }
+            } catch (e: Exception) {
+                emptyList()
+            }
     }
-    
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         if (pendingPayments.isEmpty()) {
             Card(
@@ -388,9 +397,10 @@ fun PendingPaymentsTab(
                 colors = CardDefaults.cardColors(containerColor = Surface)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -445,17 +455,19 @@ fun OutstandingPaymentsTab() {
             outstandingInvoices = allInvoices.filter { it.status == InvoiceStatus.OVERDUE || it.status == InvoiceStatus.PENDING }
             studentsById = students.associateBy { it.id }
             parentsById = parents.associateBy { it.id }
-        } catch (e: Exception) { }
+        } catch (e: Exception) {
+        }
     }
 
     val overdueInvoices = outstandingInvoices.filter { it.status == InvoiceStatus.OVERDUE }
     val overdueTotal = overdueInvoices.sumOf { it.amount }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Overdue summary
         if (overdueInvoices.isNotEmpty()) {
@@ -469,11 +481,25 @@ fun OutstandingPaymentsTab() {
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Filled.Warning, contentDescription = "Overdue", tint = Error, modifier = Modifier.size(32.dp))
+                    Icon(
+                        Icons.Filled.Warning,
+                        contentDescription = "Overdue",
+                        tint = Error,
+                        modifier = Modifier.size(32.dp)
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "${overdueInvoices.size} Overdue Invoice${if (overdueInvoices.size != 1) "s" else ""}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Error)
-                        Text(text = "R${"%.0f".format(overdueTotal)} overdue — send reminders", style = MaterialTheme.typography.bodySmall, color = OnBackground)
+                        Text(
+                            text = "${overdueInvoices.size} Overdue Invoice${if (overdueInvoices.size != 1) "s" else ""}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Error
+                        )
+                        Text(
+                            text = "R${"%.0f".format(overdueTotal)} overdue — send reminders",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnBackground
+                        )
                     }
                 }
             }
@@ -491,9 +517,18 @@ fun OutstandingPaymentsTab() {
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text(text = "Sending Statements", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                    Text(
+                        text = "Sending Statements",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Progress: ${currentBulkIndex + 1} of $total sent", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                    Text(
+                        text = "Progress: ${currentBulkIndex + 1} of $total sent",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     LinearProgressIndicator(
                         progress = { (currentBulkIndex + 1).toFloat() / total.toFloat() },
@@ -505,7 +540,11 @@ fun OutstandingPaymentsTab() {
                     if (currentInvoice != null) {
                         val student = studentsById[currentInvoice.studentId]
                         val parent = student?.let { parentsById[it.parentId] }
-                        Text(text = "Current: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"} — R${currentInvoice.amount.toInt()}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                        Text(
+                            text = "Current: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"} — R${currentInvoice.amount.toInt()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceVariant
+                        )
                     }
                 }
             }
@@ -520,11 +559,16 @@ fun OutstandingPaymentsTab() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { selectedInvoices = outstandingInvoices.map { it.id }.toSet() }) { Text("Select All") }
+                    TextButton(
+                        onClick = { selectedInvoices = outstandingInvoices.map { it.id }.toSet() }
+                    ) { Text("Select All") }
                     TextButton(onClick = { selectedInvoices = emptySet() }) { Text("Deselect All") }
                 }
                 Button(
-                    onClick = { showBulkSendDialog = true; currentBulkIndex = 0 },
+                    onClick = {
+                        showBulkSendDialog = true
+                        currentBulkIndex = 0
+                    },
                     enabled = selectedInvoices.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = Success)
                 ) {
@@ -536,16 +580,42 @@ fun OutstandingPaymentsTab() {
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        Text(text = "All Outstanding Invoices", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+        Text(
+            text = "All Outstanding Invoices",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = OnBackground
+        )
         Spacer(modifier = Modifier.height(12.dp))
 
         if (outstandingInvoices.isEmpty()) {
-            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Surface)) {
-                Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(48.dp), tint = Success)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = Success
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "No Outstanding Balances", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
-                    Text(text = "All families are paid up", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                    Text(
+                        text = "No Outstanding Balances",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
+                    Text(
+                        text = "All families are paid up",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
                 }
             }
         } else {
@@ -585,43 +655,31 @@ fun OutstandingPaymentsTab() {
             title = { Text("Send Statement via WhatsApp", fontWeight = FontWeight.Bold) },
             text = {
                 Column {
-                    Text(text = "Statement ${currentBulkIndex + 1} of $total", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Primary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "To: ${parent?.fullName ?: "Unknown"}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                    Text(text = "Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                    Text(text = "Amount: R${currentInvoice?.amount?.toInt() ?: 0}", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    val statementText = buildString {
-                        appendLine("A+ Study House — Fee Statement")
-                        appendLine("--------------------------------")
-                        appendLine("Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
-                        appendLine("Parent: ${parent?.fullName ?: "Unknown"}")
-                        appendLine("Invoice: ${currentInvoice?.description ?: ""}")
-                        appendLine("Amount: R${currentInvoice?.amount?.toInt() ?: 0}")
-                        appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
-                        appendLine("Status: ${currentInvoice?.status ?: ""}")
-                        appendLine("--------------------------------")
-                        appendLine("Pay online: A+ Study House app → Finance → Pay Now (secure PayFast checkout)")
-                        appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
-                        appendLine("Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
-                        appendLine("--------------------------------")
-                        appendLine("Questions? WhatsApp the office on 076 561 6648")
-                        appendLine("Thank you for your support!")
-                    }
-                    OutlinedTextField(
-                        value = statementText,
-                        onValueChange = { },
-                        modifier = Modifier.fillMaxWidth().height(200.dp),
-                        textStyle = MaterialTheme.typography.bodySmall,
-                        readOnly = true
+                    Text(
+                        text = "Statement ${currentBulkIndex + 1} of $total",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
                     )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val phone = parent?.phone ?: ""
-                        val encoded = URLEncoder.encode(buildString {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "To: ${parent?.fullName ?: "Unknown"}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Text(
+                        text = "Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Text(
+                        text = "Amount: R${currentInvoice?.amount?.toInt() ?: 0}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    val statementText =
+                        buildString {
                             appendLine("A+ Study House — Fee Statement")
                             appendLine("--------------------------------")
                             appendLine("Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}")
@@ -637,7 +695,49 @@ fun OutstandingPaymentsTab() {
                             appendLine("--------------------------------")
                             appendLine("Questions? WhatsApp the office on 076 561 6648")
                             appendLine("Thank you for your support!")
-                        }, "UTF-8")
+                        }
+                    OutlinedTextField(
+                        value = statementText,
+                        onValueChange = { },
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                        textStyle = MaterialTheme.typography.bodySmall,
+                        readOnly = true
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val phone = parent?.phone ?: ""
+                        val encoded =
+                            URLEncoder.encode(
+                                buildString {
+                                    appendLine("A+ Study House — Fee Statement")
+                                    appendLine("--------------------------------")
+                                    appendLine(
+                                        "Student: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}"
+                                    )
+                                    appendLine("Parent: ${parent?.fullName ?: "Unknown"}")
+                                    appendLine("Invoice: ${currentInvoice?.description ?: ""}")
+                                    appendLine("Amount: R${currentInvoice?.amount?.toInt() ?: 0}")
+                                    appendLine("Due Date: ${currentInvoice?.dueDate ?: ""}")
+                                    appendLine("Status: ${currentInvoice?.status ?: ""}")
+                                    appendLine("--------------------------------")
+                                    appendLine(
+                                        "Pay online: A+ Study House app → Finance → Pay Now (secure PayFast checkout)"
+                                    )
+                                    appendLine(
+                                        "Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)"
+                                    )
+                                    appendLine(
+                                        "Reference: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"}"
+                                    )
+                                    appendLine("--------------------------------")
+                                    appendLine("Questions? WhatsApp the office on 076 561 6648")
+                                    appendLine("Thank you for your support!")
+                                },
+                                "UTF-8"
+                            )
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$phone?text=$encoded"))
                         ctx.startActivity(intent)
                         if (currentBulkIndex < total - 1) {
@@ -667,17 +767,18 @@ fun BatchPaymentsTab() {
     var expandedBatch by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        batches = try {
-            SupabaseRepository.getAllPayments()
-                .filter { it.batchId != null }
-                .groupBy { it.batchId!! }
-                .map { (batchId, payments) -> batchId to payments.sortedByDescending { it.paymentDate } }
-                .sortedByDescending { it.second.firstOrNull()?.paymentDate ?: "" }
-        } catch (_: Exception) {
-            emptyList()
-        } finally {
-            isLoading = false
-        }
+        batches =
+            try {
+                SupabaseRepository.getAllPayments()
+                    .filter { it.batchId != null }
+                    .groupBy { it.batchId!! }
+                    .map { (batchId, payments) -> batchId to payments.sortedByDescending { it.paymentDate } }
+                    .sortedByDescending { it.second.firstOrNull()?.paymentDate ?: "" }
+            } catch (_: Exception) {
+                emptyList()
+            } finally {
+                isLoading = false
+            }
     }
 
     if (isLoading) {
@@ -688,10 +789,11 @@ fun BatchPaymentsTab() {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         if (batches.isEmpty()) {
             Card(
@@ -746,10 +848,11 @@ fun BatchPaymentsTab() {
                 val parentId = payments.firstOrNull()?.parentId ?: ""
 
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                        .clickable { expandedBatch = if (isExpanded) null else batchId },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                            .clickable { expandedBatch = if (isExpanded) null else batchId },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -771,7 +874,7 @@ fun BatchPaymentsTab() {
                                     color = OnBackground
                                 )
                                 Text(
-                                    text = "${payments.size} invoices · ${verifiedCount}/${payments.size} verified",
+                                    text = "${payments.size} invoices · $verifiedCount/${payments.size} verified",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnSurfaceVariant
                                 )
@@ -785,11 +888,12 @@ fun BatchPaymentsTab() {
                                 )
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
-                                    color = when {
-                                        verifiedCount == payments.size -> SuccessContainer
-                                        verifiedCount > 0 -> WarningContainer
-                                        else -> WarningContainer
-                                    }
+                                    color =
+                                        when {
+                                            verifiedCount == payments.size -> SuccessContainer
+                                            verifiedCount > 0 -> WarningContainer
+                                            else -> WarningContainer
+                                        }
                                 ) {
                                     Text(
                                         text = if (verifiedCount == payments.size) "PAID" else "PENDING",
@@ -808,9 +912,10 @@ fun BatchPaymentsTab() {
                             Spacer(modifier = Modifier.height(8.dp))
                             payments.forEach { payment ->
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 6.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
@@ -871,23 +976,27 @@ fun OutstandingInvoiceCard(
     var selectedTemplate by remember { mutableStateOf("monthly") }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onSelectionChange(!isSelected) },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onSelectionChange(!isSelected) },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = when {
-                isSent -> SuccessContainer.copy(alpha = 0.3f)
-                isSelected -> PrimaryContainer
-                else -> Surface
-            }
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    when {
+                        isSent -> SuccessContainer.copy(alpha = 0.3f)
+                        isSelected -> PrimaryContainer
+                        else -> Surface
+                    }
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -900,24 +1009,38 @@ fun OutstandingInvoiceCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(
-                            if (isSent) SuccessContainer
-                            else if (invoice.status == InvoiceStatus.OVERDUE) ErrorContainer
-                            else WarningContainer,
-                            CircleShape
-                        ),
+                    modifier =
+                        Modifier
+                            .size(36.dp)
+                            .background(
+                                if (isSent) {
+                                    SuccessContainer
+                                } else if (invoice.status == InvoiceStatus.OVERDUE) {
+                                    ErrorContainer
+                                } else {
+                                    WarningContainer
+                                },
+                                CircleShape
+                            ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        if (isSent) Icons.Filled.CheckCircle
-                        else if (invoice.status == InvoiceStatus.OVERDUE) Icons.Filled.Warning
-                        else Icons.Filled.Schedule,
+                        if (isSent) {
+                            Icons.Filled.CheckCircle
+                        } else if (invoice.status == InvoiceStatus.OVERDUE) {
+                            Icons.Filled.Warning
+                        } else {
+                            Icons.Filled.Schedule
+                        },
                         contentDescription = null,
-                        tint = if (isSent) Success
-                        else if (invoice.status == InvoiceStatus.OVERDUE) Error
-                        else Warning,
+                        tint =
+                            if (isSent) {
+                                Success
+                            } else if (invoice.status == InvoiceStatus.OVERDUE) {
+                                Error
+                            } else {
+                                Warning
+                            },
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -937,18 +1060,28 @@ fun OutstandingInvoiceCard(
                     Text(
                         text = if (isSent) "Sent ✓" else "Due: ${invoice.dueDate}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (isSent) Success
-                        else if (invoice.status == InvoiceStatus.OVERDUE) Error
-                        else OnSurfaceVariant
+                        color =
+                            if (isSent) {
+                                Success
+                            } else if (invoice.status == InvoiceStatus.OVERDUE) {
+                                Error
+                            } else {
+                                OnSurfaceVariant
+                            }
                     )
                 }
                 Text(
                     text = "R${invoice.amount.toInt()}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSent) Success
-                    else if (invoice.status == InvoiceStatus.OVERDUE) Error
-                    else Warning
+                    color =
+                        if (isSent) {
+                            Success
+                        } else if (invoice.status == InvoiceStatus.OVERDUE) {
+                            Error
+                        } else {
+                            Warning
+                        }
                 )
             }
 
@@ -959,15 +1092,23 @@ fun OutstandingInvoiceCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                listOf("monthly" to "Monthly", "overdue" to "Overdue", "registration" to "Registration", "project" to "Project", "custom" to "Custom").forEach { (key, label) ->
+                listOf(
+                    "monthly" to "Monthly",
+                    "overdue" to "Overdue",
+                    "registration" to "Registration",
+                    "project" to "Project",
+                    "custom" to "Custom"
+                ).forEach {
+                        (key, label) ->
                     FilterChip(
                         selected = selectedTemplate == key,
                         onClick = { selectedTemplate = key },
                         label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryContainer,
-                            selectedLabelColor = OnBackground
-                        )
+                        colors =
+                            FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = PrimaryContainer,
+                                selectedLabelColor = OnBackground
+                            )
                     )
                 }
             }
@@ -1059,92 +1200,101 @@ private fun buildStatementText(
 ): String {
     val header = "A+ Study House — Fee Statement"
     val separator = "--------------------------------"
-    val paymentDetails = buildString {
-        appendLine("Pay online: open the A+ Study House app → Finance → Pay Now (secure PayFast checkout: card, EFT or instant payment)")
-        appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
-        appendLine("Reference: $studentName")
-    }
-    val footer = buildString {
-        appendLine("Questions? WhatsApp the office on 076 561 6648")
-        appendLine("Thank you for your support!")
-    }
+    val paymentDetails =
+        buildString {
+            appendLine(
+                "Pay online: open the A+ Study House app → Finance → Pay Now (secure PayFast checkout: card, EFT or instant payment)"
+            )
+            appendLine("Or pay cash at the office: Witpoortjie, Roodepoort (Mon–Fri 07h00–18h00)")
+            appendLine("Reference: $studentName")
+        }
+    val footer =
+        buildString {
+            appendLine("Questions? WhatsApp the office on 076 561 6648")
+            appendLine("Thank you for your support!")
+        }
 
     return when (template) {
-        "overdue" -> buildString {
-            appendLine(header)
-            appendLine(separator)
-            appendLine("⚠️ OVERDUE NOTICE ⚠️")
-            appendLine(separator)
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Invoice: ${invoice.description}")
-            appendLine("Amount: R${invoice.amount.toInt()}")
-            appendLine("Due Date: ${invoice.dueDate}")
-            appendLine("Status: OVERDUE")
-            appendLine(separator)
-            appendLine(paymentDetails)
-            appendLine(separator)
-            appendLine("Please settle this account as soon as possible.")
-            appendLine(footer)
-        }
-        "registration" -> buildString {
-            appendLine(header)
-            appendLine(separator)
-            appendLine("REGISTRATION FEE")
-            appendLine(separator)
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Registration Fee: R500")
-            appendLine("Status: ${invoice.status}")
-            appendLine(separator)
-            appendLine(paymentDetails)
-            appendLine(separator)
-            appendLine("Registration fee is non-refundable and payable annually.")
-            appendLine(footer)
-        }
-        "project" -> buildString {
-            appendLine(header)
-            appendLine(separator)
-            appendLine("PROJECT FEE — Q3 2026")
-            appendLine(separator)
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Project Fee: R380 (Grade 6 only)")
-            appendLine("Due Date: ${invoice.dueDate}")
-            appendLine(separator)
-            appendLine(paymentDetails)
-            appendLine(separator)
-            appendLine("This is a once-off fee for Grade 6 project materials.")
-            appendLine(footer)
-        }
-        "custom" -> buildString {
-            appendLine(header)
-            appendLine(separator)
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Amount: R${invoice.amount.toInt()}")
-            appendLine("Due Date: ${invoice.dueDate}")
-            appendLine(separator)
-            appendLine(paymentDetails)
-            appendLine(separator)
-            appendLine(footer)
-        }
-        else -> buildString { // monthly (default)
-            appendLine(header)
-            appendLine(separator)
-            appendLine("MONTHLY FEE STATEMENT")
-            appendLine(separator)
-            appendLine("Student: $studentName")
-            appendLine("Parent: $parentName")
-            appendLine("Invoice: ${invoice.description}")
-            appendLine("Amount: R${invoice.amount.toInt()}")
-            appendLine("Due Date: ${invoice.dueDate}")
-            appendLine("Status: ${invoice.status}")
-            appendLine(separator)
-            appendLine(paymentDetails)
-            appendLine(separator)
-            appendLine(footer)
-        }
+        "overdue" ->
+            buildString {
+                appendLine(header)
+                appendLine(separator)
+                appendLine("⚠️ OVERDUE NOTICE ⚠️")
+                appendLine(separator)
+                appendLine("Student: $studentName")
+                appendLine("Parent: $parentName")
+                appendLine("Invoice: ${invoice.description}")
+                appendLine("Amount: R${invoice.amount.toInt()}")
+                appendLine("Due Date: ${invoice.dueDate}")
+                appendLine("Status: OVERDUE")
+                appendLine(separator)
+                appendLine(paymentDetails)
+                appendLine(separator)
+                appendLine("Please settle this account as soon as possible.")
+                appendLine(footer)
+            }
+        "registration" ->
+            buildString {
+                appendLine(header)
+                appendLine(separator)
+                appendLine("REGISTRATION FEE")
+                appendLine(separator)
+                appendLine("Student: $studentName")
+                appendLine("Parent: $parentName")
+                appendLine("Registration Fee: R500")
+                appendLine("Status: ${invoice.status}")
+                appendLine(separator)
+                appendLine(paymentDetails)
+                appendLine(separator)
+                appendLine("Registration fee is non-refundable and payable annually.")
+                appendLine(footer)
+            }
+        "project" ->
+            buildString {
+                appendLine(header)
+                appendLine(separator)
+                appendLine("PROJECT FEE — Q3 2026")
+                appendLine(separator)
+                appendLine("Student: $studentName")
+                appendLine("Parent: $parentName")
+                appendLine("Project Fee: R380 (Grade 6 only)")
+                appendLine("Due Date: ${invoice.dueDate}")
+                appendLine(separator)
+                appendLine(paymentDetails)
+                appendLine(separator)
+                appendLine("This is a once-off fee for Grade 6 project materials.")
+                appendLine(footer)
+            }
+        "custom" ->
+            buildString {
+                appendLine(header)
+                appendLine(separator)
+                appendLine("Student: $studentName")
+                appendLine("Parent: $parentName")
+                appendLine("Amount: R${invoice.amount.toInt()}")
+                appendLine("Due Date: ${invoice.dueDate}")
+                appendLine(separator)
+                appendLine(paymentDetails)
+                appendLine(separator)
+                appendLine(footer)
+            }
+        else ->
+            buildString { // monthly (default)
+                appendLine(header)
+                appendLine(separator)
+                appendLine("MONTHLY FEE STATEMENT")
+                appendLine(separator)
+                appendLine("Student: $studentName")
+                appendLine("Parent: $parentName")
+                appendLine("Invoice: ${invoice.description}")
+                appendLine("Amount: R${invoice.amount.toInt()}")
+                appendLine("Due Date: ${invoice.dueDate}")
+                appendLine("Status: ${invoice.status}")
+                appendLine(separator)
+                appendLine(paymentDetails)
+                appendLine(separator)
+                appendLine(footer)
+            }
     }
 }
 
@@ -1153,18 +1303,20 @@ fun VerifiedPaymentsTab() {
     // Load payments from backend (Supabase) — no mock data
     var verifiedPayments by remember { mutableStateOf<List<MockPayment>>(emptyList()) }
     LaunchedEffect(Unit) {
-        verifiedPayments = try {
-            SupabaseRepository.getAllPayments().filter { it.status == PaymentStatus.VERIFIED }
-        } catch (e: Exception) {
-            emptyList()
-        }
+        verifiedPayments =
+            try {
+                SupabaseRepository.getAllPayments().filter { it.status == PaymentStatus.VERIFIED }
+            } catch (e: Exception) {
+                emptyList()
+            }
     }
-    
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         if (verifiedPayments.isEmpty()) {
             Card(
@@ -1173,9 +1325,10 @@ fun VerifiedPaymentsTab() {
                 colors = CardDefaults.cardColors(containerColor = Surface)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -1208,14 +1361,13 @@ fun VerifiedPaymentsTab() {
 }
 
 @Composable
-fun RecordCashTab(
-    onRecordCash: () -> Unit
-) {
+fun RecordCashTab(onRecordCash: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Record Cash Button
         Card(
@@ -1224,9 +1376,10 @@ fun RecordCashTab(
             colors = CardDefaults.cardColors(containerColor = SecondaryContainer)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
@@ -1259,9 +1412,9 @@ fun RecordCashTab(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Recent Cash Payments
         Text(
             text = "Recent Cash Payments",
@@ -1269,15 +1422,16 @@ fun RecordCashTab(
             fontWeight = FontWeight.Bold,
             color = OnBackground
         )
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         // Mock recent cash payments
-        val recentCashPayments = listOf(
-            Triple("Oliver Johnson", "R500", "Registration Fee"),
-            Triple("Ethan Williams", "R1200", "Monthly Fees")
-        )
-        
+        val recentCashPayments =
+            listOf(
+                Triple("Oliver Johnson", "R500", "Registration Fee"),
+                Triple("Ethan Williams", "R1200", "Monthly Fees")
+            )
+
         recentCashPayments.forEach { (name, amount, desc) ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -1286,15 +1440,17 @@ fun RecordCashTab(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(SuccessContainer, CircleShape),
+                        modifier =
+                            Modifier
+                                .size(40.dp)
+                                .background(SuccessContainer, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -1345,9 +1501,10 @@ fun PaymentCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
         ) {
             // Payment Header
             Row(
@@ -1355,9 +1512,10 @@ fun PaymentCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(WarningContainer, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(48.dp)
+                            .background(WarningContainer, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -1388,18 +1546,19 @@ fun PaymentCard(
                     color = Warning
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Payment Details
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = Background
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
                 ) {
                     DetailRow("Payment Type", payment.type)
                     DetailRow("Description", payment.description)
@@ -1407,7 +1566,7 @@ fun PaymentCard(
                     DetailRow("Reference", payment.reference)
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
 
             // Proof of Payment preview button
@@ -1423,7 +1582,7 @@ fun PaymentCard(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1465,15 +1624,17 @@ fun VerifiedPaymentCard(payment: MockPayment) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(SuccessContainer, CircleShape),
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .background(SuccessContainer, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -1516,12 +1677,17 @@ fun VerifiedPaymentCard(payment: MockPayment) {
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
-                        onClick = { showMenu = false /* TODO: open edit dialog */ },
+                        onClick = {
+                            showMenu = false // TODO: open edit dialog
+                        },
                         leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete") },
-                        onClick = { showMenu = false; showDeleteDialog = true },
+                        onClick = {
+                            showMenu = false
+                            showDeleteDialog = true
+                        },
                         leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) }
                     )
                 }
@@ -1553,11 +1719,15 @@ fun VerifiedPaymentCard(payment: MockPayment) {
 }
 
 @Composable
-fun DetailRow(label: String, value: String) {
+fun DetailRow(
+    label: String,
+    value: String
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

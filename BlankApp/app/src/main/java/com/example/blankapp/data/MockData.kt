@@ -27,20 +27,22 @@ data class MockUser(
 )
 
 enum class UserRole {
-    PARENT, ADMIN
+    PARENT,
+    ADMIN
 }
 
 // Admin user for testing only — not for production
-val mockUsers = mutableListOf(
-    MockUser(
-        id = "A001",
-        fullName = "Margaret",
-        email = "admin@aplusstudy.co.za",
-        phone = "0112345678",
-        password = "Admin123",
-        role = UserRole.ADMIN
+val mockUsers =
+    mutableListOf(
+        MockUser(
+            id = "A001",
+            fullName = "Margaret",
+            email = "admin@aplusstudy.co.za",
+            phone = "0112345678",
+            password = "Admin123",
+            role = UserRole.ADMIN
+        )
     )
-)
 
 // ============================================
 // STUDENT DATA (Grades 1-7 only)
@@ -110,7 +112,9 @@ data class MockCollectionPerson(
 )
 
 enum class StudentStatus {
-    ACTIVE, PENDING, INACTIVE
+    ACTIVE,
+    PENDING,
+    INACTIVE
 }
 
 val mockStudents = mutableListOf<MockStudent>()
@@ -160,7 +164,12 @@ data class MockApplication(
 )
 
 enum class ApplicationStatus {
-    SUBMITTED, UNDER_REVIEW, CHANGES_REQUIRED, PAYMENT_VERIFIED, APPROVED, REJECTED
+    SUBMITTED,
+    UNDER_REVIEW,
+    CHANGES_REQUIRED,
+    PAYMENT_VERIFIED,
+    APPROVED,
+    REJECTED
 }
 
 val mockApplications = mutableListOf<MockApplication>()
@@ -295,11 +304,18 @@ data class MockInvoice(
 )
 
 enum class InvoiceStatus {
-    PENDING, PAID, OVERDUE, CANCELLED
+    PENDING,
+    PAID,
+    OVERDUE,
+    CANCELLED
 }
 
 enum class InvoiceCategory {
-    REGISTRATION, AFTERCARE, TRANSPORT, STATIONERY, PROJECT
+    REGISTRATION,
+    AFTERCARE,
+    TRANSPORT,
+    STATIONERY,
+    PROJECT
 }
 
 val mockInvoices = mutableListOf<MockInvoice>()
@@ -330,11 +346,16 @@ data class MockPayment(
 )
 
 enum class PaymentMethod {
-    EFT, CASH, CARD, PAYFAST
+    EFT,
+    CASH,
+    CARD,
+    PAYFAST
 }
 
 enum class PaymentStatus {
-    PENDING, VERIFIED, REJECTED
+    PENDING,
+    VERIFIED,
+    REJECTED
 }
 
 val mockPayments = mutableListOf<MockPayment>()
@@ -359,7 +380,14 @@ data class MockDocument(
 )
 
 enum class DocumentCategory {
-    MEDICAL, ID_DOCUMENT, ID_COPY, REPORT, REPORT_CARD, PHOTO, PROOF_OF_PAYMENT, OTHER
+    MEDICAL,
+    ID_DOCUMENT,
+    ID_COPY,
+    REPORT,
+    REPORT_CARD,
+    PHOTO,
+    PROOF_OF_PAYMENT,
+    OTHER
 }
 
 val mockDocuments = mutableListOf<MockDocument>()
@@ -398,15 +426,25 @@ data class MockPermission(
 )
 
 enum class PermissionCategory {
-    EXCURSION, MEDICAL, PHOTO, SPORTS, GENERAL, OTHER
+    EXCURSION,
+    MEDICAL,
+    PHOTO,
+    SPORTS,
+    GENERAL,
+    OTHER
 }
 
 enum class PermissionStatus {
-    PENDING, APPROVED, DECLINED, EXPIRED, RESPONDED
+    PENDING,
+    APPROVED,
+    DECLINED,
+    EXPIRED,
+    RESPONDED
 }
 
 enum class PermissionResponse {
-    GRANTED, DECLINED
+    GRANTED,
+    DECLINED
 }
 
 val mockPermissions = mutableListOf<MockPermission>()
@@ -432,7 +470,11 @@ data class MockMessage(
 )
 
 enum class MessageCategory {
-    APPLICATION, FINANCE, ANNOUNCEMENT, PERMISSION, GENERAL
+    APPLICATION,
+    FINANCE,
+    ANNOUNCEMENT,
+    PERMISSION,
+    GENERAL
 }
 
 val mockMessages = mutableListOf<MockMessage>()
@@ -453,9 +495,19 @@ data class MockNotification(
 )
 
 enum class NotificationType {
-    PAYMENT, DOCUMENT, APPLICATION, PERMISSION, MESSAGE, REMINDER, GENERAL,
-    PAYMENT_VERIFIED, CHANGES_REQUESTED, APPLICATION_UPDATE,
-    PERMISSION_REQUEST, ANNOUNCEMENT, MESSAGE_RECEIVED
+    PAYMENT,
+    DOCUMENT,
+    APPLICATION,
+    PERMISSION,
+    MESSAGE,
+    REMINDER,
+    GENERAL,
+    PAYMENT_VERIFIED,
+    CHANGES_REQUESTED,
+    APPLICATION_UPDATE,
+    PERMISSION_REQUEST,
+    ANNOUNCEMENT,
+    MESSAGE_RECEIVED
 }
 
 val mockNotifications = mutableListOf<MockNotification>()
@@ -474,7 +526,11 @@ data class ActivityLogEntry(
 )
 
 enum class ActivityType {
-    APPLICATION, PAYMENT, STUDENT, MESSAGE, SYSTEM
+    APPLICATION,
+    PAYMENT,
+    STUDENT,
+    MESSAGE,
+    SYSTEM
 }
 
 val mockActivityLog = mutableListOf<ActivityLogEntry>()

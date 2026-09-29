@@ -11,7 +11,6 @@ import org.junit.Test
  * Tests edge cases: network failures, malformed responses, server errors.
  */
 class SupabaseRepositoryErrorTest {
-
     @Before
     fun setup() {
         SupabaseConfig.forceMockMode = true
@@ -24,58 +23,67 @@ class SupabaseRepositoryErrorTest {
     }
 
     @Test
-    fun `createApplication returns null on network error`() = kotlinx.coroutines.runBlocking {
-        // In mock mode, createApplication should return a mock application
-        val app = JSONObject().apply {
-            put("student_first_name", "Test")
-            put("student_last_name", "Child")
+    fun `createApplication returns null on network error`() =
+        kotlinx.coroutines.runBlocking {
+            // In mock mode, createApplication should return a mock application
+            val app =
+                JSONObject().apply {
+                    put("student_first_name", "Test")
+                    put("student_last_name", "Child")
+                }
+            val result = SupabaseRepository.createApplication(app, "P001")
+            // Mock mode returns a mock application
+            assertNotNull("Should return mock application in mock mode", result)
         }
-        val result = SupabaseRepository.createApplication(app, "P001")
-        // Mock mode returns a mock application
-        assertNotNull("Should return mock application in mock mode", result)
-    }
 
     @Test
-    fun `getParentApplications returns empty list for unknown parent`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getParentApplications("NONEXISTENT")
-        assertTrue("Should return empty list for unknown parent", result.isEmpty())
-    }
+    fun `getParentApplications returns empty list for unknown parent`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getParentApplications("NONEXISTENT")
+            assertTrue("Should return empty list for unknown parent", result.isEmpty())
+        }
 
     @Test
-    fun `getParentStudents returns empty list for unknown parent`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getParentStudents("NONEXISTENT")
-        assertTrue("Should return empty list for unknown parent", result.isEmpty())
-    }
+    fun `getParentStudents returns empty list for unknown parent`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getParentStudents("NONEXISTENT")
+            assertTrue("Should return empty list for unknown parent", result.isEmpty())
+        }
 
     @Test
-    fun `getStudent returns null for non-existent ID`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getStudent("NONEXISTENT")
-        assertNull("Should return null for non-existent student", result)
-    }
+    fun `getStudent returns null for non-existent ID`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getStudent("NONEXISTENT")
+            assertNull("Should return null for non-existent student", result)
+        }
 
     @Test
-    fun `getParentInvoices returns empty list for unknown parent`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getParentInvoices("NONEXISTENT")
-        assertTrue("Should return empty list for unknown parent", result.isEmpty())
-    }
+    fun `getParentInvoices returns empty list for unknown parent`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getParentInvoices("NONEXISTENT")
+            assertTrue("Should return empty list for unknown parent", result.isEmpty())
+        }
 
     @Test
-    fun `getParentPermissions returns empty list for unknown parent`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getParentPermissions("NONEXISTENT")
-        assertTrue("Should return empty list for unknown parent", result.isEmpty())
-    }
+    fun `getParentPermissions returns empty list for unknown parent`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getParentPermissions("NONEXISTENT")
+            assertTrue("Should return empty list for unknown parent", result.isEmpty())
+        }
 
     @Test
-    fun `getUserMessages returns empty list for unknown user`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getUserMessages("NONEXISTENT")
-        assertTrue("Should return empty list for unknown user", result.isEmpty())
-    }
+    fun `getUserMessages returns empty list for unknown user`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getUserMessages("NONEXISTENT")
+            assertTrue("Should return empty list for unknown user", result.isEmpty())
+        }
 
     @Test
-    fun `getUserNotifications returns empty list for unknown user`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseRepository.getUserNotifications("NONEXISTENT")
-        assertTrue("Should return empty list for unknown user", result.isEmpty())
-    }
+    fun `getUserNotifications returns empty list for unknown user`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseRepository.getUserNotifications("NONEXISTENT")
+            assertTrue("Should return empty list for unknown user", result.isEmpty())
+        }
 
     @Test
     fun `lastError field exists for error tracking`() {
@@ -86,51 +94,60 @@ class SupabaseRepositoryErrorTest {
     }
 
     @Test
-    fun `createApplication handles empty JSON gracefully`() = kotlinx.coroutines.runBlocking {
-        val app = JSONObject()
-        val result = SupabaseRepository.createApplication(app, "P001")
-        // Should not crash, returns mock in mock mode
-        assertNotNull("Should handle empty JSON gracefully", result)
-    }
+    fun `createApplication handles empty JSON gracefully`() =
+        kotlinx.coroutines.runBlocking {
+            val app = JSONObject()
+            val result = SupabaseRepository.createApplication(app, "P001")
+            // Should not crash, returns mock in mock mode
+            assertNotNull("Should handle empty JSON gracefully", result)
+        }
 
     @Test
-    fun `createApplication handles special characters in name`() = kotlinx.coroutines.runBlocking {
-        val app = JSONObject().apply {
-            put("student_first_name", "Test<script>alert('xss')</script>")
-            put("student_last_name", "O'Brien")
+    fun `createApplication handles special characters in name`() =
+        kotlinx.coroutines.runBlocking {
+            val app =
+                JSONObject().apply {
+                    put("student_first_name", "Test<script>alert('xss')</script>")
+                    put("student_last_name", "O'Brien")
+                }
+            val result = SupabaseRepository.createApplication(app, "P001")
+            assertNotNull("Should handle special characters", result)
         }
-        val result = SupabaseRepository.createApplication(app, "P001")
-        assertNotNull("Should handle special characters", result)
-    }
 
     @Test
-    fun `createApplication handles very long names`() = kotlinx.coroutines.runBlocking {
-        val app = JSONObject().apply {
-            put("student_first_name", "A".repeat(1000))
-            put("student_last_name", "B".repeat(1000))
+    fun `createApplication handles very long names`() =
+        kotlinx.coroutines.runBlocking {
+            val app =
+                JSONObject().apply {
+                    put("student_first_name", "A".repeat(1000))
+                    put("student_last_name", "B".repeat(1000))
+                }
+            val result = SupabaseRepository.createApplication(app, "P001")
+            assertNotNull("Should handle very long names", result)
         }
-        val result = SupabaseRepository.createApplication(app, "P001")
-        assertNotNull("Should handle very long names", result)
-    }
 
     @Test
-    fun `createApplication handles unicode characters`() = kotlinx.coroutines.runBlocking {
-        val app = JSONObject().apply {
-            put("student_first_name", "José")
-            put("student_last_name", "Müller")
+    fun `createApplication handles unicode characters`() =
+        kotlinx.coroutines.runBlocking {
+            val app =
+                JSONObject().apply {
+                    put("student_first_name", "José")
+                    put("student_last_name", "Müller")
+                }
+            val result = SupabaseRepository.createApplication(app, "P001")
+            assertNotNull("Should handle unicode characters", result)
         }
-        val result = SupabaseRepository.createApplication(app, "P001")
-        assertNotNull("Should handle unicode characters", result)
-    }
 
     @Test
-    fun `createApplication handles null parent ID`() = kotlinx.coroutines.runBlocking {
-        val app = JSONObject().apply {
-            put("student_first_name", "Test")
-            put("student_last_name", "Child")
+    fun `createApplication handles null parent ID`() =
+        kotlinx.coroutines.runBlocking {
+            val app =
+                JSONObject().apply {
+                    put("student_first_name", "Test")
+                    put("student_last_name", "Child")
+                }
+            val result = SupabaseRepository.createApplication(app, "")
+            // Should not crash
+            assertNotNull("Should handle null parent ID", result)
         }
-        val result = SupabaseRepository.createApplication(app, "")
-        // Should not crash
-        assertNotNull("Should handle null parent ID", result)
-    }
 }

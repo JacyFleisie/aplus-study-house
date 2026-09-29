@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,31 +17,29 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.blankapp.data.AuthRepository
-import com.example.blankapp.data.UserRole
 import com.example.blankapp.data.SessionStore
+import com.example.blankapp.data.UserRole
 import com.example.blankapp.ui.theme.*
 import com.example.blankapp.viewmodel.AuthViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,15 +71,17 @@ fun LoginScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Primary)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Primary)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(48.dp))
@@ -91,9 +90,10 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = com.example.blankapp.R.drawable.logo_full),
                 contentDescription = "A+ Study House Logo",
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .size(200.dp)
+                        .padding(8.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -125,9 +125,10 @@ fun LoginScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -159,9 +160,10 @@ fun LoginScreen(
                             colors = CardDefaults.cardColors(containerColor = ErrorContainer)
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -187,7 +189,10 @@ fun LoginScreen(
                     // Email Field
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it; viewModel.clearError() },
+                        onValueChange = {
+                            email = it
+                            viewModel.clearError()
+                        },
                         label = { Text("Email") },
                         placeholder = { Text("Enter your email") },
                         leadingIcon = {
@@ -198,21 +203,24 @@ fun LoginScreen(
                             )
                         },
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { passwordFocusRequester.requestFocus() }
-                        ),
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                        keyboardActions =
+                            KeyboardActions(
+                                onNext = { passwordFocusRequester.requestFocus() }
+                            ),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = Outline,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -220,7 +228,10 @@ fun LoginScreen(
                     // Password Field
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it; viewModel.clearError() },
+                        onValueChange = {
+                            password = it
+                            viewModel.clearError()
+                        },
                         label = { Text("Password") },
                         placeholder = { Text("Enter your password") },
                         leadingIcon = {
@@ -233,45 +244,56 @@ fun LoginScreen(
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
-                                    if (passwordVisible) Icons.Filled.Visibility
-                                    else Icons.Filled.VisibilityOff,
+                                    if (passwordVisible) {
+                                        Icons.Filled.Visibility
+                                    } else {
+                                        Icons.Filled.VisibilityOff
+                                    },
                                     contentDescription = if (passwordVisible) "Hide password" else "Show password",
                                     tint = OnSurfaceVariant
                                 )
                             }
                         },
                         singleLine = true,
-                        visualTransformation = if (passwordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus()
-                                if (email.isNotBlank() && password.isNotBlank()) {
-                                    viewModel.signIn(email, password) { result ->
-                                        val user = result.user
-                                        val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT
-                                        onLoginClick(email, password, role)
-                                        if (rememberMe) {
-                                            AuthRepository.saveSession(ctx, email)
+                        visualTransformation =
+                            if (passwordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    if (email.isNotBlank() && password.isNotBlank()) {
+                                        viewModel.signIn(email, password) { result ->
+                                            val user = result.user
+                                            val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT
+                                            onLoginClick(email, password, role)
+                                            if (rememberMe) {
+                                                AuthRepository.saveSession(ctx, email)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(passwordFocusRequester),
+                            ),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(passwordFocusRequester),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = Outline,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -299,9 +321,10 @@ fun LoginScreen(
                             text = "Forgot Password?",
                             style = MaterialTheme.typography.bodySmall,
                             color = Primary,
-                            modifier = Modifier
-                                .clickable { onForgotPasswordClick() }
-                                .padding(vertical = 4.dp)
+                            modifier =
+                                Modifier
+                                    .clickable { onForgotPasswordClick() }
+                                    .padding(vertical = 4.dp)
                         )
                     }
 
@@ -316,20 +339,22 @@ fun LoginScreen(
                                     val user = result.user
                                     val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT
                                     onLoginClick(email, password, role)
-                                        if (rememberMe) {
-                                            AuthRepository.saveSession(ctx, email)
-                                        }
+                                    if (rememberMe) {
+                                        AuthRepository.saveSession(ctx, email)
+                                    }
                                 }
                             }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Primary,
-                            contentColor = OnPrimary
-                        ),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Primary,
+                                contentColor = OnPrimary
+                            ),
                         enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
                     ) {
                         if (isLoading) {
@@ -370,9 +395,10 @@ fun LoginScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = Primary,
-                            modifier = Modifier
-                                .clickable { onCreateAccountClick() }
-                                .padding(vertical = 4.dp)
+                            modifier =
+                                Modifier
+                                    .clickable { onCreateAccountClick() }
+                                    .padding(vertical = 4.dp)
                         )
                     }
                 }
@@ -392,5 +418,3 @@ fun LoginScreen(
         }
     }
 }
-
-

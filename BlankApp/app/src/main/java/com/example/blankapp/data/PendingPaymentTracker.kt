@@ -17,7 +17,6 @@ package com.example.blankapp.data
  * stale entry older than the resume-guard threshold is ignored.
  */
 object PendingPaymentTracker {
-
     data class PendingCheckout(
         val invoiceIds: List<String>,
         val batchId: String?,

@@ -43,20 +43,22 @@ fun RegistrationInfoAckScreen(
                         Icon(Icons.Filled.Close, contentDescription = "Exit registration")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Intro card
             Card(
@@ -145,7 +147,9 @@ fun RegistrationInfoAckScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 Bullet("Weekends & public holidays")
                 Bullet("The 3rd week of the June/July school holidays")
-                Bullet("One Friday in September, A+ Study House will close at 16h00, as all staff members will be attending a church conference that weekend")
+                Bullet(
+                    "One Friday in September, A+ Study House will close at 16h00, as all staff members will be attending a church conference that weekend"
+                )
                 Bullet("December until the schools reopen in January the next year")
             }
 
@@ -178,7 +182,9 @@ fun RegistrationInfoAckScreen(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Bullet("Using recycled materials to build projects — sourcing the required recycled materials and completing the messy construction work at A+ Study House")
+                Bullet(
+                    "Using recycled materials to build projects — sourcing the required recycled materials and completing the messy construction work at A+ Study House"
+                )
                 Bullet("Supplying homemade salt-dough clay when requested by the school")
                 Bullet("Assisting scholars with building, painting and completing their projects")
                 Bullet("Sending completed projects home before the school's due date")
@@ -207,10 +213,11 @@ fun RegistrationInfoAckScreen(
                     Checkbox(
                         checked = hasReadAll,
                         onCheckedChange = { hasReadAll = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Primary,
-                            uncheckedColor = if (!hasReadAll) Outline else OnSurfaceVariant
-                        )
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = Primary,
+                                uncheckedColor = if (!hasReadAll) Outline else OnSurfaceVariant
+                            )
                     )
                     Text(
                         text = "I have read and understood the Lunch & Meals, Operating Hours, Stationery and School Projects policies above.",
@@ -229,10 +236,11 @@ fun RegistrationInfoAckScreen(
                 onClick = onAcknowledged,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (hasReadAll) Primary else OnSurfaceVariant,
-                    contentColor = OnPrimary
-                ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = if (hasReadAll) Primary else OnSurfaceVariant,
+                        contentColor = OnPrimary
+                    ),
                 enabled = hasReadAll
             ) {
                 Text(
@@ -265,9 +273,10 @@ private fun PolicySection(
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(iconTint.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
+                    modifier =
+                        Modifier
+                            .size(40.dp)
+                            .background(iconTint.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))

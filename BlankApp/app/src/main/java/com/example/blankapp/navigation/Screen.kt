@@ -5,14 +5,16 @@ package com.example.blankapp.navigation
  * Each route is a sealed class with proper parameter handling.
  */
 sealed class Screen(val route: String) {
-
     // ============================================
     // PUBLIC ROUTES (No auth required)
     // ============================================
 
     data object Splash : Screen("splash")
+
     data object Login : Screen("login")
+
     data object CreateAccount : Screen("create_account")
+
     data object ForgotPassword : Screen("forgot_password")
 
     // ============================================
@@ -20,16 +22,27 @@ sealed class Screen(val route: String) {
     // ============================================
 
     data object ParentDashboard : Screen("parent_dashboard")
+
     data object StationeryList : Screen("stationery_list")
+
     data object RegistrationStart : Screen("registration_start")
+
     data object RegistrationInfoAck : Screen("registration_info_ack")
+
     data object RegistrationStudentDetails : Screen("registration_student_details")
+
     data object RegistrationSportsActivities : Screen("registration_sports_activities")
+
     data object RegistrationCollection : Screen("registration_collection")
+
     data object RegistrationMedical : Screen("registration_medical")
+
     data object RegistrationParentDetails : Screen("registration_parent_details")
+
     data object RegistrationConsent : Screen("registration_consent")
+
     data object RegistrationPayment : Screen("registration_payment")
+
     data object RegistrationSubmit : Screen("registration_submit")
 
     data object PaymentSuccess : Screen("payment_success")
@@ -38,6 +51,7 @@ sealed class Screen(val route: String) {
     data class ChildProfile(val studentId: String) : Screen("child_profile/{studentId}") {
         companion object {
             const val ROUTE = "child_profile/{studentId}"
+
             fun createRoute(studentId: String) = "child_profile/$studentId"
         }
     }
@@ -51,7 +65,13 @@ sealed class Screen(val route: String) {
     ) : Screen("finance_payment/{invoiceId}/{amount}/{description}/{studentName}") {
         companion object {
             const val ROUTE = "finance_payment/{invoiceId}/{amount}/{description}/{studentName}"
-            fun createRoute(invoiceId: String, amount: Double, description: String, studentName: String = ""): String {
+
+            fun createRoute(
+                invoiceId: String,
+                amount: Double,
+                description: String,
+                studentName: String = ""
+            ): String {
                 val encodedDescription = java.net.URLEncoder.encode(description, "UTF-8")
                 val encodedStudentName = java.net.URLEncoder.encode(studentName, "UTF-8")
                 return "finance_payment/$invoiceId/$amount/$encodedDescription/$encodedStudentName"
@@ -64,13 +84,16 @@ sealed class Screen(val route: String) {
     // ============================================
 
     data object AdminDashboard : Screen("admin_dashboard")
+
     data object AdminFinancePayment : Screen("admin_finance_payment")
+
     data object CrashLogs : Screen("crash_logs")
 
     // Admin Student Profile with parameter
     data class AdminStudentProfile(val studentId: String) : Screen("admin_student_profile/{studentId}") {
         companion object {
             const val ROUTE = "admin_student_profile/{studentId}"
+
             fun createRoute(studentId: String) = "admin_student_profile/$studentId"
         }
     }
@@ -79,6 +102,7 @@ sealed class Screen(val route: String) {
     data class AdminParentProfile(val parentId: String) : Screen("admin_parent_profile/{parentId}") {
         companion object {
             const val ROUTE = "admin_parent_profile/{parentId}"
+
             fun createRoute(parentId: String) = "admin_parent_profile/$parentId"
         }
     }
@@ -87,6 +111,7 @@ sealed class Screen(val route: String) {
     data class ApplicationReview(val applicationId: String) : Screen("application_review/{applicationId}") {
         companion object {
             const val ROUTE = "application_review/{applicationId}"
+
             fun createRoute(applicationId: String) = "application_review/$applicationId"
         }
     }

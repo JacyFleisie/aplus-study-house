@@ -43,12 +43,13 @@ class ErrorStateHolder<T>(
     var lastError by mutableStateOf<Throwable?>(null)
         private set
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        isLoading = false
-        lastError = throwable
-        errorMessage = throwable.toUserFriendlyMessage()
-        onError?.invoke(errorMessage ?: "Unknown error")
-    }
+    private val exceptionHandler =
+        CoroutineExceptionHandler { _, throwable ->
+            isLoading = false
+            lastError = throwable
+            errorMessage = throwable.toUserFriendlyMessage()
+            onError?.invoke(errorMessage ?: "Unknown error")
+        }
 
     /**
      * Launch a coroutine with automatic error handling.
@@ -90,9 +91,7 @@ class ErrorStateHolder<T>(
  * Remember an ErrorStateHolder for a composable
  */
 @Composable
-fun <T> rememberErrorState(
-    onError: ((String) -> Unit)? = null
-): ErrorStateHolder<T> {
+fun <T> rememberErrorState(onError: ((String) -> Unit)? = null): ErrorStateHolder<T> {
     val scope = rememberCoroutineScope()
     return remember(scope) {
         ErrorStateHolder(scope, onError)

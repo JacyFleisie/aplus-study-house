@@ -49,20 +49,26 @@ fun SportsActivitiesScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 0.28f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Primary, trackColor = PrimaryContainer
+                color = Primary,
+                trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 3 of 9 — Sports Participation", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text(
+                "Step 3 of 9 — Sports Participation",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -74,19 +80,34 @@ fun SportsActivitiesScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Sports, contentDescription = null, tint = Secondary, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.Sports,
+                            contentDescription = null,
+                            tint = Secondary,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Sports Participation", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Sports Participation",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Tick all sports your child would like to participate in", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Text(
+                        "Tick all sports your child would like to participate in",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     availableSports.forEach { sport ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable {
-                                selectedSports = if (sport in selectedSports) selectedSports - sport else selectedSports + sport
-                            }.padding(vertical = 8.dp),
+                            modifier =
+                                Modifier.fillMaxWidth().clickable {
+                                    selectedSports = if (sport in selectedSports) selectedSports - sport else selectedSports + sport
+                                }.padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Checkbox(

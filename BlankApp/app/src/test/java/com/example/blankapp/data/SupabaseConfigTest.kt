@@ -8,7 +8,6 @@ import org.junit.Test
  * Tests configuration validation and client setup
  */
 class SupabaseConfigTest {
-
     // ============================================
     // CONFIGURATION VALIDATION TESTS
     // ============================================
@@ -19,7 +18,8 @@ class SupabaseConfigTest {
         // The actual check is: URL.isNotBlank() AND key.isNotBlank() AND URL starts with https://
         val url = SupabaseConfig.SUPABASE_URL
         val key = SupabaseConfig.SUPABASE_ANON_KEY
-        val isConfigured = url.isNotBlank() &&
+        val isConfigured =
+            url.isNotBlank() &&
                 key.isNotBlank() &&
                 url.startsWith("https://")
         // This may be false in test environment if BuildConfig defaults to empty
@@ -35,7 +35,8 @@ class SupabaseConfigTest {
     fun `isConfigured returns false with empty URL`() {
         val url = ""
         val key = ""
-        val isConfigured = url.isNotBlank() &&
+        val isConfigured =
+            url.isNotBlank() &&
                 key.isNotBlank() &&
                 url.startsWith("https://")
         assertFalse("Empty URL should not be configured", isConfigured)
@@ -45,7 +46,8 @@ class SupabaseConfigTest {
     fun `isConfigured returns false with HTTP URL`() {
         val url = "http://example.supabase.co"
         val key = "test-key"
-        val isConfigured = url.isNotBlank() &&
+        val isConfigured =
+            url.isNotBlank() &&
                 key.isNotBlank() &&
                 url.startsWith("https://")
         assertFalse("HTTP URL should not be configured", isConfigured)
@@ -55,7 +57,8 @@ class SupabaseConfigTest {
     fun `isConfigured returns true with valid HTTPS values`() {
         val url = "https://example.supabase.co"
         val key = "test-key"
-        val isConfigured = url.isNotBlank() &&
+        val isConfigured =
+            url.isNotBlank() &&
                 key.isNotBlank() &&
                 url.startsWith("https://")
         assertTrue("Valid HTTPS URL should be configured", isConfigured)
@@ -113,10 +116,11 @@ class SupabaseConfigTest {
     }
 
     @Test
-    fun `supabaseAuth returns error when not configured`() = kotlinx.coroutines.runBlocking {
-        val result = SupabaseConfig.supabaseAuth("token?grant_type=password", "{}")
-        // When not configured, the request fails and returns JSONObject with error
-        assertNotNull("Should return a result", result)
-        assertTrue("Should contain error key", result?.has("error") == true)
-    }
+    fun `supabaseAuth returns error when not configured`() =
+        kotlinx.coroutines.runBlocking {
+            val result = SupabaseConfig.supabaseAuth("token?grant_type=password", "{}")
+            // When not configured, the request fails and returns JSONObject with error
+            assertNotNull("Should return a result", result)
+            assertTrue("Should contain error key", result?.has("error") == true)
+        }
 }

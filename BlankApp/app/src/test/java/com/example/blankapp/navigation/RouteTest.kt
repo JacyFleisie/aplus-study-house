@@ -8,7 +8,6 @@ import org.junit.Test
  * Tests that routes are properly defined and parameterized
  */
 class RouteTest {
-
     // ============================================
     // STATIC ROUTE TESTS
     // ============================================
@@ -54,17 +53,18 @@ class RouteTest {
 
     @Test
     fun `all 9 registration step routes are defined`() {
-        val registrationRoutes = listOf(
-            Screen.RegistrationStart.route,
-            Screen.RegistrationStudentDetails.route,
-            Screen.RegistrationSportsActivities.route,
-            Screen.RegistrationCollection.route,
-            Screen.RegistrationMedical.route,
-            Screen.RegistrationParentDetails.route,
-            Screen.RegistrationConsent.route,
-            Screen.RegistrationPayment.route,
-            Screen.RegistrationSubmit.route
-        )
+        val registrationRoutes =
+            listOf(
+                Screen.RegistrationStart.route,
+                Screen.RegistrationStudentDetails.route,
+                Screen.RegistrationSportsActivities.route,
+                Screen.RegistrationCollection.route,
+                Screen.RegistrationMedical.route,
+                Screen.RegistrationParentDetails.route,
+                Screen.RegistrationConsent.route,
+                Screen.RegistrationPayment.route,
+                Screen.RegistrationSubmit.route
+            )
         assertEquals("Should have 9 registration routes", 9, registrationRoutes.size)
         registrationRoutes.forEach { route ->
             assertTrue("Route '$route' should not be blank", route.isNotBlank())
@@ -155,21 +155,22 @@ class RouteTest {
 
     @Test
     fun `all static routes are unique`() {
-        val routes = listOf(
-            Screen.Splash.route, Screen.Login.route, Screen.CreateAccount.route,
-            Screen.ForgotPassword.route, Screen.ParentDashboard.route,
-            Screen.AdminDashboard.route, Screen.RegistrationStart.route,
-            Screen.RegistrationStudentDetails.route,
-            Screen.RegistrationSportsActivities.route,
-            Screen.RegistrationCollection.route,
-            Screen.RegistrationMedical.route,
-            Screen.RegistrationParentDetails.route,
-            Screen.RegistrationConsent.route,
-            Screen.RegistrationPayment.route,
-            Screen.RegistrationSubmit.route,
-            Screen.AdminFinancePayment.route,
-            Screen.CrashLogs.route
-        )
+        val routes =
+            listOf(
+                Screen.Splash.route, Screen.Login.route, Screen.CreateAccount.route,
+                Screen.ForgotPassword.route, Screen.ParentDashboard.route,
+                Screen.AdminDashboard.route, Screen.RegistrationStart.route,
+                Screen.RegistrationStudentDetails.route,
+                Screen.RegistrationSportsActivities.route,
+                Screen.RegistrationCollection.route,
+                Screen.RegistrationMedical.route,
+                Screen.RegistrationParentDetails.route,
+                Screen.RegistrationConsent.route,
+                Screen.RegistrationPayment.route,
+                Screen.RegistrationSubmit.route,
+                Screen.AdminFinancePayment.route,
+                Screen.CrashLogs.route
+            )
         assertEquals("All routes should be unique", routes.size, routes.toSet().size)
     }
 

@@ -1,7 +1,6 @@
 package com.example.blankapp.screens.parent
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -93,20 +92,22 @@ fun ChildProfileScreen(
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Profile Header Card
             Card(
@@ -116,16 +117,18 @@ fun ChildProfileScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Avatar
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -158,11 +161,12 @@ fun ChildProfileScreen(
                     // Status Badge
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = when (student.status) {
-                            StudentStatus.ACTIVE -> OnPrimary.copy(alpha = 0.2f)
-                            StudentStatus.PENDING -> Warning.copy(alpha = 0.3f)
-                            StudentStatus.INACTIVE -> Error.copy(alpha = 0.3f)
-                        }
+                        color =
+                            when (student.status) {
+                                StudentStatus.ACTIVE -> OnPrimary.copy(alpha = 0.2f)
+                                StudentStatus.PENDING -> Warning.copy(alpha = 0.3f)
+                                StudentStatus.INACTIVE -> Error.copy(alpha = 0.3f)
+                            }
                     ) {
                         Text(
                             text = student.status.name,
@@ -238,9 +242,10 @@ fun ChildProfileScreen(
                         colors = CardDefaults.cardColors(containerColor = ErrorContainer)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
                         ) {
                             if (!medical?.allergies.isNullOrBlank()) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -271,10 +276,16 @@ fun ChildProfileScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 ProfileInfoRow("Doctor", medical?.doctorName?.takeIf { it.isNotBlank() } ?: "Not specified")
-                ProfileInfoRow("Doctor Location", medical?.doctorLocation?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow(
+                    "Doctor Location",
+                    medical?.doctorLocation?.takeIf { it.isNotBlank() } ?: "Not specified"
+                )
                 ProfileInfoRow("Doctor Contact", medical?.doctorContact?.takeIf { it.isNotBlank() } ?: "Not specified")
                 ProfileInfoRow("Medical Plan", medical?.medicalPlan?.takeIf { it.isNotBlank() } ?: "Not specified")
-                ProfileInfoRow("Medical Aid No.", medical?.medicalAidNumber?.takeIf { it.isNotBlank() } ?: "Not specified")
+                ProfileInfoRow(
+                    "Medical Aid No.",
+                    medical?.medicalAidNumber?.takeIf { it.isNotBlank() } ?: "Not specified"
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -301,8 +312,16 @@ fun ChildProfileScreen(
                     ProfileInfoRow("Contact Number", "Not specified")
                 }
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                Text(
+                    "Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceVariant
+                )
+                Text(
+                    "Stationery: Parents purchase stationery from the attached list. No stationery fee charged.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceVariant
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -336,9 +355,10 @@ fun ChildProfileScreen(
                 if (studentDocuments.isNotEmpty()) {
                     studentDocuments.take(3).forEach { doc ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -392,13 +412,15 @@ fun ChildProfileScreen(
                 actionText = "View All",
                 onActionClick = onOpenFinance
             ) {
-                val totalOwed = studentInvoices
-                    .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
-                    .sumOf { it.amount }
+                val totalOwed =
+                    studentInvoices
+                        .filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }
+                        .sumOf { it.amount }
 
-                val totalPaid = studentInvoices
-                    .filter { it.status == InvoiceStatus.PAID }
-                    .sumOf { it.amount }
+                val totalPaid =
+                    studentInvoices
+                        .filter { it.status == InvoiceStatus.PAID }
+                        .sumOf { it.amount }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -439,23 +461,25 @@ fun ChildProfileScreen(
 
                     studentInvoices.take(3).forEach { invoice ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(
-                                        when (invoice.status) {
-                                            InvoiceStatus.PAID -> Success
-                                            InvoiceStatus.PENDING -> Warning
-                                            InvoiceStatus.OVERDUE -> Error
-                                            InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                                        },
-                                        CircleShape
-                                    )
+                                modifier =
+                                    Modifier
+                                        .size(8.dp)
+                                        .background(
+                                            when (invoice.status) {
+                                                InvoiceStatus.PAID -> Success
+                                                InvoiceStatus.PENDING -> Warning
+                                                InvoiceStatus.OVERDUE -> Error
+                                                InvoiceStatus.CANCELLED -> OnSurfaceVariant
+                                            },
+                                            CircleShape
+                                        )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -531,9 +555,10 @@ fun ProfileSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
         ) {
             // Section Header
             Row(
@@ -543,9 +568,10 @@ fun ProfileSection(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(color.copy(alpha = 0.1f), CircleShape),
+                        modifier =
+                            Modifier
+                                .size(32.dp)
+                                .background(color.copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -589,9 +615,10 @@ fun ProfileInfoRow(
     value: String
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

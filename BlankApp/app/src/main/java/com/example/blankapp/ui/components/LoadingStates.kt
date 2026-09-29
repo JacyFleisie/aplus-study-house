@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.ui.theme.*
 
@@ -49,9 +48,7 @@ fun LoadingIndicator(
 // ============================================
 
 @Composable
-fun FullScreenLoading(
-    message: String = "Loading..."
-) {
+fun FullScreenLoading(message: String = "Loading...") {
     Box(
         modifier = Modifier.fillMaxSize().background(Background),
         contentAlignment = Alignment.Center
@@ -69,28 +66,32 @@ fun SkeletonCard(
     modifier: Modifier = Modifier,
     height: Int = 120
 ) {
-    val shimmerColors = listOf(
-        Surface.copy(alpha = 0.6f),
-        Surface.copy(alpha = 0.2f),
-        Surface.copy(alpha = 0.6f)
-    )
+    val shimmerColors =
+        listOf(
+            Surface.copy(alpha = 0.6f),
+            Surface.copy(alpha = 0.2f),
+            Surface.copy(alpha = 0.6f)
+        )
 
     val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnim = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "shimmer"
-    )
+    val translateAnim =
+        transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "shimmer"
+        )
 
-    val brush = Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset.Zero,
-        end = Offset(x = translateAnim.value, y = translateAnim.value)
-    )
+    val brush =
+        Brush.linearGradient(
+            colors = shimmerColors,
+            start = Offset.Zero,
+            end = Offset(x = translateAnim.value, y = translateAnim.value)
+        )
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -100,36 +101,40 @@ fun SkeletonCard(
         Column(modifier = Modifier.padding(16.dp)) {
             // Title skeleton
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(20.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(brush)
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
             )
             Spacer(modifier = Modifier.height(12.dp))
             // Line skeletons
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(14.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(brush)
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(14.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(brush)
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
             )
             Spacer(modifier = Modifier.height(12.dp))
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.4f)
-                    .height(14.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(brush)
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.4f)
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
             )
         }
     }
@@ -160,18 +165,26 @@ fun SkeletonList(
 
 @Composable
 fun SkeletonStatRow(modifier: Modifier = Modifier) {
-    val shimmerColors = listOf(
-        Surface.copy(alpha = 0.6f),
-        Surface.copy(alpha = 0.2f),
-        Surface.copy(alpha = 0.6f)
-    )
+    val shimmerColors =
+        listOf(
+            Surface.copy(alpha = 0.6f),
+            Surface.copy(alpha = 0.2f),
+            Surface.copy(alpha = 0.6f)
+        )
     val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnim = transition.animateFloat(
-        initialValue = 0f, targetValue = 1000f,
-        animationSpec = infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "shimmer"
-    )
-    val brush = Brush.linearGradient(shimmerColors, start = Offset.Zero, end = Offset(translateAnim.value, translateAnim.value))
+    val translateAnim =
+        transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+            label = "shimmer"
+        )
+    val brush =
+        Brush.linearGradient(
+            shimmerColors,
+            start = Offset.Zero,
+            end = Offset(translateAnim.value, translateAnim.value)
+        )
 
     Row(
         modifier = modifier.fillMaxWidth(),

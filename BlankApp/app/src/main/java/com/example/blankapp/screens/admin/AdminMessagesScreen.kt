@@ -18,9 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.*
 import com.example.blankapp.ui.theme.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withTimeout
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,9 +47,10 @@ fun AdminMessagesScreen(onBack: () -> Unit) {
         )
     } else {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Background)
         ) {
             if (isLoading) {
                 Box(
@@ -85,9 +86,10 @@ fun AdminMessagesScreen(onBack: () -> Unit) {
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Background)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(Background)
                 ) {
                     items(parents) { parent ->
                         ParentContactItem(
@@ -106,18 +108,23 @@ fun AdminMessagesScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun ParentContactItem(parent: MockUser, onClick: () -> Unit) {
+fun ParentContactItem(
+    parent: MockUser,
+    onClick: () -> Unit
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(PrimaryContainer, CircleShape),
+            modifier =
+                Modifier
+                    .size(48.dp)
+                    .background(PrimaryContainer, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -154,7 +161,10 @@ fun ParentContactItem(parent: MockUser, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatView(parent: MockUser, onBack: () -> Unit) {
+fun ChatView(
+    parent: MockUser,
+    onBack: () -> Unit
+) {
     val scope = rememberCoroutineScope()
     var messageText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf<List<MockMessage>>(emptyList()) }
@@ -173,11 +183,12 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
         loadError = null
         isLoading = true
         try {
-            val history = withContext(Dispatchers.IO) {
-                withTimeout(10000) {
-                    SupabaseRepository.getConversation(adminId, parent.id)
+            val history =
+                withContext(Dispatchers.IO) {
+                    withTimeout(10000) {
+                        SupabaseRepository.getConversation(adminId, parent.id)
+                    }
                 }
-            }
             messages = history.sortedBy { it.timestamp }
         } catch (e: kotlinx.coroutines.CancellationException) {
             // Navigation caused cancellation — not an error, just return
@@ -191,9 +202,10 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
 
     // Listen for realtime changes
     DisposableEffect(Unit) {
-        val unsubscribe = SupabaseRealtime.onTableChange("messages") {
-            reloadKey++
-        }
+        val unsubscribe =
+            SupabaseRealtime.onTableChange("messages") {
+                reloadKey++
+            }
         onDispose { unsubscribe() }
     }
 
@@ -203,9 +215,10 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(PrimaryContainer, CircleShape),
+                            modifier =
+                                Modifier
+                                    .size(36.dp)
+                                    .background(PrimaryContainer, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -235,10 +248,11 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         },
         bottomBar = {
@@ -247,9 +261,10 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                 shadowElevation = 8.dp
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
@@ -267,32 +282,43 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                             if (messageText.isNotBlank()) {
                                 scope.launch {
                                     val textToSend = messageText
-                                    AuditLogger.log("admin_chat_send_start", "adminId=$adminId parentId=${parent.id} text=${textToSend.take(50)}")
-                                    val before = System.currentTimeMillis()
-                                    val sent = SupabaseRepository.sendMessage(
-                                        senderId = adminId,
-                                        recipientId = parent.id,
-                                        content = textToSend,
-                                        type = "message"
+                                    AuditLogger.log(
+                                        "admin_chat_send_start",
+                                        "adminId=$adminId parentId=${parent.id} text=${textToSend.take(50)}"
                                     )
+                                    val before = System.currentTimeMillis()
+                                    val sent =
+                                        SupabaseRepository.sendMessage(
+                                            senderId = adminId,
+                                            recipientId = parent.id,
+                                            content = textToSend,
+                                            type = "message"
+                                        )
                                     val elapsed = System.currentTimeMillis() - before
-                                    AuditLogger.log("admin_chat_send_result", "sent=$sent adminId=$adminId parentId=${parent.id} elapsed=$elapsed ms")
+                                    AuditLogger.log(
+                                        "admin_chat_send_result",
+                                        "sent=$sent adminId=$adminId parentId=${parent.id} elapsed=$elapsed ms"
+                                    )
                                     if (sent) {
                                         // Optimistic append
-                                        val threadId = "thread_${minOf(adminId.hashCode(), parent.id.hashCode())}_${maxOf(adminId.hashCode(), parent.id.hashCode())}"
-                                        val optimistic = MockMessage(
-                                            id = "local_${System.currentTimeMillis()}",
-                                            subject = "Message",
-                                            senderId = adminId,
-                                            senderName = AuthRepository.getCurrentUser()?.fullName ?: "Admin",
-                                            recipientId = parent.id,
-                                            recipientName = parent.fullName,
-                                            content = textToSend,
-                                            timestamp = "Just now",
-                                            isRead = false,
-                                            category = MessageCategory.GENERAL,
-                                            threadId = threadId
-                                        )
+                                        val threadId = "thread_${minOf(
+                                            adminId.hashCode(),
+                                            parent.id.hashCode()
+                                        )}_${maxOf(adminId.hashCode(), parent.id.hashCode())}"
+                                        val optimistic =
+                                            MockMessage(
+                                                id = "local_${System.currentTimeMillis()}",
+                                                subject = "Message",
+                                                senderId = adminId,
+                                                senderName = AuthRepository.getCurrentUser()?.fullName ?: "Admin",
+                                                recipientId = parent.id,
+                                                recipientName = parent.fullName,
+                                                content = textToSend,
+                                                timestamp = "Just now",
+                                                isRead = false,
+                                                category = MessageCategory.GENERAL,
+                                                threadId = threadId
+                                            )
                                         messages = (messages + optimistic).sortedBy { it.timestamp }
                                     }
                                     messageText = ""
@@ -300,9 +326,10 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                             }
                         },
                         modifier = Modifier.size(48.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = Primary
-                        )
+                        colors =
+                            IconButtonDefaults.filledIconButtonColors(
+                                containerColor = Primary
+                            )
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.Send,
@@ -322,7 +349,11 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                     color = MaterialTheme.colorScheme.errorContainer
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Load error", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onErrorContainer)
+                        Text(
+                            "Load error",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
                         Text(loadError ?: "", color = MaterialTheme.colorScheme.onErrorContainer)
                     }
                 }
@@ -343,9 +374,10 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Background),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(Background),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -362,21 +394,26 @@ fun ChatView(parent: MockUser, onBack: () -> Unit) {
 }
 
 @Composable
-fun MessageBubble(message: MockMessage, isFromAdmin: Boolean) {
+fun MessageBubble(
+    message: MockMessage,
+    isFromAdmin: Boolean
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isFromAdmin) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isFromAdmin) 16.dp else 4.dp,
-                bottomEnd = if (isFromAdmin) 4.dp else 16.dp
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isFromAdmin) Primary else Surface
-            ),
+            shape =
+                RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = if (isFromAdmin) 16.dp else 4.dp,
+                    bottomEnd = if (isFromAdmin) 4.dp else 16.dp
+                ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = if (isFromAdmin) Primary else Surface
+                ),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(

@@ -12,19 +12,17 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.blankapp.data.*
-import com.example.blankapp.ui.theme.*
-import com.example.blankapp.ui.components.*
-import com.example.blankapp.viewmodel.ParentHomeViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.collectAsState
+import com.example.blankapp.data.*
+import com.example.blankapp.ui.components.*
+import com.example.blankapp.ui.theme.*
+import com.example.blankapp.viewmodel.ParentHomeViewModel
 
 @Composable
 fun ParentHomeScreen(
@@ -62,11 +60,12 @@ fun ParentHomeScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Welcome Header
         Card(
@@ -76,9 +75,10 @@ fun ParentHomeScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
             ) {
                 Text(
                     text = "Welcome back,",
@@ -131,14 +131,16 @@ fun ParentHomeScreen(
         // Register New Child Button
         Button(
             onClick = onNavigateToRegistration,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Secondary,
-                contentColor = OnSecondary
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Secondary,
+                    contentColor = OnSecondary
+                )
         ) {
             Icon(Icons.Filled.AppRegistration, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
@@ -207,42 +209,46 @@ fun ParentHomeScreen(
         if (children.isNotEmpty()) {
             children.forEach { student ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                        .clickable { onNavigateToChildren() },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                            .clickable { onNavigateToChildren() },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(
-                                    when (student.status) {
-                                        StudentStatus.ACTIVE -> SuccessContainer
-                                        StudentStatus.PENDING -> WarningContainer
-                                        StudentStatus.INACTIVE -> ErrorContainer
-                                    },
-                                    CircleShape
-                                ),
+                            modifier =
+                                Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        when (student.status) {
+                                            StudentStatus.ACTIVE -> SuccessContainer
+                                            StudentStatus.PENDING -> WarningContainer
+                                            StudentStatus.INACTIVE -> ErrorContainer
+                                        },
+                                        CircleShape
+                                    ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Filled.Person,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                tint = when (student.status) {
-                                    StudentStatus.ACTIVE -> Success
-                                    StudentStatus.PENDING -> Warning
-                                    StudentStatus.INACTIVE -> Error
-                                }
+                                tint =
+                                    when (student.status) {
+                                        StudentStatus.ACTIVE -> Success
+                                        StudentStatus.PENDING -> Warning
+                                        StudentStatus.INACTIVE -> Error
+                                    }
                             )
                         }
 
@@ -262,7 +268,11 @@ fun ParentHomeScreen(
                             )
                             if (student.allergies.isNotEmpty() || student.asthma || student.epilepsy || student.diabetic) {
                                 val medIssues = mutableListOf<String>()
-                                if (student.allergies.isNotEmpty()) medIssues.add("Allergies: ${student.allergies.joinToString(", ")}")
+                                if (student.allergies.isNotEmpty()) {
+                                    medIssues.add(
+                                        "Allergies: ${student.allergies.joinToString(", ")}"
+                                    )
+                                }
                                 if (student.asthma) medIssues.add("Asthma")
                                 if (student.epilepsy) medIssues.add("Epilepsy")
                                 if (student.diabetic) medIssues.add("Diabetic")
@@ -290,9 +300,10 @@ fun ParentHomeScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -338,9 +349,10 @@ fun ParentHomeScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -394,9 +406,10 @@ fun QuickActionButton(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -429,9 +442,10 @@ fun ActivityItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(color.copy(alpha = 0.1f), CircleShape),
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .background(color.copy(alpha = 0.1f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(

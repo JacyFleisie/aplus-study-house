@@ -2,8 +2,8 @@ package com.example.blankapp.screens.parent
 
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -41,11 +41,12 @@ fun ParentProfileScreen(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         Text(
             text = "Profile",
@@ -64,20 +65,23 @@ fun ParentProfileScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .background(PrimaryContainer, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(100.dp)
+                            .background(PrimaryContainer, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = currentUser?.fullName?.split(" ")?.map { it.firstOrNull() ?: "" }
-                            ?.take(2)?.joinToString("") ?: "U",
+                        text =
+                            currentUser?.fullName?.split(" ")?.map { it.firstOrNull() ?: "" }
+                                ?.take(2)?.joinToString("") ?: "U",
                         style = MaterialTheme.typography.headlineLarge,
                         color = Primary,
                         fontWeight = FontWeight.Bold
@@ -92,9 +96,17 @@ fun ParentProfileScreen(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = currentUser?.email ?: "", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                Text(
+                    text = currentUser?.email ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = currentUser?.phone ?: "", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                Text(
+                    text = currentUser?.phone ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
             }
         }
 
@@ -177,7 +189,7 @@ enum class UpdateState {
 fun ParentAboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     var updateState by remember { mutableStateOf(UpdateState.IDLE) }
     var downloadProgress by remember { mutableStateOf(0f) }
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
@@ -212,9 +224,10 @@ fun ParentAboutScreen(onBack: () -> Unit) {
                 val result = updateInfo ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
                     Log.d(TAG, "Starting download from: ${result.downloadUrl}")
-                    val file = AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
-                        downloadProgress = progress
-                    }
+                    val file =
+                        AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
+                            downloadProgress = progress
+                        }
                     downloadProgress = 0.9f
                     AppUpdater.installApk(context, file)
                     downloadProgress = 1f
@@ -240,38 +253,42 @@ fun ParentAboutScreen(onBack: () -> Unit) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
         ) {
             // Hero Header
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Primary, PrimaryContainer)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Primary, PrimaryContainer)
+                            )
                         )
-                    )
-                    .padding(vertical = 48.dp, horizontal = 24.dp),
+                        .padding(vertical = 48.dp, horizontal = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // App Icon
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(Surface),
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -302,7 +319,10 @@ fun ParentAboutScreen(onBack: () -> Unit) {
             // App Info Section
             InfoSection(title = "App Information") {
                 InfoRow(label = "Version", value = AppUpdater.currentVersion())
-                InfoRow(label = "Build Type", value = if (com.example.blankapp.BuildConfig.DEBUG) "Debug" else "Release")
+                InfoRow(
+                    label = "Build Type",
+                    value = if (com.example.blankapp.BuildConfig.DEBUG) "Debug" else "Release"
+                )
                 InfoRow(label = "Package", value = context.packageName)
             }
 
@@ -399,7 +419,7 @@ fun ParentAboutScreen(onBack: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             OutlinedButton(
-                                onClick = { 
+                                onClick = {
                                     updateState = UpdateState.IDLE
                                     checkForUpdates()
                                 },
@@ -471,7 +491,10 @@ fun ParentAboutScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun InfoSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+fun InfoSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -492,11 +515,15 @@ fun InfoSection(title: String, content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
+fun InfoRow(
+    label: String,
+    value: String
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
@@ -521,18 +548,29 @@ fun SettingsItem(
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = OnBackground)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = OnBackground
+            )
             Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
         }
-        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(20.dp))
+        Icon(
+            Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = OnSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }

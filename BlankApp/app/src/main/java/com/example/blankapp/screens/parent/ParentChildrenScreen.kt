@@ -8,13 +8,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,15 +22,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.R
 import com.example.blankapp.data.*
-import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
+import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ParentChildrenScreen(
-    onChildClick: (String) -> Unit = {}
-) {
+fun ParentChildrenScreen(onChildClick: (String) -> Unit = {}) {
     val currentUser = AuthRepository.getCurrentUser()
     val parentId = currentUser?.id ?: ""
     val scope = rememberCoroutineScope()
@@ -42,21 +40,22 @@ fun ParentChildrenScreen(
 
     // Pull-to-refresh state (manual fallback when Realtime WebSocket is down)
     var isRefreshing by remember { mutableStateOf(false) }
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-            isRefreshing = true
-            scope.launch {
-                try {
-                    children = SupabaseRepository.getParentStudents(parentId)
-                } catch (e: Exception) {
-                    loadError = e.toUserFriendlyMessage()
-                } finally {
-                    isRefreshing = false
+    val pullRefreshState =
+        rememberPullRefreshState(
+            refreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                scope.launch {
+                    try {
+                        children = SupabaseRepository.getParentStudents(parentId)
+                    } catch (e: Exception) {
+                        loadError = e.toUserFriendlyMessage()
+                    } finally {
+                        isRefreshing = false
+                    }
                 }
             }
-        }
-    )
+        )
 
     // Load data with error handling
     LaunchedEffect(parentId) {
@@ -101,119 +100,123 @@ fun ParentChildrenScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
-        // Header
-        Text(
-            text = "My Children",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = OnBackground
-        )
+            // Header
+            Text(
+                text = "My Children",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = OnBackground
+            )
 
-        Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = "${children.size} child${if (children.size != 1) "s" else ""} registered",
-            style = MaterialTheme.typography.bodyMedium,
-            color = OnSurfaceVariant
-        )
+            Text(
+                text = "${children.size} child${if (children.size != 1) "s" else ""} registered",
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
+            )
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        if (children.isNotEmpty()) {
-            children.forEach { student ->
-                ChildCard(
-                    student = student,
-                    onClick = { onChildClick(student.id) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+            if (children.isNotEmpty()) {
+                children.forEach { student ->
+                    ChildCard(
+                        student = student,
+                        onClick = { onChildClick(student.id) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            } else {
+                // Empty State with Illustration
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.empty_children),
+                            contentDescription = "No children registered",
+                            modifier = Modifier.size(160.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Children Yet",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Register your child to get started with A+ Study House",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(
+                            onClick = { },
+                            shape = RoundedCornerShape(12.dp),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Primary,
+                                    contentColor = OnPrimary
+                                )
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Register Child")
+                        }
+                    }
+                }
             }
-        } else {
-            // Empty State with Illustration
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Info Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                colors = CardDefaults.cardColors(containerColor = InfoContainer)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.empty_children),
-                        contentDescription = "No children registered",
-                        modifier = Modifier.size(160.dp)
+                    Icon(
+                        Icons.Filled.Info,
+                        contentDescription = "Info",
+                        tint = Info,
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "No Children Yet",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
+                        text = "Tap a child to view their full profile, documents, and finance details.",
+                        style = MaterialTheme.typography.bodySmall,
                         color = OnBackground
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Register your child to get started with A+ Study House",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = OnSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = { },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Primary,
-                            contentColor = OnPrimary
-                        )
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Register Child")
-                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Info Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = InfoContainer)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Filled.Info,
-                    contentDescription = "Info",
-                    tint = Info,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Tap a child to view their full profile, documents, and finance details.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnBackground
-                )
-            }
-        }
-    }
-
-    PullRefreshIndicator(
+        PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
@@ -227,17 +230,19 @@ fun ChildCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
         ) {
             // Header Row
             Row(
@@ -246,26 +251,28 @@ fun ChildCard(
             ) {
                 // Avatar
                 Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(
-                            when (student.status) {
-                                StudentStatus.ACTIVE -> PrimaryContainer
-                                StudentStatus.PENDING -> WarningContainer
-                                StudentStatus.INACTIVE -> ErrorContainer
-                            },
-                            CircleShape
-                        ),
+                    modifier =
+                        Modifier
+                            .size(56.dp)
+                            .background(
+                                when (student.status) {
+                                    StudentStatus.ACTIVE -> PrimaryContainer
+                                    StudentStatus.PENDING -> WarningContainer
+                                    StudentStatus.INACTIVE -> ErrorContainer
+                                },
+                                CircleShape
+                            ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
                         style = MaterialTheme.typography.titleMedium,
-                        color = when (student.status) {
-                            StudentStatus.ACTIVE -> Primary
-                            StudentStatus.PENDING -> Warning
-                            StudentStatus.INACTIVE -> Error
-                        },
+                        color =
+                            when (student.status) {
+                                StudentStatus.ACTIVE -> Primary
+                                StudentStatus.PENDING -> Warning
+                                StudentStatus.INACTIVE -> Error
+                            },
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -289,20 +296,22 @@ fun ChildCard(
                 // Status Badge
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = when (student.status) {
-                        StudentStatus.ACTIVE -> SuccessContainer
-                        StudentStatus.PENDING -> WarningContainer
-                        StudentStatus.INACTIVE -> ErrorContainer
-                    }
+                    color =
+                        when (student.status) {
+                            StudentStatus.ACTIVE -> SuccessContainer
+                            StudentStatus.PENDING -> WarningContainer
+                            StudentStatus.INACTIVE -> ErrorContainer
+                        }
                 ) {
                     Text(
                         text = student.status.name,
                         style = MaterialTheme.typography.labelSmall,
-                        color = when (student.status) {
-                            StudentStatus.ACTIVE -> Success
-                            StudentStatus.PENDING -> Warning
-                            StudentStatus.INACTIVE -> Error
-                        },
+                        color =
+                            when (student.status) {
+                                StudentStatus.ACTIVE -> Success
+                                StudentStatus.PENDING -> Warning
+                                StudentStatus.INACTIVE -> Error
+                            },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }

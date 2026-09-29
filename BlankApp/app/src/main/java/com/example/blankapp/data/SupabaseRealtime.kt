@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger
  * after the last one unsubscribes. Reconnects automatically with backoff.
  */
 object SupabaseRealtime {
-
     private const val HEARTBEAT_INTERVAL_MS = 25_000L
     private const val RECONNECT_MIN_MS = 2_000L
     private const val RECONNECT_MAX_MS = 15_000L
@@ -49,16 +48,20 @@ object SupabaseRealtime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var reconnectAttempt = 0
 
-    private fun wsClient(): OkHttpClient = OkHttpClient.Builder()
-        .pingInterval(20, java.util.concurrent.TimeUnit.SECONDS)
-        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-        .build()
+    private fun wsClient(): OkHttpClient =
+        OkHttpClient.Builder()
+            .pingInterval(20, java.util.concurrent.TimeUnit.SECONDS)
+            .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
 
     /**
      * Listen for changes on a table. Returns an unsubscribe lambda.
      * The callback runs on the main thread and is safe to touch Compose state.
      */
-    fun onTableChange(table: String, onEvent: () -> Unit): () -> Unit {
+    fun onTableChange(
+        table: String,
+        onEvent: () -> Unit
+    ): () -> Unit {
         val set = listeners.getOrPut(table) { CopyOnWriteArraySet() }
         set.add(onEvent)
         ensureConnectedAndJoined(table)
@@ -91,49 +94,71 @@ object SupabaseRealtime {
         val url = "$baseUrl/realtime/v1/websocket?apikey=${SupabaseConfig.SUPABASE_ANON_KEY}&vsn=1.0.0"
 
         val request = Request.Builder().url(url).build()
-        webSocket = wsClient().newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                reconnectAttempt = 0
-                // Join every subscribed table's channel
-                joinedTables.forEach { joinChannel(webSocket, it) }
-                sendAccessToken(webSocket)
-            }
+        webSocket =
+            wsClient().newWebSocket(
+                request,
+                object : WebSocketListener() {
+                    override fun onOpen(
+                        webSocket: WebSocket,
+                        response: Response
+                    ) {
+                        reconnectAttempt = 0
+                        // Join every subscribed table's channel
+                        joinedTables.forEach { joinChannel(webSocket, it) }
+                        sendAccessToken(webSocket)
+                    }
 
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                handleMessage(text)
-            }
+                    override fun onMessage(
+                        webSocket: WebSocket,
+                        text: String
+                    ) {
+                        handleMessage(text)
+                    }
 
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                scheduleReconnect()
-            }
+                    override fun onFailure(
+                        webSocket: WebSocket,
+                        t: Throwable,
+                        response: Response?
+                    ) {
+                        scheduleReconnect()
+                    }
 
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                scheduleReconnect()
-            }
-        })
+                    override fun onClosed(
+                        webSocket: WebSocket,
+                        code: Int,
+                        reason: String
+                    ) {
+                        scheduleReconnect()
+                    }
+                }
+            )
     }
 
-    private fun joinChannel(ws: WebSocket, table: String) {
-        val msg = JSONObject().apply {
-            put("topic", "realtime:public:$table")
-            put("event", "phx_join")
-            put("ref", refCounter.incrementAndGet().toString())
-            put(
-                "payload",
-                JSONObject().put(
-                    "config",
+    private fun joinChannel(
+        ws: WebSocket,
+        table: String
+    ) {
+        val msg =
+            JSONObject().apply {
+                put("topic", "realtime:public:$table")
+                put("event", "phx_join")
+                put("ref", refCounter.incrementAndGet().toString())
+                put(
+                    "payload",
                     JSONObject().put(
-                        "postgres_changes",
-                        org.json.JSONArray().put(
-                            JSONObject()
-                                .put("event", "*")
-                                .put("schema", "public")
-                                .put("table", table)
+                        "config",
+                        JSONObject().put(
+                            "postgres_changes",
+                            org.json.JSONArray().put(
+                                JSONObject()
+                                    .put("event", "*")
+                                    .put("schema", "public")
+                                    .put("table", table)
+                            )
                         )
                     )
                 )
-            )
-        }
+            }
         ws.send(msg.toString())
     }
 
@@ -144,51 +169,54 @@ object SupabaseRealtime {
         val token = AuthRepository.getCurrentAuthToken() ?: return
         // Send on every joined channel so each one is RLS-scoped.
         joinedTables.forEach { table ->
-            val msg = JSONObject().apply {
-                put("topic", "realtime:public:$table")
-                put("event", "access_token")
-                put("ref", refCounter.incrementAndGet().toString())
-                put("payload", JSONObject().put("access_token", token))
-            }
+            val msg =
+                JSONObject().apply {
+                    put("topic", "realtime:public:$table")
+                    put("event", "access_token")
+                    put("ref", refCounter.incrementAndGet().toString())
+                    put("payload", JSONObject().put("access_token", token))
+                }
             ws.send(msg.toString())
         }
     }
 
     private fun startHeartbeat() {
         if (heartbeatJob?.isActive == true) return
-        heartbeatJob = scope.launch {
-            while (isActive) {
-                delay(HEARTBEAT_INTERVAL_MS)
-                try {
-                    webSocket?.send(
-                        JSONObject()
-                            .put("topic", "phoenix")
-                            .put("event", "heartbeat")
-                            .put("payload", JSONObject())
-                            .put("ref", refCounter.incrementAndGet().toString())
-                            .toString()
-                    )
-                    // Keep the auth token fresh for RLS-filtered streams
-                    webSocket?.let { sendAccessToken(it) }
-                } catch (_: Exception) {
-                    // Socket died; onFailure will trigger reconnect
+        heartbeatJob =
+            scope.launch {
+                while (isActive) {
+                    delay(HEARTBEAT_INTERVAL_MS)
+                    try {
+                        webSocket?.send(
+                            JSONObject()
+                                .put("topic", "phoenix")
+                                .put("event", "heartbeat")
+                                .put("payload", JSONObject())
+                                .put("ref", refCounter.incrementAndGet().toString())
+                                .toString()
+                        )
+                        // Keep the auth token fresh for RLS-filtered streams
+                        webSocket?.let { sendAccessToken(it) }
+                    } catch (_: Exception) {
+                        // Socket died; onFailure will trigger reconnect
+                    }
                 }
             }
-        }
     }
 
     private fun scheduleReconnect() {
         webSocket = null
         if (listeners.isEmpty()) return
         if (reconnectJob?.isActive == true) return
-        reconnectJob = scope.launch {
-            val backoff = minOf(RECONNECT_MAX_MS, RECONNECT_MIN_MS * (1L shl reconnectAttempt.coerceAtMost(3)))
-            delay(backoff)
-            reconnectAttempt++
-            if (listeners.isNotEmpty() && webSocket == null) {
-                connect()
+        reconnectJob =
+            scope.launch {
+                val backoff = minOf(RECONNECT_MAX_MS, RECONNECT_MIN_MS * (1L shl reconnectAttempt.coerceAtMost(3)))
+                delay(backoff)
+                reconnectAttempt++
+                if (listeners.isNotEmpty() && webSocket == null) {
+                    connect()
+                }
             }
-        }
     }
 
     @Synchronized

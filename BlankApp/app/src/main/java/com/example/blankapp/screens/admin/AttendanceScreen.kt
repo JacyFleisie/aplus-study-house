@@ -65,7 +65,10 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
 
     LaunchedEffect(selectedDate) { loadAll(selectedDate) }
 
-    fun setStatus(studentId: String, status: String) {
+    fun setStatus(
+        studentId: String,
+        status: String
+    ) {
         scope.launch {
             savingStudentId = studentId
             val ok = SupabaseRepository.markAttendance(studentId, selectedDate.format(dateFmt), status)
@@ -78,16 +81,26 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
         }
     }
 
-    fun generateInvoice(studentId: String, studentName: String) {
+    fun generateInvoice(
+        studentId: String,
+        studentName: String
+    ) {
         scope.launch {
             generatingStudentId = studentId
-            val result = SupabaseRepository.generateAttendanceInvoice(
-                studentId, selectedDate.withDayOfMonth(1).format(dateFmt)
-            )
+            val result =
+                SupabaseRepository.generateAttendanceInvoice(
+                    studentId,
+                    selectedDate.withDayOfMonth(1).format(dateFmt)
+                )
             generatingStudentId = null
             when {
                 result == null -> Toast.makeText(ctx, "Could not generate invoice", Toast.LENGTH_LONG).show()
-                result.days == 0 -> Toast.makeText(ctx, "No attended days for $studentName this month yet", Toast.LENGTH_LONG).show()
+                result.days == 0 ->
+                    Toast.makeText(
+                        ctx,
+                        "No attended days for $studentName this month yet",
+                        Toast.LENGTH_LONG
+                    ).show()
                 else -> {
                     val verb = if (result.updated) "updated" else "created"
                     Toast.makeText(
@@ -109,20 +122,22 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Info card: how the daily fee works
             Card(
@@ -151,7 +166,12 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                    Icon(
+                        Icons.Filled.CalendarMonth,
+                        contentDescription = null,
+                        tint = Primary,
+                        modifier = Modifier.size(24.dp)
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Register for", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
@@ -185,12 +205,27 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
                     CircularProgressIndicator()
                 }
             } else if (students.isEmpty()) {
-                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Surface)) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.School, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(40.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Filled.School,
+                            contentDescription = null,
+                            tint = OnSurfaceVariant,
+                            modifier = Modifier.size(40.dp)
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("No active students yet", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                        Text(
+                            "No active students yet",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant
+                        )
                     }
                 }
             } else {
@@ -225,42 +260,75 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
                             Spacer(modifier = Modifier.height(10.dp))
 
                             // Present / Late / Absent segmented buttons
-                            Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
                                 FilterChip(
                                     selected = status == "present",
                                     onClick = { setStatus(student.id, "present") },
                                     label = { Text("Present", fontWeight = FontWeight.SemiBold) },
-                                    leadingIcon = if (status == "present") {
-                                        { Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                                    } else null,
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = SuccessContainer,
-                                        selectedLabelColor = Success
-                                    )
+                                    leadingIcon =
+                                        if (status == "present") {
+                                            {
+                                                Icon(
+                                                    Icons.Filled.CheckCircle,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        } else {
+                                            null
+                                        },
+                                    colors =
+                                        FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = SuccessContainer,
+                                            selectedLabelColor = Success
+                                        )
                                 )
                                 FilterChip(
                                     selected = status == "late",
                                     onClick = { setStatus(student.id, "late") },
                                     label = { Text("Late", fontWeight = FontWeight.SemiBold) },
-                                    leadingIcon = if (status == "late") {
-                                        { Icon(Icons.Filled.Schedule, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                                    } else null,
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = WarningContainer,
-                                        selectedLabelColor = Warning
-                                    )
+                                    leadingIcon =
+                                        if (status == "late") {
+                                            {
+                                                Icon(
+                                                    Icons.Filled.Schedule,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        } else {
+                                            null
+                                        },
+                                    colors =
+                                        FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = WarningContainer,
+                                            selectedLabelColor = Warning
+                                        )
                                 )
                                 FilterChip(
                                     selected = status == "absent",
                                     onClick = { setStatus(student.id, "absent") },
                                     label = { Text("Absent", fontWeight = FontWeight.SemiBold) },
-                                    leadingIcon = if (status == "absent") {
-                                        { Icon(Icons.Filled.Cancel, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                                    } else null,
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = ErrorContainer,
-                                        selectedLabelColor = Error
-                                    )
+                                    leadingIcon =
+                                        if (status == "absent") {
+                                            {
+                                                Icon(
+                                                    Icons.Filled.Cancel,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        } else {
+                                            null
+                                        },
+                                    colors =
+                                        FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = ErrorContainer,
+                                            selectedLabelColor = Error
+                                        )
                                 )
                             }
 
@@ -273,10 +341,16 @@ fun AttendanceScreen(onBackClick: () -> Unit) {
                                 shape = RoundedCornerShape(10.dp),
                                 enabled = generatingStudentId != student.id
                             ) {
-                                Icon(Icons.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(
+                                    Icons.Filled.ReceiptLong,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    "Generate / Update ${YearMonth.from(selectedDate).month.name.lowercase().replaceFirstChar { it.uppercase() }} Invoice",
+                                    "Generate / Update ${YearMonth.from(
+                                        selectedDate
+                                    ).month.name.lowercase().replaceFirstChar { it.uppercase() }} Invoice",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )

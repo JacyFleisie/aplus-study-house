@@ -39,7 +39,12 @@ object SessionStore {
         }
     }
 
-    fun save(context: Context, email: String, refreshToken: String, user: MockUser) {
+    fun save(
+        context: Context,
+        email: String,
+        refreshToken: String,
+        user: MockUser
+    ) {
         prefs(context).edit()
             .putString(KEY_EMAIL, email)
             .putString(KEY_REFRESH_TOKEN, refreshToken)
@@ -50,14 +55,11 @@ object SessionStore {
             .apply()
     }
 
-    fun getRememberedEmail(context: Context): String? =
-        prefs(context).getString(KEY_EMAIL, null)
+    fun getRememberedEmail(context: Context): String? = prefs(context).getString(KEY_EMAIL, null)
 
-    fun getRefreshToken(context: Context): String? =
-        prefs(context).getString(KEY_REFRESH_TOKEN, null)
+    fun getRefreshToken(context: Context): String? = prefs(context).getString(KEY_REFRESH_TOKEN, null)
 
-    fun isRememberMeEnabled(context: Context): Boolean =
-        prefs(context).getBoolean(KEY_REMEMBER_ME, false)
+    fun isRememberMeEnabled(context: Context): Boolean = prefs(context).getBoolean(KEY_REMEMBER_ME, false)
 
     /** Returns cached user profile if remember-me is enabled, else null. */
     fun getCachedUser(context: Context): MockUser? {

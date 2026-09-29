@@ -86,20 +86,22 @@ fun AdminStudentProfileScreen(
                     }
                 },
                 actions = {},
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Profile Header
             Card(
@@ -109,15 +111,17 @@ fun AdminStudentProfileScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -143,11 +147,12 @@ fun AdminStudentProfileScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = when (student.status) {
-                            StudentStatus.ACTIVE -> OnPrimary.copy(alpha = 0.2f)
-                            StudentStatus.PENDING -> Warning.copy(alpha = 0.3f)
-                            StudentStatus.INACTIVE -> Error.copy(alpha = 0.3f)
-                        }
+                        color =
+                            when (student.status) {
+                                StudentStatus.ACTIVE -> OnPrimary.copy(alpha = 0.2f)
+                                StudentStatus.PENDING -> Warning.copy(alpha = 0.3f)
+                                StudentStatus.INACTIVE -> Error.copy(alpha = 0.3f)
+                            }
                     ) {
                         Text(
                             text = student.status.name,
@@ -249,9 +254,10 @@ fun AdminStudentProfileScreen(
                         colors = CardDefaults.cardColors(containerColor = ErrorContainer)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
                         ) {
                             if (student.allergies.isNotEmpty()) {
                                 Text(
@@ -292,8 +298,16 @@ fun AdminStudentProfileScreen(
                 ProfileInfoRow("Collection Person", student.collectionPerson ?: "Not specified")
                 ProfileInfoRow("Contact", student.collectionContact ?: "Not specified")
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
-                Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                Text(
+                    "Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceVariant
+                )
+                Text(
+                    "Stationery: Parents purchase stationery from the attached list. No stationery fee charged.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceVariant
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -318,9 +332,10 @@ fun AdminStudentProfileScreen(
                 if (studentDocuments.isNotEmpty()) {
                     studentDocuments.take(3).forEach { doc ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -356,7 +371,10 @@ fun AdminStudentProfileScreen(
                 color = Success
             ) {
                 val totalPaid = studentInvoices.filter { it.status == InvoiceStatus.PAID }.sumOf { it.amount }
-                val totalOwed = studentInvoices.filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }.sumOf { it.amount }
+                val totalOwed =
+                    studentInvoices.filter {
+                        it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
+                    }.sumOf { it.amount }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -364,11 +382,21 @@ fun AdminStudentProfileScreen(
                 ) {
                     Column {
                         Text("Total Paid", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                        Text("R${totalPaid.toInt()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Success)
+                        Text(
+                            "R${totalPaid.toInt()}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Success
+                        )
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("Outstanding", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
-                        Text("R${totalOwed.toInt()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = if (totalOwed > 0) Warning else OnSurfaceVariant)
+                        Text(
+                            "R${totalOwed.toInt()}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (totalOwed > 0) Warning else OnSurfaceVariant
+                        )
                     }
                 }
             }
@@ -434,20 +462,22 @@ fun AdminParentProfileScreen(
                     }
                 },
                 actions = {},
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Profile Header
             Card(
@@ -457,15 +487,17 @@ fun AdminParentProfileScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(OnSecondary.copy(alpha = 0.2f), CircleShape),
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .background(OnSecondary.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -543,15 +575,17 @@ fun AdminParentProfileScreen(
                 if (parentStudents.isNotEmpty()) {
                     parentStudents.forEach { student ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(PrimaryContainer, CircleShape),
+                                modifier =
+                                    Modifier
+                                        .size(40.dp)
+                                        .background(PrimaryContainer, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -577,20 +611,22 @@ fun AdminParentProfileScreen(
                             }
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = when (student.status) {
-                                    StudentStatus.ACTIVE -> SuccessContainer
-                                    StudentStatus.PENDING -> WarningContainer
-                                    StudentStatus.INACTIVE -> ErrorContainer
-                                }
+                                color =
+                                    when (student.status) {
+                                        StudentStatus.ACTIVE -> SuccessContainer
+                                        StudentStatus.PENDING -> WarningContainer
+                                        StudentStatus.INACTIVE -> ErrorContainer
+                                    }
                             ) {
                                 Text(
                                     text = student.status.name,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = when (student.status) {
-                                        StudentStatus.ACTIVE -> Success
-                                        StudentStatus.PENDING -> Warning
-                                        StudentStatus.INACTIVE -> Error
-                                    },
+                                    color =
+                                        when (student.status) {
+                                            StudentStatus.ACTIVE -> Success
+                                            StudentStatus.PENDING -> Warning
+                                            StudentStatus.INACTIVE -> Error
+                                        },
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
@@ -641,9 +677,10 @@ fun QuickAction(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -677,15 +714,17 @@ fun ProfileSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(color.copy(alpha = 0.1f), CircleShape),
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .background(color.copy(alpha = 0.1f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
@@ -705,11 +744,15 @@ fun ProfileSection(
 }
 
 @Composable
-fun ProfileInfoRow(label: String, value: String) {
+fun ProfileInfoRow(
+    label: String,
+    value: String
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

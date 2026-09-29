@@ -4,50 +4,45 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.blankapp.R
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
-fun SplashScreen(
-    onSplashComplete: () -> Unit
-) {
+fun SplashScreen(onSplashComplete: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "splash")
     val coroutineScope = rememberCoroutineScope()
 
     val scale by infiniteTransition.animateFloat(
         initialValue = 0.8f,
         targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "scale"
     )
 
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.5f,
         targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "alpha"
     )
 
@@ -60,25 +55,29 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Primary), // Deep maroon background matching logo
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Primary),
+        // Deep maroon background matching logo
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .scale(scale)
-                .alpha(alpha)
+            modifier =
+                Modifier
+                    .scale(scale)
+                    .alpha(alpha)
         ) {
             // Logo Image
             Image(
                 painter = painterResource(id = R.drawable.logo_full),
                 contentDescription = "A+ Study House Logo",
-                modifier = Modifier
-                    .size(280.dp)
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .size(280.dp)
+                        .padding(16.dp),
                 contentScale = ContentScale.Fit
             )
 

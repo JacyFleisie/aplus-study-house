@@ -9,7 +9,6 @@ import org.junit.Test
  * Tests data consistency, relationships, and business rules
  */
 class MockDataTest {
-
     @Before
     fun resetMockState() {
         // The mock seed lists are intentionally empty in the current app (real data lives in
@@ -119,11 +118,15 @@ class MockDataTest {
 
     @Test
     fun `all applications have valid statuses`() {
-        val validStatuses = setOf(
-            ApplicationStatus.SUBMITTED, ApplicationStatus.UNDER_REVIEW,
-            ApplicationStatus.CHANGES_REQUIRED, ApplicationStatus.PAYMENT_VERIFIED,
-            ApplicationStatus.APPROVED, ApplicationStatus.REJECTED
-        )
+        val validStatuses =
+            setOf(
+                ApplicationStatus.SUBMITTED,
+                ApplicationStatus.UNDER_REVIEW,
+                ApplicationStatus.CHANGES_REQUIRED,
+                ApplicationStatus.PAYMENT_VERIFIED,
+                ApplicationStatus.APPROVED,
+                ApplicationStatus.REJECTED
+            )
         mockApplications.forEach { app ->
             assertTrue("Application ${app.id} should have valid status", validStatuses.contains(app.status))
         }
@@ -164,7 +167,8 @@ class MockDataTest {
 
     @Test
     fun `all invoices have valid statuses`() {
-        val validStatuses = setOf(InvoiceStatus.PAID, InvoiceStatus.PENDING, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED)
+        val validStatuses =
+            setOf(InvoiceStatus.PAID, InvoiceStatus.PENDING, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED)
         mockInvoices.forEach { invoice ->
             assertTrue("Invoice ${invoice.id} should have valid status", validStatuses.contains(invoice.status))
         }
@@ -172,10 +176,13 @@ class MockDataTest {
 
     @Test
     fun `all invoices have valid categories`() {
-        val validCategories = setOf(
-            InvoiceCategory.AFTERCARE, InvoiceCategory.TRANSPORT,
-            InvoiceCategory.STATIONERY, InvoiceCategory.REGISTRATION
-        )
+        val validCategories =
+            setOf(
+                InvoiceCategory.AFTERCARE,
+                InvoiceCategory.TRANSPORT,
+                InvoiceCategory.STATIONERY,
+                InvoiceCategory.REGISTRATION
+            )
         mockInvoices.forEach { invoice ->
             assertTrue("Invoice ${invoice.id} should have valid category", validCategories.contains(invoice.category))
         }
@@ -246,10 +253,15 @@ class MockDataTest {
 
     @Test
     fun `all permissions have valid categories`() {
-        val validCategories = setOf(
-            PermissionCategory.EXCURSION, PermissionCategory.MEDICAL,
-            PermissionCategory.PHOTO, PermissionCategory.SPORTS, PermissionCategory.GENERAL, PermissionCategory.OTHER
-        )
+        val validCategories =
+            setOf(
+                PermissionCategory.EXCURSION,
+                PermissionCategory.MEDICAL,
+                PermissionCategory.PHOTO,
+                PermissionCategory.SPORTS,
+                PermissionCategory.GENERAL,
+                PermissionCategory.OTHER
+            )
         mockPermissions.forEach { perm ->
             assertTrue("Permission ${perm.id} should have valid category", validCategories.contains(perm.category))
         }
@@ -288,11 +300,17 @@ class MockDataTest {
 
     @Test
     fun `all documents have valid categories`() {
-        val validCategories = setOf(
-            DocumentCategory.MEDICAL,
-            DocumentCategory.ID_DOCUMENT, DocumentCategory.ID_COPY, DocumentCategory.REPORT, DocumentCategory.REPORT_CARD,
-            DocumentCategory.PHOTO, DocumentCategory.PROOF_OF_PAYMENT, DocumentCategory.OTHER
-        )
+        val validCategories =
+            setOf(
+                DocumentCategory.MEDICAL,
+                DocumentCategory.ID_DOCUMENT,
+                DocumentCategory.ID_COPY,
+                DocumentCategory.REPORT,
+                DocumentCategory.REPORT_CARD,
+                DocumentCategory.PHOTO,
+                DocumentCategory.PROOF_OF_PAYMENT,
+                DocumentCategory.OTHER
+            )
         mockDocuments.forEach { doc ->
             assertTrue("Document ${doc.id} should have valid category", validCategories.contains(doc.category))
         }

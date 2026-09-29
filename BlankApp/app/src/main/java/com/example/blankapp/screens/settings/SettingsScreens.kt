@@ -2,8 +2,8 @@ package com.example.blankapp.screens.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,20 +39,22 @@ private fun SettingsSubScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             content()
             Spacer(modifier = Modifier.height(24.dp))
@@ -61,7 +63,11 @@ private fun SettingsSubScreen(
 }
 
 @Composable
-private fun InfoCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, content: @Composable ColumnScope.() -> Unit) {
+private fun InfoCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -72,7 +78,12 @@ private fun InfoCard(title: String, icon: androidx.compose.ui.graphics.vector.Im
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(icon, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             content()
@@ -81,7 +92,10 @@ private fun InfoCard(title: String, icon: androidx.compose.ui.graphics.vector.Im
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
+private fun InfoRow(
+    label: String,
+    value: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top
@@ -166,9 +180,10 @@ fun ChangePasswordScreen(onBack: () -> Unit) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (msg.startsWith("Password reset")) SuccessContainer else ErrorContainer
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = if (msg.startsWith("Password reset")) SuccessContainer else ErrorContainer
+                    )
             ) {
                 Text(
                     msg,
@@ -218,7 +233,10 @@ fun PrivacySecurityScreen(onBack: () -> Unit) {
         InfoCard("Your Data", Icons.Filled.Storage) {
             InfoRow("Stored", "Child & guardian details, medical info, invoices, payments, messages and attendance")
             InfoRow("Where", "On the school's secure, access-controlled servers")
-            InfoRow("Access", "Only you and the school office can see your family's records — enforced by database row-level security")
+            InfoRow(
+                "Access",
+                "Only you and the school office can see your family's records — enforced by database row-level security"
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -232,7 +250,9 @@ fun PrivacySecurityScreen(onBack: () -> Unit) {
 
         InfoCard("Payments", Icons.Filled.Payment) {
             BulletPoint("Card payments are processed by PayFast, South Africa's PCI-DSS compliant payment provider.")
-            BulletPoint("Your card details are entered on PayFast's secure checkout — they never touch this app or the school's servers.")
+            BulletPoint(
+                "Your card details are entered on PayFast's secure checkout — they never touch this app or the school's servers."
+            )
             BulletPoint("The app only receives a confirmation that the payment succeeded or failed.")
         }
         Spacer(modifier = Modifier.height(16.dp))

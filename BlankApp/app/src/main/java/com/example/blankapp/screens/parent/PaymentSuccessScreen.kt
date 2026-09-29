@@ -1,6 +1,5 @@
 package com.example.blankapp.screens.parent
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,9 +38,7 @@ private const val POLL_TIMEOUT_MS = 60_000L
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentSuccessScreen(
-    onBackClick: () -> Unit
-) {
+fun PaymentSuccessScreen(onBackClick: () -> Unit) {
     val checkout = remember { PendingPaymentTracker.consumeIfFresh(minAgeMillis = 0) }
     val parentId = AuthRepository.getCurrentUser()?.id ?: ""
 
@@ -55,13 +52,14 @@ fun PaymentSuccessScreen(
     // hands control back to the app.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                // Re-evaluate on every resume (e.g. user re-opens the app
-                // after paying outside the initial window)
-                recheckTick++
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    // Re-evaluate on every resume (e.g. user re-opens the app
+                    // after paying outside the initial window)
+                    recheckTick++
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -72,12 +70,13 @@ fun PaymentSuccessScreen(
         val deadline = System.currentTimeMillis() + POLL_TIMEOUT_MS
 
         while (System.currentTimeMillis() < deadline) {
-            val fresh = try {
-                SupabaseRepository.getParentInvoices(parentId)
-                    .filter { it.id in ids }
-            } catch (_: Exception) {
-                emptyList()
-            }
+            val fresh =
+                try {
+                    SupabaseRepository.getParentInvoices(parentId)
+                        .filter { it.id in ids }
+                } catch (_: Exception) {
+                    emptyList()
+                }
             invoices = fresh
             if (fresh.isNotEmpty() && fresh.all { it.status == InvoiceStatus.PAID }) {
                 stillProcessing = false
@@ -103,19 +102,21 @@ fun PaymentSuccessScreen(
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -161,8 +162,12 @@ fun PaymentSuccessScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (paidNow.size == 1) "1 invoice has been settled."
-                    else "${paidNow.size} invoices have been settled.",
+                    text =
+                        if (paidNow.size == 1) {
+                            "1 invoice has been settled."
+                        } else {
+                            "${paidNow.size} invoices have been settled."
+                        },
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -186,9 +191,10 @@ fun PaymentSuccessScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         paidNow.forEach { inv ->
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -214,9 +220,10 @@ fun PaymentSuccessScreen(
                         }
                         HorizontalDivider()
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
@@ -241,15 +248,17 @@ fun PaymentSuccessScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (newBalance > 0) WarningContainer else SuccessContainer
-                    ),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = if (newBalance > 0) WarningContainer else SuccessContainer
+                        ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -294,18 +303,24 @@ fun PaymentSuccessScreen(
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
-                    text = if (pollTimedOut) "Still verifying…"
-                    else "We couldn't find a payment to confirm",
+                    text =
+                        if (pollTimedOut) {
+                            "Still verifying…"
+                        } else {
+                            "We couldn't find a payment to confirm"
+                        },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (pollTimedOut)
-                        "Your payment may still be processing. Check Payment History in a few minutes — if the payment went through, the invoices will show as PAID there."
-                    else
-                        "If you completed the payment, it will appear in your Payment History once PayFast confirms it.",
+                    text =
+                        if (pollTimedOut) {
+                            "Your payment may still be processing. Check Payment History in a few minutes — if the payment went through, the invoices will show as PAID there."
+                        } else {
+                            "If you completed the payment, it will appear in your Payment History once PayFast confirms it."
+                        },
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnSurfaceVariant,
                     textAlign = TextAlign.Center

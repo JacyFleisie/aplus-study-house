@@ -15,8 +15,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +54,9 @@ fun FinancePaymentScreen(
                 SupabaseRepository.getAppConfig("cash_payment_location")?.let { cashLocation = it }
                 SupabaseRepository.getAppConfig("cash_payment_hours")?.let { cashHours = it }
                 SupabaseRepository.getAppConfig("cash_payment_phone")?.let { cashPhone = it }
-            } catch (_: Exception) { /* use defaults */ }
+            } catch (_: Exception) {
+                // use defaults
+            }
         }
     }
 
@@ -67,20 +69,22 @@ fun FinancePaymentScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Invoice Summary Card
             Card(
@@ -90,9 +94,10 @@ fun FinancePaymentScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -174,7 +179,12 @@ fun FinancePaymentScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Lock, contentDescription = null, tint = Success, modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Filled.Lock,
+                                    contentDescription = null,
+                                    tint = Success,
+                                    modifier = Modifier.size(16.dp)
+                                )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Reference: $invoiceId",
@@ -197,9 +207,10 @@ fun FinancePaymentScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
                         ) {
                             Text(
                                 text = "Cash Payment Details",
@@ -237,13 +248,14 @@ fun FinancePaymentScreen(
 
                             if (selectedMethod == "PAYFAST") {
                                 // Build PayFast payment data and open payment URL
-                                val payFastData = PayFastRepository.buildPaymentData(
-                                    invoiceId = invoiceId,
-                                    amount = amount,
-                                    itemName = description,
-                                    parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
-                                    parentId = parentId
-                                )
+                                val payFastData =
+                                    PayFastRepository.buildPaymentData(
+                                        invoiceId = invoiceId,
+                                        amount = amount,
+                                        itemName = description,
+                                        parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
+                                        parentId = parentId
+                                    )
 
                                 if (payFastData != null) {
                                     val (_, url) = payFastData
@@ -258,11 +270,12 @@ fun FinancePaymentScreen(
                                     )
                                     // Track the checkout so the Payment Status screen
                                     // can poll for confirmation when the browser closes
-                                    PendingPaymentTracker.pending = PendingPaymentTracker.PendingCheckout(
-                                        invoiceIds = listOf(invoiceId),
-                                        batchId = null,
-                                        total = amount
-                                    )
+                                    PendingPaymentTracker.pending =
+                                        PendingPaymentTracker.PendingCheckout(
+                                            invoiceIds = listOf(invoiceId),
+                                            batchId = null,
+                                            total = amount
+                                        )
                                     // Open PayFast in browser (URL is signed server-side)
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                     ctx.startActivity(intent)
@@ -276,14 +289,15 @@ fun FinancePaymentScreen(
                                 }
                             } else {
                                 // Create cash payment record
-                                val paymentCreated = SupabaseRepository.createPayment(
-                                    invoiceId = invoiceId,
-                                    studentId = "",
-                                    parentId = parentId,
-                                    amount = amount,
-                                    paymentMethod = "cash",
-                                    proofUrl = null
-                                )
+                                val paymentCreated =
+                                    SupabaseRepository.createPayment(
+                                        invoiceId = invoiceId,
+                                        studentId = "",
+                                        parentId = parentId,
+                                        amount = amount,
+                                        paymentMethod = "cash",
+                                        proofUrl = null
+                                    )
 
                                 if (paymentCreated) {
                                     paymentSubmitted = true
@@ -292,28 +306,32 @@ fun FinancePaymentScreen(
                             }
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = when {
-                            selectedMethod == "PAYFAST" -> Primary
-                            selectedMethod == "CASH" -> Success
-                            else -> OnSurfaceVariant
-                        },
-                        contentColor = OnPrimary
-                    ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                when {
+                                    selectedMethod == "PAYFAST" -> Primary
+                                    selectedMethod == "CASH" -> Success
+                                    else -> OnSurfaceVariant
+                                },
+                            contentColor = OnPrimary
+                        ),
                     enabled = selectedMethod == "PAYFAST" || selectedMethod == "CASH"
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = when (selectedMethod) {
-                            "CASH" -> "Confirm Cash Payment"
-                            "PAYFAST" -> "Continue to PayFast"
-                            else -> "Submit Payment"
-                        },
+                        text =
+                            when (selectedMethod) {
+                                "CASH" -> "Confirm Cash Payment"
+                                "PAYFAST" -> "Continue to PayFast"
+                                else -> "Submit Payment"
+                            },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -327,9 +345,10 @@ fun FinancePaymentScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
@@ -370,19 +389,22 @@ fun PaymentOptionCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) PrimaryContainer else Surface
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = if (isSelected) PrimaryContainer else Surface
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -423,9 +445,10 @@ fun InfoRow(
     text: String
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

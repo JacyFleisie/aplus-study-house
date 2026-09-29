@@ -17,8 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.blankapp.ui.theme.*
 import com.example.blankapp.data.AuthRepository
+import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,31 +52,50 @@ fun RegistrationSubmitScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 1f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Success, trackColor = SuccessContainer
+                color = Success,
+                trackColor = SuccessContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 9 of 9 — Submit Application", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text(
+                "Step 9 of 9 — Submit Application",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             if (!submitted) {
-                Text("Review Your Application", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = OnBackground)
+                Text(
+                    "Review Your Application",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Please review before submitting", style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+                Text(
+                    "Please review before submitting",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         SummaryItem("Student Details", "✓ Completed", Success)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
@@ -95,67 +114,153 @@ fun RegistrationSubmitScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                    Checkbox(checked = agreedToTerms, onCheckedChange = { agreedToTerms = it },
-                        colors = CheckboxDefaults.colors(checkedColor = Primary, uncheckedColor = if (!agreedToTerms) Error else Outline))
+                    Checkbox(
+                        checked = agreedToTerms,
+                        onCheckedChange = { agreedToTerms = it },
+                        colors =
+                            CheckboxDefaults.colors(
+                                checkedColor = Primary,
+                                uncheckedColor = if (!agreedToTerms) Error else Outline
+                            )
+                    )
                     Column {
-                        Text("I confirm that all information provided is accurate and I agree to the terms and conditions of A+ Study House.",
-                            style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                        Text(
+                            "I confirm that all information provided is accurate and I agree to the terms and conditions of A+ Study House.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceVariant
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(onClick = { submitted = true; onSubmit(AuthRepository.getCurrentUser()?.id ?: "") },
-                    modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = if (agreedToTerms) Success else OnSurfaceVariant, contentColor = OnPrimary),
-                    enabled = agreedToTerms) {
+                Button(
+                    onClick = {
+                        submitted = true
+                        onSubmit(AuthRepository.getCurrentUser()?.id ?: "")
+                    },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = if (agreedToTerms) Success else OnSurfaceVariant,
+                            contentColor = OnPrimary
+                        ),
+                    enabled = agreedToTerms
+                ) {
                     Icon(Icons.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Submit Application", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Submit Application",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             } else if (submitSucceeded == false) {
                 // Submission failed server-side — never show a false success.
-                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = ErrorContainer), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.ErrorOutline, contentDescription = null, modifier = Modifier.size(80.dp), tint = Error)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = ErrorContainer),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Filled.ErrorOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = Error
+                        )
                         Spacer(modifier = Modifier.height(20.dp))
-                        Text("Submission Failed", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Error)
+                        Text(
+                            "Submission Failed",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Error
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("We could not submit your application — please check your connection and try again. Your answers have been saved.",
-                            style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant, textAlign = TextAlign.Center)
+                        Text(
+                            "We could not submit your application — please check your connection and try again. Your answers have been saved.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = { submitted = false; onSubmit(AuthRepository.getCurrentUser()?.id ?: "") },
-                    modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)) {
+                Button(
+                    onClick = {
+                        submitted = false
+                        onSubmit(AuthRepository.getCurrentUser()?.id ?: "")
+                    },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
+                ) {
                     Icon(Icons.Filled.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Try Again", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 }
             } else {
                 // Success
-                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = SuccessContainer), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(80.dp), tint = Success)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = SuccessContainer),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = Success
+                        )
                         Spacer(modifier = Modifier.height(20.dp))
-                        Text("Application Submitted!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Success)
+                        Text(
+                            "Application Submitted!",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Success
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Application ID: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "PENDING"}", style = MaterialTheme.typography.bodyLarge, color = OnBackground, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Application ID: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "PENDING"}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = OnBackground,
+                            fontWeight = FontWeight.SemiBold
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Your application has been submitted successfully. You will be notified once it's reviewed.",
-                            style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant, textAlign = TextAlign.Center)
+                        Text(
+                            "Your application has been submitted successfully. You will be notified once it's reviewed.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                        Text("What happens next?", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "What happens next?",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         NextStepItem("1", "Our team reviews your application", Primary)
                         NextStepItem("2", "We verify your payment", Secondary)
@@ -166,11 +271,19 @@ fun RegistrationSubmitScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(onClick = onContinue, modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)) {
+                Button(
+                    onClick = onContinue,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
+                ) {
                     Icon(Icons.Filled.TrackChanges, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("View Application Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "View Application Status",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 

@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.R
 import com.example.blankapp.data.*
-import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
+import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -38,7 +38,9 @@ fun ParentFinanceScreen(
     // Error state for data loading
     var isLoading by remember { mutableStateOf(true) }
     var loadError by remember { mutableStateOf<String?>(null) }
-    var financeData by remember { mutableStateOf<Triple<List<MockStudent>, Double, List<MockInvoice>>>(Triple(emptyList(), 0.0, emptyList())) }
+    var financeData by remember {
+        mutableStateOf<Triple<List<MockStudent>, Double, List<MockInvoice>>>(Triple(emptyList(), 0.0, emptyList()))
+    }
 
     // Load data with error handling
     LaunchedEffect(currentUser?.id) {
@@ -47,13 +49,14 @@ fun ParentFinanceScreen(
             loadError = null
             val parentId = currentUser?.id ?: ""
             val students = SupabaseRepository.getParentStudents(parentId)
-            val totalBalance = if (students.isEmpty()) {
-                0.0
-            } else {
-                SupabaseRepository.getParentInvoices(parentId).filter {
-                    it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
-                }.sumOf { it.amount }
-            }
+            val totalBalance =
+                if (students.isEmpty()) {
+                    0.0
+                } else {
+                    SupabaseRepository.getParentInvoices(parentId).filter {
+                        it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
+                    }.sumOf { it.amount }
+                }
             val allInvoices = SupabaseRepository.getParentInvoices(parentId).sortedByDescending { it.dueDate }
             financeData = Triple(students, totalBalance, allInvoices)
             isLoading = false
@@ -75,10 +78,14 @@ fun ParentFinanceScreen(
                     try {
                         val parentId = currentUser?.id ?: ""
                         val students = SupabaseRepository.getParentStudents(parentId)
-                        val totalBalance = SupabaseRepository.getParentInvoices(parentId).filter {
-                            it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
-                        }.sumOf { it.amount }
-                        val allInvoices = SupabaseRepository.getParentInvoices(parentId).sortedByDescending { it.dueDate }
+                        val totalBalance =
+                            SupabaseRepository.getParentInvoices(parentId).filter {
+                                it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE
+                            }.sumOf { it.amount }
+                        val allInvoices =
+                            SupabaseRepository.getParentInvoices(
+                                parentId
+                            ).sortedByDescending { it.dueDate }
                         financeData = Triple(students, totalBalance, allInvoices)
                     } catch (e: Exception) {
                         loadError = e.toUserFriendlyMessage()
@@ -106,11 +113,12 @@ fun ParentFinanceScreen(
     val overdueTotal = overdueInvoices.sumOf { it.amount }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Header
         Text(
@@ -131,9 +139,10 @@ fun ParentFinanceScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -151,7 +160,9 @@ fun ParentFinanceScreen(
                             color = Error
                         )
                         Text(
-                            text = "${overdueInvoices.size} invoice${if (overdueInvoices.size != 1) "s" else ""} · R${"%.0f".format(overdueTotal)} overdue",
+                            text = "${overdueInvoices.size} invoice${if (overdueInvoices.size != 1) "s" else ""} · R${"%.0f".format(
+                                overdueTotal
+                            )} overdue",
                             style = MaterialTheme.typography.bodySmall,
                             color = OnBackground
                         )
@@ -177,15 +188,17 @@ fun ParentFinanceScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (totalBalance > 0) Warning else Success
-            ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = if (totalBalance > 0) Warning else Success
+                ),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -226,13 +239,14 @@ fun ParentFinanceScreen(
                             val amountById = pendingInvoices.associate { it.id to it.amount }
                             val total = pendingInvoices.sumOf { it.amount }
 
-                            val payFastData = PayFastRepository.buildBatchPaymentData(
-                                invoiceIds = ids,
-                                amount = total,
-                                itemName = "A+ Study House — ${ids.size} invoices",
-                                parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
-                                parentId = parentId
-                            )
+                            val payFastData =
+                                PayFastRepository.buildBatchPaymentData(
+                                    invoiceIds = ids,
+                                    amount = total,
+                                    itemName = "A+ Study House — ${ids.size} invoices",
+                                    parentEmail = AuthRepository.getCurrentUser()?.email ?: "",
+                                    parentId = parentId
+                                )
 
                             if (payFastData != null) {
                                 val (firstSlot, url) = payFastData
@@ -247,15 +261,20 @@ fun ParentFinanceScreen(
                                 }
                                 // Track the checkout so the Payment Status screen
                                 // can poll for confirmation when the browser closes
-                                PendingPaymentTracker.pending = PendingPaymentTracker.PendingCheckout(
-                                    invoiceIds = ids,
-                                    batchId = batchId.ifBlank { null },
-                                    total = total
-                                )
+                                PendingPaymentTracker.pending =
+                                    PendingPaymentTracker.PendingCheckout(
+                                        invoiceIds = ids,
+                                        batchId = batchId.ifBlank { null },
+                                        total = total
+                                    )
                                 ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                                 onOpenPaymentStatus()
                             } else {
-                                Toast.makeText(ctx, "Online payments are not available right now. Please pay each invoice individually or contact the office.", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    ctx,
+                                    "Online payments are not available right now. Please pay each invoice individually or contact the office.",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         } catch (e: Exception) {
                             Toast.makeText(ctx, "Could not start payment: ${e.message}", Toast.LENGTH_LONG).show()
@@ -276,7 +295,14 @@ fun ParentFinanceScreen(
                 Icon(Icons.Filled.Bolt, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (payingAll) "Preparing checkout…" else "Pay All ${pendingInvoices.size} Invoices (R${"%.0f".format(totalBalance)})",
+                    text =
+                        if (payingAll) {
+                            "Preparing checkout…"
+                        } else {
+                            "Pay All ${pendingInvoices.size} Invoices (R${"%.0f".format(
+                                totalBalance
+                            )})"
+                        },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -336,9 +362,10 @@ fun ParentFinanceScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -403,9 +430,10 @@ fun ParentFinanceScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
@@ -500,9 +528,10 @@ fun FinanceActionButton(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -532,9 +561,10 @@ fun InvoiceCard(
     val isUnpaid = invoice.status == InvoiceStatus.PENDING || invoice.status == InvoiceStatus.OVERDUE
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -546,17 +576,18 @@ fun InvoiceCard(
             ) {
                 // Status Icon
                 Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            when (invoice.status) {
-                                InvoiceStatus.PAID -> SuccessContainer
-                                InvoiceStatus.PENDING -> WarningContainer
-                                InvoiceStatus.OVERDUE -> ErrorContainer
-                                InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
-                            },
-                            CircleShape
-                        ),
+                    modifier =
+                        Modifier
+                            .size(40.dp)
+                            .background(
+                                when (invoice.status) {
+                                    InvoiceStatus.PAID -> SuccessContainer
+                                    InvoiceStatus.PENDING -> WarningContainer
+                                    InvoiceStatus.OVERDUE -> ErrorContainer
+                                    InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
+                                },
+                                CircleShape
+                            ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -568,12 +599,13 @@ fun InvoiceCard(
                         },
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = when (invoice.status) {
-                            InvoiceStatus.PAID -> Success
-                            InvoiceStatus.PENDING -> Warning
-                            InvoiceStatus.OVERDUE -> Error
-                            InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                        }
+                        tint =
+                            when (invoice.status) {
+                                InvoiceStatus.PAID -> Success
+                                InvoiceStatus.PENDING -> Warning
+                                InvoiceStatus.OVERDUE -> Error
+                                InvoiceStatus.CANCELLED -> OnSurfaceVariant
+                            }
                     )
                 }
 
@@ -621,22 +653,24 @@ fun InvoiceCard(
                     )
                     Surface(
                         shape = RoundedCornerShape(4.dp),
-                        color = when (invoice.status) {
-                            InvoiceStatus.PAID -> SuccessContainer
-                            InvoiceStatus.PENDING -> WarningContainer
-                            InvoiceStatus.OVERDUE -> ErrorContainer
-                            InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
-                        }
+                        color =
+                            when (invoice.status) {
+                                InvoiceStatus.PAID -> SuccessContainer
+                                InvoiceStatus.PENDING -> WarningContainer
+                                InvoiceStatus.OVERDUE -> ErrorContainer
+                                InvoiceStatus.CANCELLED -> OnSurfaceVariant.copy(alpha = 0.12f)
+                            }
                     ) {
                         Text(
                             text = invoice.status.name,
                             style = MaterialTheme.typography.labelSmall,
-                            color = when (invoice.status) {
-                                InvoiceStatus.PAID -> Success
-                                InvoiceStatus.PENDING -> Warning
-                                InvoiceStatus.OVERDUE -> Error
-                                InvoiceStatus.CANCELLED -> OnSurfaceVariant
-                            },
+                            color =
+                                when (invoice.status) {
+                                    InvoiceStatus.PAID -> Success
+                                    InvoiceStatus.PENDING -> Warning
+                                    InvoiceStatus.OVERDUE -> Error
+                                    InvoiceStatus.CANCELLED -> OnSurfaceVariant
+                                },
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -650,9 +684,10 @@ fun InvoiceCard(
                     onClick = onClick,
                     modifier = Modifier.fillMaxWidth().height(40.dp),
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (invoice.status == InvoiceStatus.OVERDUE) Error else Primary
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = if (invoice.status == InvoiceStatus.OVERDUE) Error else Primary
+                        )
                 ) {
                     Icon(Icons.Filled.Payment, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))

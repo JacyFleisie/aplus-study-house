@@ -44,9 +44,18 @@ fun ForgotPasswordScreen(
     fun validateEmail(): Boolean {
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
         return when {
-            email.isBlank() -> { emailError = "Email is required"; false }
-            !emailRegex.matches(email) -> { emailError = "Please enter a valid email"; false }
-            else -> { emailError = null; true }
+            email.isBlank() -> {
+                emailError = "Email is required"
+                false
+            }
+            !emailRegex.matches(email) -> {
+                emailError = "Please enter a valid email"
+                false
+            }
+            else -> {
+                emailError = null
+                true
+            }
         }
     }
 
@@ -63,31 +72,35 @@ fun ForgotPasswordScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    )
             )
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .padding(paddingValues)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .padding(paddingValues)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 
                 // Logo
                 Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                    .background(Primary, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(80.dp)
+                            .background(Primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -112,9 +125,10 @@ fun ForgotPasswordScreen(
                         ) {
                             // Success Icon
                             Box(
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .background(SuccessContainer, CircleShape),
+                                modifier =
+                                    Modifier
+                                        .size(100.dp)
+                                        .background(SuccessContainer, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -170,13 +184,15 @@ fun ForgotPasswordScreen(
                                     isLoading = true
                                     onSubmitClick(email)
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(48.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = Primary
-                                ),
+                                colors =
+                                    ButtonDefaults.outlinedButtonColors(
+                                        contentColor = Primary
+                                    ),
                                 border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
                             ) {
                                 Icon(
@@ -233,16 +249,18 @@ fun ForgotPasswordScreen(
                                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
                                 Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(24.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(24.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     // Email Icon
                                     Box(
-                                        modifier = Modifier
-                                            .size(64.dp)
-                                            .background(PrimaryContainer, CircleShape),
+                                        modifier =
+                                            Modifier
+                                                .size(64.dp)
+                                                .background(PrimaryContainer, CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
@@ -258,7 +276,10 @@ fun ForgotPasswordScreen(
                                     // Email Field
                                     OutlinedTextField(
                                         value = email,
-                                        onValueChange = { email = it; emailError = null },
+                                        onValueChange = {
+                                            email = it
+                                            emailError = null
+                                        },
                                         label = { Text("Email Address") },
                                         placeholder = { Text("Enter your email") },
                                         leadingIcon = {
@@ -269,33 +290,37 @@ fun ForgotPasswordScreen(
                                             )
                                         },
                                         isError = emailError != null,
-                                        supportingText = emailError?.let { error ->
-                                            { Text(error, color = Error) }
-                                        },
+                                        supportingText =
+                                            emailError?.let { error ->
+                                                { Text(error, color = Error) }
+                                            },
                                         singleLine = true,
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Email,
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        keyboardActions = KeyboardActions(
-                                            onDone = {
-                                                focusManager.clearFocus()
-                                                if (validateEmail()) {
-                                                    isLoading = true
-                                                    onSubmitClick(email)
-                                                    emailSent = true
+                                        keyboardOptions =
+                                            KeyboardOptions(
+                                                keyboardType = KeyboardType.Email,
+                                                imeAction = ImeAction.Done
+                                            ),
+                                        keyboardActions =
+                                            KeyboardActions(
+                                                onDone = {
+                                                    focusManager.clearFocus()
+                                                    if (validateEmail()) {
+                                                        isLoading = true
+                                                        onSubmitClick(email)
+                                                        emailSent = true
+                                                    }
                                                 }
-                                            }
-                                        ),
+                                            ),
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = Primary,
-                                            unfocusedBorderColor = Outline,
-                                            errorBorderColor = Error,
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent
-                                        )
+                                        colors =
+                                            OutlinedTextFieldDefaults.colors(
+                                                focusedBorderColor = Primary,
+                                                unfocusedBorderColor = Outline,
+                                                errorBorderColor = Error,
+                                                focusedContainerColor = Color.Transparent,
+                                                unfocusedContainerColor = Color.Transparent
+                                            )
                                     )
 
                                     Spacer(modifier = Modifier.height(24.dp))
@@ -310,14 +335,16 @@ fun ForgotPasswordScreen(
                                                 emailSent = true
                                             }
                                         },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(52.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(52.dp),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Primary,
-                                            contentColor = OnPrimary
-                                        ),
+                                        colors =
+                                            ButtonDefaults.buttonColors(
+                                                containerColor = Primary,
+                                                contentColor = OnPrimary
+                                            ),
                                         enabled = !isLoading && email.isNotBlank()
                                     ) {
                                         if (isLoading) {

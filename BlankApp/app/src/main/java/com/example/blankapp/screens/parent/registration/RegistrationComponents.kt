@@ -23,10 +23,11 @@ import com.example.blankapp.ui.theme.*
 val availableGrades = listOf(1, 2, 3, 4, 5, 6, 7)
 
 /** Sports matching the paper registration form */
-val availableSports = listOf(
-    "Netball", "Soccer", "Cricket", "Recorder",
-    "Remedial Class", "Drammies", "Robotics", "Hockey", "Other"
-)
+val availableSports =
+    listOf(
+        "Netball", "Soccer", "Cricket", "Recorder",
+        "Remedial Class", "Drammies", "Robotics", "Hockey", "Other"
+    )
 
 // ============================================
 // SHARED COMPOSABLES
@@ -41,22 +42,29 @@ fun RegistrationStepItem(
     color: Color
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(color.copy(alpha = 0.15f), CircleShape),
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .background(color.copy(alpha = 0.15f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = OnBackground)
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = OnBackground
+            )
             Text(description, style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
         }
     }
@@ -71,7 +79,10 @@ fun InfoBullet(text: String) {
 }
 
 @Composable
-fun BankDetailRow(label: String, value: String) {
+fun BankDetailRow(
+    label: String,
+    value: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -82,7 +93,11 @@ fun BankDetailRow(label: String, value: String) {
 }
 
 @Composable
-fun SummaryItem(label: String, value: String, valueColor: Color) {
+fun SummaryItem(
+    label: String,
+    value: String,
+    valueColor: Color
+) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
         Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = valueColor)
@@ -90,7 +105,11 @@ fun SummaryItem(label: String, value: String, valueColor: Color) {
 }
 
 @Composable
-fun NextStepItem(step: String, text: String, color: Color) {
+fun NextStepItem(
+    step: String,
+    text: String,
+    color: Color
+) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier.size(24.dp).background(color.copy(alpha = 0.1f), CircleShape),
@@ -131,20 +150,26 @@ fun ApplicationTimelineStep(
             modifier = Modifier.width(40.dp)
         ) {
             Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(
-                        when {
-                            isCompleted -> Success
-                            isCurrent -> if (isError) Error else Primary
-                            else -> OutlineVariant
-                        },
-                        CircleShape
-                    ),
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .background(
+                            when {
+                                isCompleted -> Success
+                                isCurrent -> if (isError) Error else Primary
+                                else -> OutlineVariant
+                            },
+                            CircleShape
+                        ),
                 contentAlignment = Alignment.Center
             ) {
                 if (isCompleted) {
-                    Icon(Icons.Filled.Check, contentDescription = null, tint = OnPrimary, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Filled.Check,
+                        contentDescription = null,
+                        tint = OnPrimary,
+                        modifier = Modifier.size(18.dp)
+                    )
                 } else {
                     Text(
                         text = stepNumber.toString(),
@@ -156,10 +181,11 @@ fun ApplicationTimelineStep(
             }
             if (!isLast) {
                 Box(
-                    modifier = Modifier
-                        .width(2.dp)
-                        .height(48.dp)
-                        .background(if (isCompleted) Success else OutlineVariant)
+                    modifier =
+                        Modifier
+                            .width(2.dp)
+                            .height(48.dp)
+                            .background(if (isCompleted) Success else OutlineVariant)
                 )
             }
         }
@@ -168,9 +194,10 @@ fun ApplicationTimelineStep(
 
         // Step content
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = if (isLast) 0.dp else 16.dp)
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(bottom = if (isLast) 0.dp else 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -181,30 +208,33 @@ fun ApplicationTimelineStep(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = if (isCompleted || isCurrent) FontWeight.SemiBold else FontWeight.Normal,
-                    color = when {
-                        isCompleted -> Success
-                        isCurrent -> if (isError) Error else Primary
-                        else -> OnSurfaceVariant
-                    },
+                    color =
+                        when {
+                            isCompleted -> Success
+                            isCurrent -> if (isError) Error else Primary
+                            else -> OnSurfaceVariant
+                        },
                     modifier = Modifier.weight(1f)
                 )
                 if (date.isNotBlank()) {
                     Surface(
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(6.dp),
-                        color = when {
-                            isCompleted -> SuccessContainer
-                            isCurrent -> if (isError) ErrorContainer else PrimaryContainer
-                            else -> OutlineVariant.copy(alpha = 0.3f)
-                        }
+                        color =
+                            when {
+                                isCompleted -> SuccessContainer
+                                isCurrent -> if (isError) ErrorContainer else PrimaryContainer
+                                else -> OutlineVariant.copy(alpha = 0.3f)
+                            }
                     ) {
                         Text(
                             text = date,
                             style = MaterialTheme.typography.labelSmall,
-                            color = when {
-                                isCompleted -> Success
-                                isCurrent -> if (isError) Error else Primary
-                                else -> OnSurfaceVariant
-                            },
+                            color =
+                                when {
+                                    isCompleted -> Success
+                                    isCurrent -> if (isError) Error else Primary
+                                    else -> OnSurfaceVariant
+                                },
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }

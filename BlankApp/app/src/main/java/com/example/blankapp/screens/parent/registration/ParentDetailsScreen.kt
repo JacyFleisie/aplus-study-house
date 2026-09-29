@@ -25,10 +25,20 @@ fun ParentDetailsScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
     onContinue: (
-        motherName: String, motherSurname: String, motherId: String,
-        motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String,
-        fatherName: String, fatherSurname: String, fatherId: String,
-        fatherEmployer: String, fatherWorkPhone: String, fatherCell: String, fatherEmail: String
+        motherName: String,
+        motherSurname: String,
+        motherId: String,
+        motherEmployer: String,
+        motherWorkPhone: String,
+        motherCell: String,
+        motherEmail: String,
+        fatherName: String,
+        fatherSurname: String,
+        fatherId: String,
+        fatherEmployer: String,
+        fatherWorkPhone: String,
+        fatherCell: String,
+        fatherEmail: String
     ) -> Unit,
     draft: RegistrationDraft? = null
 ) {
@@ -67,106 +77,266 @@ fun ParentDetailsScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 0.625f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Primary, trackColor = PrimaryContainer
+                color = Primary,
+                trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 6 of 9 — Parent / Guardian Details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text(
+                "Step 6 of 9 — Parent / Guardian Details",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // MOTHER
-            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Person, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = null,
+                            tint = Primary,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Mother", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Mother",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = motherName, onValueChange = { motherName = it }, label = { Text("First Name") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherName,
+                        onValueChange = { motherName = it },
+                        label = { Text("First Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherSurname, onValueChange = { motherSurname = it }, label = { Text("Surname") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherSurname,
+                        onValueChange = { motherSurname = it },
+                        label = { Text("Surname") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherId, onValueChange = { motherId = it }, label = { Text("Identity Number") },
+                    OutlinedTextField(
+                        value = motherId,
+                        onValueChange = { motherId = it },
+                        label = { Text("Identity Number") },
                         placeholder = { Text("e.g. 8001011234089") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherEmployer, onValueChange = { motherEmployer = it }, label = { Text("Employer") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherEmployer,
+                        onValueChange = { motherEmployer = it },
+                        label = { Text("Employer") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherWorkPhone, onValueChange = { motherWorkPhone = it }, label = { Text("Work Phone Nr") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherWorkPhone,
+                        onValueChange = { motherWorkPhone = it },
+                        label = { Text("Work Phone Nr") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherCell, onValueChange = { motherCell = it }, label = { Text("Cell Phone Nr") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherCell,
+                        onValueChange = { motherCell = it },
+                        label = { Text("Cell Phone Nr") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = motherEmail, onValueChange = { motherEmail = it }, label = { Text("E-mail Address") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = motherEmail,
+                        onValueChange = { motherEmail = it },
+                        label = { Text("E-mail Address") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // FATHER / GUARDIAN
-            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Person, contentDescription = null, tint = Secondary, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = null,
+                            tint = Secondary,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Father / Guardian", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Father / Guardian",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(value = fatherName, onValueChange = { fatherName = it }, label = { Text("First Name") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherName,
+                        onValueChange = { fatherName = it },
+                        label = { Text("First Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherSurname, onValueChange = { fatherSurname = it }, label = { Text("Surname") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherSurname,
+                        onValueChange = { fatherSurname = it },
+                        label = { Text("Surname") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherId, onValueChange = { fatherId = it }, label = { Text("Identity Number") },
+                    OutlinedTextField(
+                        value = fatherId,
+                        onValueChange = { fatherId = it },
+                        label = { Text("Identity Number") },
                         placeholder = { Text("e.g. 8001011234089") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherEmployer, onValueChange = { fatherEmployer = it }, label = { Text("Employer") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherEmployer,
+                        onValueChange = { fatherEmployer = it },
+                        label = { Text("Employer") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherWorkPhone, onValueChange = { fatherWorkPhone = it }, label = { Text("Work Phone Nr") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherWorkPhone,
+                        onValueChange = { fatherWorkPhone = it },
+                        label = { Text("Work Phone Nr") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherCell, onValueChange = { fatherCell = it }, label = { Text("Cell Phone Nr") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherCell,
+                        onValueChange = { fatherCell = it },
+                        label = { Text("Cell Phone Nr") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = fatherEmail, onValueChange = { fatherEmail = it }, label = { Text("E-mail Address") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                    OutlinedTextField(
+                        value = fatherEmail,
+                        onValueChange = { fatherEmail = it },
+                        label = { Text("E-mail Address") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                 }
             }
 
@@ -174,8 +344,10 @@ fun ParentDetailsScreen(
 
             Button(
                 onClick = {
-                    onContinue(motherName, motherSurname, motherId, motherEmployer, motherWorkPhone, motherCell, motherEmail,
-                        fatherName, fatherSurname, fatherId, fatherEmployer, fatherWorkPhone, fatherCell, fatherEmail)
+                    onContinue(
+                        motherName, motherSurname, motherId, motherEmployer, motherWorkPhone, motherCell, motherEmail,
+                        fatherName, fatherSurname, fatherId, fatherEmployer, fatherWorkPhone, fatherCell, fatherEmail
+                    )
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(12.dp),

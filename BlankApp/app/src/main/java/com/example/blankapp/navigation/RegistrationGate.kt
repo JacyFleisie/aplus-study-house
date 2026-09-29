@@ -37,29 +37,31 @@ fun RequireRegisteredChild(
 
     LaunchedEffect(parentId) {
         AuditLogger.log("registration_gate_start", "parentId=$parentId")
-        val result = try {
-            // Check if parent has active students (means registration was approved)
-            val students = SupabaseRepository.getParentStudents(parentId)
-            if (students.isNotEmpty()) {
-                Log.d("RegistrationGate", "Parent $parentId has ${students.size} students")
-                AuditLogger.log("registration_gate_ok", "parentId=$parentId students=${students.size}")
-                true
-            } else {
-                // Also check for approved/payment_verified applications (in case student creation failed but app is approved)
-                val applications = SupabaseRepository.getParentApplications(parentId)
-                val hasApprovedApp = applications.any {
-                    it.status == com.example.blankapp.data.ApplicationStatus.APPROVED ||
-                    it.status == com.example.blankapp.data.ApplicationStatus.PAYMENT_VERIFIED
+        val result =
+            try {
+                // Check if parent has active students (means registration was approved)
+                val students = SupabaseRepository.getParentStudents(parentId)
+                if (students.isNotEmpty()) {
+                    Log.d("RegistrationGate", "Parent $parentId has ${students.size} students")
+                    AuditLogger.log("registration_gate_ok", "parentId=$parentId students=${students.size}")
+                    true
+                } else {
+                    // Also check for approved/payment_verified applications (in case student creation failed but app is approved)
+                    val applications = SupabaseRepository.getParentApplications(parentId)
+                    val hasApprovedApp =
+                        applications.any {
+                            it.status == com.example.blankapp.data.ApplicationStatus.APPROVED ||
+                                it.status == com.example.blankapp.data.ApplicationStatus.PAYMENT_VERIFIED
+                        }
+                    Log.d("RegistrationGate", "Parent $parentId has approved app: $hasApprovedApp")
+                    AuditLogger.log("registration_gate_fallback", "parentId=$parentId approvedApp=$hasApprovedApp")
+                    hasApprovedApp
                 }
-                Log.d("RegistrationGate", "Parent $parentId has approved app: $hasApprovedApp")
-                AuditLogger.log("registration_gate_fallback", "parentId=$parentId approvedApp=$hasApprovedApp")
-                hasApprovedApp
+            } catch (e: Exception) {
+                Log.e("RegistrationGate", "Error checking children", e)
+                AuditLogger.log("registration_gate_error", "parentId=$parentId error=${e.message ?: ""}")
+                false
             }
-        } catch (e: Exception) {
-            Log.e("RegistrationGate", "Error checking children", e)
-            AuditLogger.log("registration_gate_error", "parentId=$parentId error=${e.message ?: ""}")
-            false
-        }
         hasChildren = result
         isChecking = false
     }
@@ -82,36 +84,38 @@ fun RequireRegisteredChild(
  * Screen shown when parent has no registered children
  */
 @Composable
-fun RegistrationRequiredScreen(
-    onRegisterChild: () -> Unit
-) {
+fun RegistrationRequiredScreen(onRegisterChild: () -> Unit) {
     val currentUser = AuthRepository.getCurrentUser()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background),
         contentAlignment = Alignment.Center
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Welcome Icon
                 Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .background(PrimaryContainer, CircleShape),
+                    modifier =
+                        Modifier
+                            .size(100.dp)
+                            .background(PrimaryContainer, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -151,9 +155,10 @@ fun RegistrationRequiredScreen(
                     colors = CardDefaults.cardColors(containerColor = InfoContainer)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -184,14 +189,16 @@ fun RegistrationRequiredScreen(
                 // Register Button
                 Button(
                     onClick = onRegisterChild,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Primary,
-                        contentColor = OnPrimary
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = Primary,
+                            contentColor = OnPrimary
+                        )
                 ) {
                     Icon(
                         Icons.Filled.AppRegistration,
@@ -241,9 +248,10 @@ fun RegistrationRequiredScreen(
 @Composable
 private fun InfoItem(text: String) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

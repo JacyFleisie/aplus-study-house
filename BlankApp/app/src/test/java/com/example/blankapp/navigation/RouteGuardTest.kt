@@ -14,7 +14,6 @@ import org.junit.Test
  * delegate to, plus AuthRepository state consistency for sign-in/sign-out.
  */
 class RouteGuardTest {
-
     @Before
     fun setUp() {
         AuthRepository.signOut()

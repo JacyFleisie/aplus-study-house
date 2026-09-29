@@ -1,7 +1,6 @@
 package com.example.blankapp.screens.parent
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,43 +20,46 @@ private data class StationeryItem(val name: String)
 
 // 2027 stationery list — same content the school distributes on paper.
 // Update here when the school issues a new list.
-private val GR_R_2 = listOf(
-    "8 HB Pencils",
-    "4 Erasers",
-    "1 Pack Twisters (crayons)",
-    "1 Long (30cm) Ruler",
-    "1 Glue (Pritt)",
-    "1 Paint Brush",
-    "1 Whiteboard Marker",
-    "9 Toilet Rolls (1 Ply)",
-    "4 Rolls \"Book Cover\" Plastic",
-    "1 A4 Exercise book (72 pages)"
-)
+private val GR_R_2 =
+    listOf(
+        "8 HB Pencils",
+        "4 Erasers",
+        "1 Pack Twisters (crayons)",
+        "1 Long (30cm) Ruler",
+        "1 Glue (Pritt)",
+        "1 Paint Brush",
+        "1 Whiteboard Marker",
+        "9 Toilet Rolls (1 Ply)",
+        "4 Rolls \"Book Cover\" Plastic",
+        "1 A4 Exercise book (72 pages)"
+    )
 
-private val GR_3_6 = listOf(
-    "4 Blue Point Pens",
-    "4 HB Pencils",
-    "1 Rim A4 White Paper",
-    "1 Long (30cm) Ruler",
-    "1 Whiteboard Marker",
-    "1 Glue (Pritt)",
-    "9 Toilet Rolls (1 Ply)",
-    "4 Rolls \"Book Cover\" Plastic",
-    "1 A4 Exercise book (192 pages)"
-)
+private val GR_3_6 =
+    listOf(
+        "4 Blue Point Pens",
+        "4 HB Pencils",
+        "1 Rim A4 White Paper",
+        "1 Long (30cm) Ruler",
+        "1 Whiteboard Marker",
+        "1 Glue (Pritt)",
+        "9 Toilet Rolls (1 Ply)",
+        "4 Rolls \"Book Cover\" Plastic",
+        "1 A4 Exercise book (192 pages)"
+    )
 
-private val GR_7 = listOf(
-    "4 Blue Point Pens",
-    "4 HB Pencils",
-    "1 Rim A4 White Paper",
-    "1 Whiteboard Marker",
-    "1 Glue (Pritt)",
-    "9 Toilet Rolls (1 Ply)",
-    "1 Protractor",
-    "1 Compass",
-    "4 Rolls \"Book Cover\" Plastic",
-    "1 A4 Exercise book (192 pages)"
-)
+private val GR_7 =
+    listOf(
+        "4 Blue Point Pens",
+        "4 HB Pencils",
+        "1 Rim A4 White Paper",
+        "1 Whiteboard Marker",
+        "1 Glue (Pritt)",
+        "9 Toilet Rolls (1 Ply)",
+        "1 Protractor",
+        "1 Compass",
+        "4 Rolls \"Book Cover\" Plastic",
+        "1 A4 Exercise book (192 pages)"
+    )
 
 /**
  * Parent-facing 2027 stationery list, grouped by grade phase.
@@ -79,20 +81,22 @@ fun StationeryListScreen(onBackClick: () -> Unit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Header card
             Card(
@@ -162,9 +166,10 @@ fun StationeryListScreen(onBackClick: () -> Unit) {
                     Spacer(modifier = Modifier.height(12.dp))
                     lists[selectedTab].forEach { item ->
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -193,7 +198,12 @@ fun StationeryListScreen(onBackClick: () -> Unit) {
                 colors = CardDefaults.cardColors(containerColor = WarningContainer)
             ) {
                 Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.Top) {
-                    Icon(Icons.Filled.Warning, contentDescription = null, tint = Warning, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Filled.Warning,
+                        contentDescription = null,
+                        tint = Warning,
+                        modifier = Modifier.size(20.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Please note: Stationery is non-refundable and will not be returned if the contract is terminated or at the end of the academic year.",

@@ -6,7 +6,6 @@ package com.example.blankapp.utils
  * This utility sanitizes user inputs to prevent XSS, command injection, and data corruption.
  */
 object InputSanitizer {
-
     /**
      * Sanitize a string for safe storage/display.
      * Removes control characters and trims whitespace.

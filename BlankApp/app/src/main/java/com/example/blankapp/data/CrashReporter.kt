@@ -24,7 +24,6 @@ import java.util.*
  *   // View logs: CrashReporter.getCrashLogs(context)
  */
 object CrashReporter {
-
     private const val CRASH_DIR = "crash_reports"
     private const val MAX_CRASH_FILES = 50 // Keep last 50 crashes
     private var isInitialized = false
@@ -68,7 +67,10 @@ object CrashReporter {
     /**
      * Log a crash to file
      */
-    private fun logCrash(thread: Thread, throwable: Throwable) {
+    private fun logCrash(
+        thread: Thread,
+        throwable: Throwable
+    ) {
         val crashDir = getCrashDir() ?: return
         val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
         val crashFile = File(crashDir, "crash_$timestamp.txt")
@@ -78,34 +80,35 @@ object CrashReporter {
 
         val deviceInfo = buildDeviceInfo()
 
-        val report = buildString {
-            appendLine("========================================")
-            appendLine("CRASH REPORT")
-            appendLine("========================================")
-            appendLine("Timestamp: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}")
-            appendLine("Thread: ${thread.name} (id=${thread.id})")
-            appendLine("Exception: ${throwable.javaClass.name}")
-            appendLine("Message: ${throwable.message ?: "No message"}")
-            appendLine()
-            appendLine("--- DEVICE INFO ---")
-            appendLine(deviceInfo)
-            appendLine()
-            appendLine("--- STACK TRACE ---")
-            appendLine(stackTrace.toString())
-
-            // Include cause chain
-            var cause = throwable.cause
-            var depth = 0
-            while (cause != null && depth < 5) {
+        val report =
+            buildString {
+                appendLine("========================================")
+                appendLine("CRASH REPORT")
+                appendLine("========================================")
+                appendLine("Timestamp: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}")
+                appendLine("Thread: ${thread.name} (id=${thread.id})")
+                appendLine("Exception: ${throwable.javaClass.name}")
+                appendLine("Message: ${throwable.message ?: "No message"}")
                 appendLine()
-                appendLine("--- CAUSED BY (depth ${depth + 1}) ---")
-                val causeTrace = StringWriter()
-                cause.printStackTrace(PrintWriter(causeTrace))
-                appendLine(causeTrace.toString())
-                cause = cause.cause
-                depth++
+                appendLine("--- DEVICE INFO ---")
+                appendLine(deviceInfo)
+                appendLine()
+                appendLine("--- STACK TRACE ---")
+                appendLine(stackTrace.toString())
+
+                // Include cause chain
+                var cause = throwable.cause
+                var depth = 0
+                while (cause != null && depth < 5) {
+                    appendLine()
+                    appendLine("--- CAUSED BY (depth ${depth + 1}) ---")
+                    val causeTrace = StringWriter()
+                    cause.printStackTrace(PrintWriter(causeTrace))
+                    appendLine(causeTrace.toString())
+                    cause = cause.cause
+                    depth++
+                }
             }
-        }
 
         try {
             crashFile.writeText(report)
@@ -118,17 +121,22 @@ object CrashReporter {
     /**
      * Log a non-fatal event (for debugging)
      */
-    fun logEvent(tag: String, message: String, details: String? = null) {
+    fun logEvent(
+        tag: String,
+        message: String,
+        details: String? = null
+    ) {
         val crashDir = getCrashDir() ?: return
         val logFile = File(crashDir, "events.log")
 
         val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-        val entry = buildString {
-            appendLine("[$timestamp] $tag: $message")
-            if (details != null) {
-                appendLine("  Details: $details")
+        val entry =
+            buildString {
+                appendLine("[$timestamp] $tag: $message")
+                if (details != null) {
+                    appendLine("  Details: $details")
+                }
             }
-        }
 
         try {
             logFile.appendText(entry)
@@ -140,7 +148,11 @@ object CrashReporter {
     /**
      * Log a caught exception (non-fatal)
      */
-    fun logException(throwable: Throwable, tag: String = "Exception", message: String = "") {
+    fun logException(
+        throwable: Throwable,
+        tag: String = "Exception",
+        message: String = ""
+    ) {
         val crashDir = getCrashDir() ?: return
         val logFile = File(crashDir, "exceptions.log")
 
@@ -148,13 +160,14 @@ object CrashReporter {
         val stackTrace = StringWriter()
         throwable.printStackTrace(PrintWriter(stackTrace))
 
-        val entry = buildString {
-            appendLine("[$timestamp] $tag: $message")
-            appendLine("  Type: ${throwable.javaClass.name}")
-            appendLine("  Message: ${throwable.message ?: "No message"}")
-            appendLine("  Stack: ${stackTrace.toString().take(500)}")
-            appendLine()
-        }
+        val entry =
+            buildString {
+                appendLine("[$timestamp] $tag: $message")
+                appendLine("  Type: ${throwable.javaClass.name}")
+                appendLine("  Message: ${throwable.message ?: "No message"}")
+                appendLine("  Stack: ${stackTrace.toString().take(500)}")
+                appendLine()
+            }
 
         try {
             logFile.appendText(entry)
@@ -179,10 +192,11 @@ object CrashReporter {
             ?.sortedByDescending { it.lastModified() }
             ?.map { file ->
                 val content = file.readText()
-                val timestamp = file.name
-                    .removePrefix("crash_")
-                    .removeSuffix(".txt")
-                    .replace("_", " ")
+                val timestamp =
+                    file.name
+                        .removePrefix("crash_")
+                        .removeSuffix(".txt")
+                        .replace("_", " ")
 
                 CrashReport(
                     id = file.name,
@@ -238,9 +252,10 @@ object CrashReporter {
     }
 
     private fun cleanupOldCrashFiles(crashDir: File) {
-        val files = crashDir.listFiles()
-            ?.filter { it.name.startsWith("crash_") }
-            ?.sortedByDescending { it.lastModified() }
+        val files =
+            crashDir.listFiles()
+                ?.filter { it.name.startsWith("crash_") }
+                ?.sortedByDescending { it.lastModified() }
 
         files?.drop(MAX_CRASH_FILES)?.forEach { it.delete() }
     }

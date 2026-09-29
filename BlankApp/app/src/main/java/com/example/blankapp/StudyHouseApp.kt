@@ -10,7 +10,6 @@ import dagger.hilt.android.HiltAndroidApp
  */
 @HiltAndroidApp
 class StudyHouseApp : Application() {
-
     override fun onCreate() {
         super.onCreate()
 

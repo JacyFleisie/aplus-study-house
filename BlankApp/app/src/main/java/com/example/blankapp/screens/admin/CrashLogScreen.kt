@@ -19,15 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.blankapp.data.CrashReporter
 import com.example.blankapp.data.CrashReport
+import com.example.blankapp.data.CrashReporter
 import com.example.blankapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrashLogScreen(
-    onBackClick: () -> Unit
-) {
+fun CrashLogScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     var crashLogs by remember { mutableStateOf<List<CrashReport>>(emptyList()) }
     var selectedReport by remember { mutableStateOf<CrashReport?>(null) }
@@ -60,10 +58,11 @@ fun CrashLogScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
         ) {
             // Tab Row
             TabRow(selectedTabIndex = activeTab) {
@@ -101,7 +100,11 @@ fun CrashLogScreen(
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             title = { Text("Clear All Logs") },
-            text = { Text("This will delete all crash reports, event logs, and exception logs. This action cannot be undone.") },
+            text = {
+                Text(
+                    "This will delete all crash reports, event logs, and exception logs. This action cannot be undone."
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     CrashReporter.clearCrashLogs(context)
@@ -129,11 +132,13 @@ fun CrashLogScreen(
                     Text("Timestamp: ${report.timestamp}", style = MaterialTheme.typography.bodySmall)
                     Text("File: ${report.fileSize}", style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(report.fullReport,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 10.sp
-                        ),
+                    Text(
+                        report.fullReport,
+                        style =
+                            MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 10.sp
+                            ),
                         color = OnBackground
                     )
                 }
@@ -155,9 +160,10 @@ private fun CrashTab(
 ) {
     if (crashLogs.isEmpty()) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -168,19 +174,27 @@ private fun CrashTab(
                     tint = Success
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("No Crashes Recorded", style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold, color = OnBackground)
+                Text(
+                    "No Crashes Recorded",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("The app has been running smoothly!", style = MaterialTheme.typography.bodyMedium,
-                    color = OnSurfaceVariant)
+                Text(
+                    "The app has been running smoothly!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
             }
         }
     } else {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Summary Card
             Card(
@@ -192,12 +206,25 @@ private fun CrashTab(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Filled.BugReport, contentDescription = null, tint = Error, modifier = Modifier.size(24.dp))
+                    Icon(
+                        Icons.Filled.BugReport,
+                        contentDescription = null,
+                        tint = Error,
+                        modifier = Modifier.size(24.dp)
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("${crashLogs.size} crash(es) recorded", style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold, color = Error)
-                        Text("Tap a crash to view details", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                        Text(
+                            "${crashLogs.size} crash(es) recorded",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Error
+                        )
+                        Text(
+                            "Tap a crash to view details",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceVariant
+                        )
                     }
                 }
             }
@@ -214,7 +241,10 @@ private fun CrashTab(
 }
 
 @Composable
-private fun CrashReportCard(report: CrashReport, onClick: () -> Unit) {
+private fun CrashReportCard(
+    report: CrashReport,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
@@ -225,8 +255,12 @@ private fun CrashReportCard(report: CrashReport, onClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Error, contentDescription = null, tint = Error, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(report.timestamp, style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold, color = OnBackground)
+                Text(
+                    report.timestamp,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(report.fileSize, style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
             }
@@ -251,10 +285,11 @@ private fun EventsTab(context: android.content.Context) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         if (events.isBlank() || events == "No events logged") {
             Box(
@@ -271,10 +306,11 @@ private fun EventsTab(context: android.content.Context) {
             ) {
                 Text(
                     text = events,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp
-                    ),
+                    style =
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.sp
+                        ),
                     modifier = Modifier.padding(12.dp),
                     color = OnBackground
                 )
@@ -292,10 +328,11 @@ private fun ExceptionsTab(context: android.content.Context) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         if (exceptions.isBlank() || exceptions == "No exceptions logged") {
             Box(
@@ -312,10 +349,11 @@ private fun ExceptionsTab(context: android.content.Context) {
             ) {
                 Text(
                     text = exceptions,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp
-                    ),
+                    style =
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.sp
+                        ),
                     modifier = Modifier.padding(12.dp),
                     color = OnBackground
                 )

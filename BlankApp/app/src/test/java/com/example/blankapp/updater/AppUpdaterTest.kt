@@ -14,7 +14,6 @@ import org.junit.Test
  * an update was available forever. These tests pin the comparison logic.
  */
 class AppUpdaterTest {
-
     @Test
     fun `older installed version sees an update`() {
         assertTrue(AppUpdater.isNewer("1.6.12", "1.6.7"))

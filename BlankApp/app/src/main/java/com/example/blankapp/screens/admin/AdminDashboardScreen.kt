@@ -58,24 +58,26 @@ fun AdminDashboardScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = when (selectedTab) {
-                            AdminTab.HOME -> "Admin Dashboard"
-                            AdminTab.APPLICATIONS -> "Applications"
-                            AdminTab.STUDENTS -> "Students"
-                            AdminTab.MESSAGES -> "Messages"
-                            AdminTab.FINANCE -> "Finance"
-                            AdminTab.SETTINGS -> "Settings"
-                        },
+                        text =
+                            when (selectedTab) {
+                                AdminTab.HOME -> "Admin Dashboard"
+                                AdminTab.APPLICATIONS -> "Applications"
+                                AdminTab.STUDENTS -> "Students"
+                                AdminTab.MESSAGES -> "Messages"
+                                AdminTab.FINANCE -> "Finance"
+                                AdminTab.SETTINGS -> "Settings"
+                            },
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 actions = {
                     // No inbox icon in top bar - messages are now a tab
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         },
         bottomBar = {
@@ -94,37 +96,41 @@ fun AdminDashboardScreen(
                         label = { Text(tab.title) },
                         selected = selectedTab == tab,
                         onClick = { selectedTab = tab },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = Secondary,
-                            selectedTextColor = Secondary,
-                            unselectedIconColor = OnSurfaceVariant,
-                            unselectedTextColor = OnSurfaceVariant,
-                            indicatorColor = SecondaryContainer
-                        )
+                        colors =
+                            NavigationBarItemDefaults.colors(
+                                selectedIconColor = Secondary,
+                                selectedTextColor = Secondary,
+                                unselectedIconColor = OnSurfaceVariant,
+                                unselectedTextColor = OnSurfaceVariant,
+                                indicatorColor = SecondaryContainer
+                            )
                     )
                 }
             }
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
         ) {
             when (selectedTab) {
-                AdminTab.HOME ->                AdminHomeTab(
-                    onNavigateToApplication = onNavigateToApplication,
-                    onNavigateToAttendance = { showAttendance = true }
-                )
+                AdminTab.HOME ->
+                    AdminHomeTab(
+                        onNavigateToApplication = onNavigateToApplication,
+                        onNavigateToAttendance = { showAttendance = true }
+                    )
                 AdminTab.APPLICATIONS -> AdminApplicationsTab(onNavigateToApplication = onNavigateToApplication)
                 AdminTab.STUDENTS -> AdminStudentsTab(onNavigateToStudent = onNavigateToStudent)
                 AdminTab.MESSAGES -> AdminMessagesScreen(onBack = { selectedTab = AdminTab.HOME })
                 AdminTab.FINANCE -> AdminFinanceTab(onNavigateToFinance = onNavigateToFinance)
-                AdminTab.SETTINGS -> AdminSettingsTab(
-                    onLogout = onLogout,
-                    onNavigateToCrashLogs = { showCrashLogs = true },
-                    onNavigateToAbout = { showAbout = true }
-                )
+                AdminTab.SETTINGS ->
+                    AdminSettingsTab(
+                        onLogout = onLogout,
+                        onNavigateToCrashLogs = { showCrashLogs = true },
+                        onNavigateToAbout = { showAbout = true }
+                    )
             }
         }
     }

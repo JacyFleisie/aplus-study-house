@@ -25,8 +25,12 @@ fun CollectionTransportScreen(
     onBackClick: () -> Unit,
     onExitFlow: () -> Unit,
     onContinue: (
-        collectionPerson1: String, contact1: String, vehicleReg1: String,
-        collectionPerson2: String, contact2: String, vehicleReg2: String,
+        collectionPerson1: String,
+        contact1: String,
+        vehicleReg1: String,
+        collectionPerson2: String,
+        contact2: String,
+        vehicleReg2: String,
         transportRequired: Boolean
     ) -> Unit,
     draft: RegistrationDraft? = null
@@ -63,20 +67,26 @@ fun CollectionTransportScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             LinearProgressIndicator(
                 progress = { 0.42f },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                color = Primary, trackColor = PrimaryContainer
+                color = Primary,
+                trackColor = PrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Step 4 of 9 — Collection & Transport", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+            Text(
+                "Step 4 of 9 — Collection & Transport",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -87,75 +97,154 @@ fun CollectionTransportScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-                    Text("Who May Collect Your Child?", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = OnBackground)
+                    Text(
+                        "Who May Collect Your Child?",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Only authorised persons may collect your child from A+ Study House", style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
+                    Text(
+                        "Only authorised persons may collect your child from A+ Study House",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Person 1 *", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = Primary)
+                    Text(
+                        "Person 1 *",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(value = collectionPerson1, onValueChange = { collectionPerson1 = it },
+                    OutlinedTextField(
+                        value = collectionPerson1, onValueChange = { collectionPerson1 = it },
                         label = { Text("Full Name") },
                         isError = showPerson1Error,
-                        supportingText = if (showPerson1Error) {{ Text("Name is required") }} else null,
+                        supportingText =
+                            if (showPerson1Error) {
+                                { Text("Name is required") } 
+                            } else {
+                                null
+                            },
                         placeholder = { Text("e.g. John Smith") },
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showPerson1Error) Error else Primary,
-                            unfocusedBorderColor = if (showPerson1Error) Error else Outline
-                        ))
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = if (showPerson1Error) Error else Primary,
+                                unfocusedBorderColor = if (showPerson1Error) Error else Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(if (showPerson1Error) 4.dp else 8.dp))
-                    OutlinedTextField(value = contact1, onValueChange = { contact1 = it },
+                    OutlinedTextField(
+                        value = contact1, onValueChange = { contact1 = it },
                         label = { Text("Cell Phone Nr") },
                         isError = showContact1Error,
-                        supportingText = if (showContact1Error) {{ Text("Contact number is required") }} else null,
+                        supportingText =
+                            if (showContact1Error) {
+                                { Text("Contact number is required") } 
+                            } else {
+                                null
+                            },
                         placeholder = { Text("e.g. 082 123 4567") },
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showContact1Error) Error else Primary,
-                            unfocusedBorderColor = if (showContact1Error) Error else Outline
-                        ))
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = if (showContact1Error) Error else Primary,
+                                unfocusedBorderColor = if (showContact1Error) Error else Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = vehicleReg1, onValueChange = { vehicleReg1 = it },
+                    OutlinedTextField(
+                        value = vehicleReg1,
+                        onValueChange = { vehicleReg1 = it },
                         label = { Text("Vehicle Registration Nr") },
                         placeholder = { Text("e.g. GP 123-456") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(color = OutlineVariant)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Person 2 (Optional)", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = OnSurfaceVariant)
+                    Text(
+                        "Person 2 (Optional)",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OnSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = collectionPerson2, onValueChange = { collectionPerson2 = it },
+                    OutlinedTextField(
+                        value = collectionPerson2,
+                        onValueChange = { collectionPerson2 = it },
                         label = { Text("Full Name") },
                         placeholder = { Text("e.g. Jane Smith") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = contact2, onValueChange = { contact2 = it },
+                    OutlinedTextField(
+                        value = contact2,
+                        onValueChange = { contact2 = it },
                         label = { Text("Cell Phone Nr") },
                         placeholder = { Text("e.g. 083 987 6543") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = vehicleReg2, onValueChange = { vehicleReg2 = it },
+                    OutlinedTextField(
+                        value = vehicleReg2,
+                        onValueChange = { vehicleReg2 = it },
                         label = { Text("Vehicle Registration Nr") },
                         placeholder = { Text("e.g. GP 789-012") },
-                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Outline))
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Outline
+                            )
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(color = OutlineVariant)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Card(colors = CardDefaults.cardColors(containerColor = InfoContainer), shape = RoundedCornerShape(12.dp)) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = InfoContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = Info,
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.", style = MaterialTheme.typography.bodySmall, color = OnBackground)
+                            Text(
+                                "Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnBackground
+                            )
                         }
                     }
 
@@ -163,11 +252,23 @@ fun CollectionTransportScreen(
                     HorizontalDivider(color = OutlineVariant)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Card(colors = CardDefaults.cardColors(containerColor = InfoContainer), shape = RoundedCornerShape(12.dp)) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = InfoContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Info, contentDescription = null, tint = Info, modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = Info,
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Stationery: Parents purchase stationery from the attached list. No stationery fee charged.", style = MaterialTheme.typography.bodySmall, color = OnBackground)
+                            Text(
+                                "Stationery: Parents purchase stationery from the attached list. No stationery fee charged.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnBackground
+                            )
                         }
                     }
                 }
@@ -179,7 +280,15 @@ fun CollectionTransportScreen(
                 onClick = {
                     attemptedContinue = true
                     if (canContinue) {
-                        onContinue(collectionPerson1, contact1, vehicleReg1, collectionPerson2, contact2, vehicleReg2, transportRequired)
+                        onContinue(
+                            collectionPerson1,
+                            contact1,
+                            vehicleReg1,
+                            collectionPerson2,
+                            contact2,
+                            vehicleReg2,
+                            transportRequired
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),

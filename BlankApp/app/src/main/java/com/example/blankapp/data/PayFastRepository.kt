@@ -20,14 +20,14 @@ import java.util.concurrent.TimeUnit
 //
 // Docs: https://developers.payfast.co.za/docs
 object PayFastRepository {
-
     private const val TAG = "PayFast"
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
 
     /**
      * Asks the payfast-create-payment edge function to build a signed
@@ -57,55 +57,62 @@ object PayFastRepository {
         itemName: String,
         parentEmail: String,
         parentId: String
-    ): Pair<JSONObject, String>? = withContext(Dispatchers.IO) {
-        try {
-            val authToken = AuthRepository.getCurrentAuthToken()
-            if (authToken.isNullOrBlank()) {
-                Log.e(TAG, "buildPaymentData: no auth token — user must be logged in")
-                return@withContext null
-            }
-
-            val url = "${SupabaseConfig.SUPABASE_URL.trimEnd('/')}/functions/v1/payfast-create-payment"
-            val body = JSONObject().apply {
-                if (invoiceIds.size > 1) put("invoiceIds", org.json.JSONArray(invoiceIds))
-                put("invoiceId", invoiceIds.firstOrNull() ?: "")
-                put("amount", amount)
-                put("itemName", itemName)
-                put("parentEmail", parentEmail)
-                put("parentId", parentId)
-            }
-
-            val request = Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer $authToken")
-                .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
-                .post(body.toString().toRequestBody("application/json".toMediaType()))
-                .build()
-
-            client.newCall(request).execute().use { response ->
-                val responseText = response.body?.string() ?: ""
-                if (!response.isSuccessful) {
-                    Log.e(TAG, "buildPaymentData failed: HTTP ${response.code} — $responseText")
-                    return@use null
+    ): Pair<JSONObject, String>? =
+        withContext(Dispatchers.IO) {
+            try {
+                val authToken = AuthRepository.getCurrentAuthToken()
+                if (authToken.isNullOrBlank()) {
+                    Log.e(TAG, "buildPaymentData: no auth token — user must be logged in")
+                    return@withContext null
                 }
-                val json = JSONObject(responseText)
-                val checkoutUrl = json.optString("url", "")
-                if (checkoutUrl.isBlank()) {
-                    Log.e(TAG, "buildPaymentData: no url in response")
-                    return@use null
+
+                val url = "${SupabaseConfig.SUPABASE_URL.trimEnd('/')}/functions/v1/payfast-create-payment"
+                val body =
+                    JSONObject().apply {
+                        if (invoiceIds.size > 1) put("invoiceIds", org.json.JSONArray(invoiceIds))
+                        put("invoiceId", invoiceIds.firstOrNull() ?: "")
+                        put("amount", amount)
+                        put("itemName", itemName)
+                        put("parentEmail", parentEmail)
+                        put("parentId", parentId)
+                    }
+
+                val request =
+                    Request.Builder()
+                        .url(url)
+                        .addHeader("Authorization", "Bearer $authToken")
+                        .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
+                        .post(body.toString().toRequestBody("application/json".toMediaType()))
+                        .build()
+
+                client.newCall(request).execute().use { response ->
+                    val responseText = response.body?.string() ?: ""
+                    if (!response.isSuccessful) {
+                        Log.e(TAG, "buildPaymentData failed: HTTP ${response.code} — $responseText")
+                        return@use null
+                    }
+                    val json = JSONObject(responseText)
+                    val checkoutUrl = json.optString("url", "")
+                    if (checkoutUrl.isBlank()) {
+                        Log.e(TAG, "buildPaymentData: no url in response")
+                        return@use null
+                    }
+                    // For batches, put the batch payment id (m_payment_id) in the
+                    // first slot so call sites can record it on the payment rows.
+                    val batchPaymentId = json.optString("batchPaymentId", "")
+                    val firstSlot =
+                        if (batchPaymentId.isNotBlank()) {
+                            JSONObject().put("m_payment_id", batchPaymentId)
+                        } else {
+                            JSONObject().put("checkout_url", checkoutUrl)
+                        }
+                    Pair(firstSlot, checkoutUrl)
                 }
-                // For batches, put the batch payment id (m_payment_id) in the
-                // first slot so call sites can record it on the payment rows.
-                val batchPaymentId = json.optString("batchPaymentId", "")
-                val firstSlot = if (batchPaymentId.isNotBlank()) JSONObject().put("m_payment_id", batchPaymentId)
-                else JSONObject().put("checkout_url", checkoutUrl)
-                Pair(firstSlot, checkoutUrl)
+            } catch (e: Exception) {
+                Log.e(TAG, "buildPaymentData failed: ${e.message}")
+                null
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "buildPaymentData failed: ${e.message}")
-            null
         }
-    }
 
     // Kept for backwards compatibility: with the server-signed URL the query
     // string is already embedded, so this now returns an empty query.
@@ -113,7 +120,10 @@ object PayFastRepository {
 
     // Legacy client-side signature (kept for the unit tests). Not used to
     // start real checkouts anymore — signing happens on the server.
-    internal fun generateSignature(data: JSONObject, passphrase: String): String {
+    internal fun generateSignature(
+        data: JSONObject,
+        passphrase: String
+    ): String {
         val sb = StringBuilder()
         val keys = data.keys().asSequence().toList().sorted()
 
@@ -126,11 +136,12 @@ object PayFastRepository {
             }
         }
 
-        val stringToHash = if (passphrase.isNotEmpty()) {
-            "$sb&passphrase=$passphrase"
-        } else {
-            sb.toString()
-        }
+        val stringToHash =
+            if (passphrase.isNotEmpty()) {
+                "$sb&passphrase=$passphrase"
+            } else {
+                sb.toString()
+            }
 
         val md = MessageDigest.getInstance("MD5")
         val digest = md.digest(stringToHash.toByteArray())

@@ -15,16 +15,26 @@ import java.io.File
  * (see [clear]).
  */
 object RegistrationDraftStore {
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
 
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
-
-    private fun file(context: Context, parentId: String): File {
+    private fun file(
+        context: Context,
+        parentId: String
+    ): File {
         val dir = File(context.filesDir, "registration_drafts")
         if (!dir.exists()) dir.mkdirs()
         return File(dir, "draft_$parentId.json")
     }
 
-    suspend fun save(context: Context, parentId: String, draft: RegistrationDraft) {
+    suspend fun save(
+        context: Context,
+        parentId: String,
+        draft: RegistrationDraft
+    ) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 file(context, parentId).writeText(json.encodeToString(draft))
@@ -35,7 +45,10 @@ object RegistrationDraftStore {
         }
     }
 
-    suspend fun load(context: Context, parentId: String): RegistrationDraft? {
+    suspend fun load(
+        context: Context,
+        parentId: String
+    ): RegistrationDraft? {
         return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 val f = file(context, parentId)
@@ -48,7 +61,10 @@ object RegistrationDraftStore {
         }
     }
 
-    suspend fun clear(context: Context, parentId: String) {
+    suspend fun clear(
+        context: Context,
+        parentId: String
+    ) {
         return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 file(context, parentId).delete()
@@ -59,7 +75,10 @@ object RegistrationDraftStore {
     }
 
     /** True if an in-progress draft exists for the given parent. */
-    suspend fun hasSavedDraft(context: Context, parentId: String): Boolean {
+    suspend fun hasSavedDraft(
+        context: Context,
+        parentId: String
+    ): Boolean {
         return load(context, parentId) != null
     }
 }

@@ -62,11 +62,12 @@ fun AdminSettingsTab(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Account Section
         Card(
@@ -76,9 +77,10 @@ fun AdminSettingsTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
             ) {
                 Text(
                     text = "Account",
@@ -87,9 +89,13 @@ fun AdminSettingsTab(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SettingsItem(icon = Icons.Filled.Person, title = "Profile", subtitle = "Manage your account", onClick = { showProfile = true })
+                SettingsItem(icon = Icons.Filled.Person, title = "Profile", subtitle = "Manage your account", onClick = {
+                    showProfile = true
+                })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
-                SettingsItem(icon = Icons.Filled.Lock, title = "Change Password", subtitle = "Email yourself a reset link", onClick = { showPasswordReset = true })
+                SettingsItem(icon = Icons.Filled.Lock, title = "Change Password", subtitle = "Email yourself a reset link", onClick = {
+                    showPasswordReset = true
+                })
             }
         }
 
@@ -103,9 +109,10 @@ fun AdminSettingsTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
             ) {
                 Text(
                     text = "Application",
@@ -114,9 +121,13 @@ fun AdminSettingsTab(
                     color = OnBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SettingsItem(icon = Icons.Filled.Notifications, title = "Notification Preferences", subtitle = "Choose which notifications you receive", onClick = { showNotifications = true })
+                SettingsItem(icon = Icons.Filled.Notifications, title = "Notification Preferences", subtitle = "Choose which notifications you receive", onClick = {
+                    showNotifications = true
+                })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
-                SettingsItem(icon = Icons.Filled.Security, title = "Privacy & Security", subtitle = "Manage security settings", onClick = { showSecurityInfo = true })
+                SettingsItem(icon = Icons.Filled.Security, title = "Privacy & Security", subtitle = "Manage security settings", onClick = {
+                    showSecurityInfo = true
+                })
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = OutlineVariant)
                 SettingsItem(
                     icon = Icons.Filled.Info,
@@ -137,9 +148,10 @@ fun AdminSettingsTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
             ) {
                 Text(
                     text = "Developer",
@@ -162,14 +174,16 @@ fun AdminSettingsTab(
         // Logout Button
         Button(
             onClick = onLogout,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ErrorContainer,
-                contentColor = Error
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = ErrorContainer,
+                    contentColor = Error
+                )
         ) {
             Icon(Icons.Filled.Logout, contentDescription = null)
             Spacer(modifier = Modifier.width(12.dp))
@@ -197,7 +211,7 @@ enum class UpdateState {
 fun AboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     var updateState by remember { mutableStateOf(UpdateState.IDLE) }
     var downloadProgress by remember { mutableStateOf(0f) }
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
@@ -232,9 +246,10 @@ fun AboutScreen(onBack: () -> Unit) {
                 val result = updateInfo ?: AppUpdater.checkForUpdate()
                 if (result.available && result.downloadUrl != null) {
                     Log.d(TAG, "Starting download from: ${result.downloadUrl}")
-                    val file = AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
-                        downloadProgress = progress
-                    }
+                    val file =
+                        AppUpdater.downloadApk(context, result.downloadUrl) { progress ->
+                            downloadProgress = progress
+                        }
                     downloadProgress = 0.95f
                     Log.d(TAG, "Download complete, launching installer")
                     AppUpdater.installApk(context, file)
@@ -261,38 +276,42 @@ fun AboutScreen(onBack: () -> Unit) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
         ) {
             // Hero Header
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Primary, PrimaryContainer)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Primary, PrimaryContainer)
+                            )
                         )
-                    )
-                    .padding(vertical = 48.dp, horizontal = 24.dp),
+                        .padding(vertical = 48.dp, horizontal = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // App Icon
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(Surface),
+                        modifier =
+                            Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -323,7 +342,10 @@ fun AboutScreen(onBack: () -> Unit) {
             // App Info Section
             InfoSection(title = "App Information") {
                 InfoRow(label = "Version", value = AppUpdater.currentVersion())
-                InfoRow(label = "Build Type", value = if (com.example.blankapp.BuildConfig.DEBUG) "Debug" else "Release")
+                InfoRow(
+                    label = "Build Type",
+                    value = if (com.example.blankapp.BuildConfig.DEBUG) "Debug" else "Release"
+                )
                 InfoRow(label = "Package", value = context.packageName)
             }
 
@@ -420,7 +442,7 @@ fun AboutScreen(onBack: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             OutlinedButton(
-                                onClick = { 
+                                onClick = {
                                     updateState = UpdateState.IDLE
                                     checkForUpdates()
                                 },
@@ -492,7 +514,10 @@ fun AboutScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun InfoSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+fun InfoSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -513,11 +538,15 @@ fun InfoSection(title: String, content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
+fun InfoRow(
+    label: String,
+    value: String
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

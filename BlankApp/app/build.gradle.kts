@@ -26,49 +26,53 @@ tasks.register("checkVersionBump") {
             val fallback = Regex("versionCode\\s*=\\s*(\\d+)")
             return fallback.find(output)?.groupValues?.get(1)?.toIntOrNull()
         }
+
         fun parseVersionCode(output: String): Int? {
             // Matches the versionCode line in this file as of any commit
             val regex = Regex("val appVersionCode\\s*=\\s*(\\d+)")
             return regex.find(output)?.groupValues?.get(1)?.toIntOrNull()
                 ?: parseVersionCodeFallback(output)
         }
-        val tags = providers.exec {
-            commandLine("git", "tag", "-l", "v*")
-        }.standardOutput.asText.get().trim().lines().filter { it.isNotBlank() }
+        val tags =
+            providers.exec {
+                commandLine("git", "tag", "-l", "v*")
+            }.standardOutput.asText.get().trim().lines().filter { it.isNotBlank() }
         if (tags.isEmpty()) {
             logger.lifecycle("checkVersionBump: no v* tags found, skipping")
             return@doLast
         }
-        fun verKey(tag: String): List<Int> =
-            tag.removePrefix("v").split('.').map { it.toIntOrNull() ?: 0 }
-        val sorted = tags.sortedWith { a, b ->
-            val ka = verKey(a)
-            val kb = verKey(b)
-            val n = maxOf(ka.size, kb.size)
-            for (i in 0 until n) {
-                val va = ka.getOrElse(i) { 0 }
-                val vb = kb.getOrElse(i) { 0 }
-                if (va != vb) return@sortedWith va - vb
+
+        fun verKey(tag: String): List<Int> = tag.removePrefix("v").split('.').map { it.toIntOrNull() ?: 0 }
+        val sorted =
+            tags.sortedWith { a, b ->
+                val ka = verKey(a)
+                val kb = verKey(b)
+                val n = maxOf(ka.size, kb.size)
+                for (i in 0 until n) {
+                    val va = ka.getOrElse(i) { 0 }
+                    val vb = kb.getOrElse(i) { 0 }
+                    if (va != vb) return@sortedWith va - vb
+                }
+                0
             }
-            0
-        }
         val latestTag = sorted.last()
-        val tagVersionCode = parseVersionCode(
-            providers.exec {
-                commandLine("git", "show", "$latestTag:./app/build.gradle.kts")
-            }.standardOutput.asText.get()
-        )
+        val tagVersionCode =
+            parseVersionCode(
+                providers.exec {
+                    commandLine("git", "show", "$latestTag:./app/build.gradle.kts")
+                }.standardOutput.asText.get(),
+            )
         if (tagVersionCode == null) {
             throw GradleException(
                 "checkVersionBump: could not read appVersionCode from $latestTag — " +
-                "verify app/build.gradle.kts defines 'val appVersionCode'"
+                    "verify app/build.gradle.kts defines 'val appVersionCode'",
             )
         }
         if (appVersionCode <= tagVersionCode) {
             throw GradleException(
                 "checkVersionBump: versionCode $appVersionCode must be greater than " +
-                "$tagVersionCode (from $latestTag). Bump appVersionCode and appVersionName " +
-                "in app/build.gradle.kts before releasing."
+                    "$tagVersionCode (from $latestTag). Bump appVersionCode and appVersionName " +
+                    "in app/build.gradle.kts before releasing.",
             )
         }
         logger.lifecycle("checkVersionBump: OK — versionCode $appVersionCode > $tagVersionCode ($latestTag)")
@@ -120,11 +124,12 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = if (keystorePropertiesFile.exists()) {
-                file(keystoreProperties.getProperty("storeFile", "../aplus-study-house.jks"))
-            } else {
-                file("../aplus-study-house.jks")
-            }
+            storeFile =
+                if (keystorePropertiesFile.exists()) {
+                    file(keystoreProperties.getProperty("storeFile", "../aplus-study-house.jks"))
+                } else {
+                    file("../aplus-study-house.jks")
+                }
             storePassword = keystoreProperties.getProperty("storePassword", "")
             keyAlias = keystoreProperties.getProperty("keyAlias", "")
             keyPassword = keystoreProperties.getProperty("keyPassword", "")
@@ -137,7 +142,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
         }
@@ -160,7 +165,11 @@ android {
 
     defaultConfig {
         buildConfigField("String", "SUPABASE_URL", "\"${supabaseProperties.getProperty("SUPABASE_URL", "")}\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseProperties.getProperty("SUPABASE_ANON_KEY", "")}\"")
+        buildConfigField(
+            "String",
+            "SUPABASE_ANON_KEY",
+            "\"${supabaseProperties.getProperty("SUPABASE_ANON_KEY", "")}\"",
+        )
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
@@ -214,8 +223,6 @@ dependencies {
 
     // Encrypted SharedPreferences (secure token storage)
     implementation("androidx.security:security-crypto:1.0.0")
-
-
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

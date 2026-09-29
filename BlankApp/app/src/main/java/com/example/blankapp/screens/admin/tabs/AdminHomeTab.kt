@@ -7,21 +7,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.blankapp.data.*
 import com.example.blankapp.screens.admin.components.*
-import com.example.blankapp.ui.theme.*
 import com.example.blankapp.ui.components.*
+import com.example.blankapp.ui.theme.*
 import com.example.blankapp.viewmodel.AdminHomeViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.collectAsState
 
 @Composable
 fun AdminHomeTab(
@@ -63,11 +63,12 @@ fun AdminHomeTab(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
     ) {
         // Welcome Card
         Card(
@@ -77,9 +78,10 @@ fun AdminHomeTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
             ) {
                 Text(
                     text = "Welcome, Admin",
@@ -100,17 +102,19 @@ fun AdminHomeTab(
 
         // Quick Action: Daily Attendance Register
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateToAttendance() },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToAttendance() },
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Success),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -146,17 +150,19 @@ fun AdminHomeTab(
 
         // Quick Action: Create Permission Request
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showCreatePermission = true },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { showCreatePermission = true },
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Primary),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -252,17 +258,19 @@ fun AdminHomeTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
             ) {
-                val stages = listOf(
-                    Triple("Submitted", ApplicationStatus.SUBMITTED, Info),
-                    Triple("Under Review", ApplicationStatus.UNDER_REVIEW, Warning),
-                    Triple("Changes Req.", ApplicationStatus.CHANGES_REQUIRED, Secondary),
-                    Triple("Payment Verified", ApplicationStatus.PAYMENT_VERIFIED, Tertiary),
-                    Triple("Approved", ApplicationStatus.APPROVED, Success)
-                )
+                val stages =
+                    listOf(
+                        Triple("Submitted", ApplicationStatus.SUBMITTED, Info),
+                        Triple("Under Review", ApplicationStatus.UNDER_REVIEW, Warning),
+                        Triple("Changes Req.", ApplicationStatus.CHANGES_REQUIRED, Secondary),
+                        Triple("Payment Verified", ApplicationStatus.PAYMENT_VERIFIED, Tertiary),
+                        Triple("Approved", ApplicationStatus.APPROVED, Success)
+                    )
 
                 stages.forEachIndexed { index, (label, status, color) ->
                     val count = allApplications.count { it.status == status }
@@ -306,9 +314,10 @@ fun AdminHomeTab(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
             ) {
                 Text(
                     text = "Quick Stats",

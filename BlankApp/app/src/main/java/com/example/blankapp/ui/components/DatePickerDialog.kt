@@ -25,12 +25,14 @@ fun DatePickerDialog(
     onDateSelected: (LocalDate?) -> Unit,
     initialDate: LocalDate
 ) {
-    val state = rememberDatePickerState(
-        initialSelectedDateMillis = initialDate
-            .atStartOfDay(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
-    )
+    val state =
+        rememberDatePickerState(
+            initialSelectedDateMillis =
+                initialDate
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+        )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -48,7 +50,9 @@ fun DatePickerDialog(
                 onDateSelected(
                     if (millis != null) {
                         Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
-                    } else null
+                    } else {
+                        null
+                    }
                 )
             }) { Text("OK") }
         },

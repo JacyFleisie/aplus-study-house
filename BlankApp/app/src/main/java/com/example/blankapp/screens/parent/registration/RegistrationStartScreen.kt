@@ -44,20 +44,22 @@ fun RegistrationStartScreen(
                         Icon(Icons.Filled.Logout, contentDescription = "Logout")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Surface,
-                    titleContentColor = OnBackground
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Surface,
+                        titleContentColor = OnBackground
+                    )
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
         ) {
             // Welcome Card
             Card(
@@ -67,9 +69,10 @@ fun RegistrationStartScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -107,13 +110,55 @@ fun RegistrationStartScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RegistrationStepItem(1, "Before You Register", "Meals, operating hours, stationery & projects — read and acknowledge", Icons.Filled.MenuBook, Warning)
-            RegistrationStepItem(2, "Student Details", "Name, grade, school, date of birth", Icons.Filled.Person, Primary)
-            RegistrationStepItem(3, "Sports & Activities", "Choose sports and aftercare activities", Icons.Filled.Sports, Secondary)
-            RegistrationStepItem(4, "Collection & Transport", "Who may collect your child", Icons.Filled.DirectionsBus, Tertiary)
-            RegistrationStepItem(5, "Medical Information", "Doctor, allergies, medical aid", Icons.Filled.MedicalServices, Error)
-            RegistrationStepItem(6, "Parent Details", "Mother and father/guardian info", Icons.Filled.FamilyRestroom, Success)
-            RegistrationStepItem(7, "Consent & Signature", "Photo consent and parent signature", Icons.Filled.Draw, Warning)
+            RegistrationStepItem(
+                1,
+                "Before You Register",
+                "Meals, operating hours, stationery & projects — read and acknowledge",
+                Icons.Filled.MenuBook,
+                Warning
+            )
+            RegistrationStepItem(
+                2,
+                "Student Details",
+                "Name, grade, school, date of birth",
+                Icons.Filled.Person,
+                Primary
+            )
+            RegistrationStepItem(
+                3,
+                "Sports & Activities",
+                "Choose sports and aftercare activities",
+                Icons.Filled.Sports,
+                Secondary
+            )
+            RegistrationStepItem(
+                4,
+                "Collection & Transport",
+                "Who may collect your child",
+                Icons.Filled.DirectionsBus,
+                Tertiary
+            )
+            RegistrationStepItem(
+                5,
+                "Medical Information",
+                "Doctor, allergies, medical aid",
+                Icons.Filled.MedicalServices,
+                Error
+            )
+            RegistrationStepItem(
+                6,
+                "Parent Details",
+                "Mother and father/guardian info",
+                Icons.Filled.FamilyRestroom,
+                Success
+            )
+            RegistrationStepItem(
+                7,
+                "Consent & Signature",
+                "Photo consent and parent signature",
+                Icons.Filled.Draw,
+                Warning
+            )
             RegistrationStepItem(8, "Payment", "R500 registration fee (PayFast or cash)", Icons.Filled.Payment, Primary)
             RegistrationStepItem(9, "Submit", "Review and submit your application", Icons.Filled.Send, Secondary)
 
@@ -126,14 +171,25 @@ fun RegistrationStartScreen(
                 colors = CardDefaults.cardColors(containerColor = InfoContainer)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Info, contentDescription = "Info", tint = Info, modifier = Modifier.size(20.dp))
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = "Info",
+                            tint = Info,
+                            modifier = Modifier.size(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Important Information", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = OnBackground)
+                        Text(
+                            "Important Information",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = OnBackground
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     InfoBullet("Registration fee: R500 (non-refundable)")
@@ -150,9 +206,10 @@ fun RegistrationStartScreen(
             if (onResumeDraft != null && hasSavedDraft()) {
                 OutlinedButton(
                     onClick = { onResumeDraft() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
                     border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
@@ -167,9 +224,10 @@ fun RegistrationStartScreen(
             // Start Button
             Button(
                 onClick = onStartRegistration,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
             ) {

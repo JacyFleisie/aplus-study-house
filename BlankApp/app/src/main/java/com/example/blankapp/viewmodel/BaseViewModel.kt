@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
  * Provides loading state, error handling, and coroutine management.
  */
 abstract class BaseViewModel : ViewModel() {
-
     // Loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
