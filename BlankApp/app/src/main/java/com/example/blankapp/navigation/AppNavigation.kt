@@ -513,7 +513,12 @@ fun AppNavigation(
                     description = description,
                     studentName = studentName,
                     onBackClick = { navController.popBackStack() },
-                    onPaymentComplete = { navController.popBackStack() }
+                    onPaymentComplete = { navController.popBackStack() },
+                    onOpenPaymentStatus = {
+                        navController.navigate(Screen.PaymentSuccess.route) {
+                            popUpTo(Screen.ParentDashboard.route)
+                        }
+                    }
                 )
             }
         }

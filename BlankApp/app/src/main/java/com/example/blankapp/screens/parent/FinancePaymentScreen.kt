@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.blankapp.data.AuthRepository
 import com.example.blankapp.data.PayFastRepository
+import com.example.blankapp.data.PendingPaymentTracker
 import com.example.blankapp.data.SupabaseRepository
 import com.example.blankapp.ui.theme.*
 import kotlinx.coroutines.launch
@@ -34,7 +35,8 @@ fun FinancePaymentScreen(
     description: String,
     studentName: String = "",
     onBackClick: () -> Unit,
-    onPaymentComplete: () -> Unit
+    onPaymentComplete: () -> Unit,
+    onOpenPaymentStatus: () -> Unit = {}
 ) {
     var selectedMethod by remember { mutableStateOf<String?>(null) }
     var paymentSubmitted by remember { mutableStateOf(false) }
@@ -254,10 +256,17 @@ fun FinancePaymentScreen(
                                         paymentMethod = "payfast",
                                         proofUrl = null
                                     )
+                                    // Track the checkout so the Payment Status screen
+                                    // can poll for confirmation when the browser closes
+                                    PendingPaymentTracker.pending = PendingPaymentTracker.PendingCheckout(
+                                        invoiceIds = listOf(invoiceId),
+                                        batchId = null,
+                                        total = amount
+                                    )
                                     // Open PayFast in browser (URL is signed server-side)
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                     ctx.startActivity(intent)
-                                    paymentSubmitted = true
+                                    onOpenPaymentStatus()
                                 } else {
                                     Toast.makeText(
                                         ctx,

@@ -29,7 +29,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ParentFinanceScreen(
-    onNavigateToPayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> }
+    onNavigateToPayment: (String, Double, String, String) -> Unit = { _, _, _, _ -> },
+    onOpenPaymentStatus: () -> Unit = {}
 ) {
     val currentUser = AuthRepository.getCurrentUser()
     val scope = rememberCoroutineScope()
@@ -244,8 +245,15 @@ fun ParentFinanceScreen(
                                         batchId = batchId
                                     )
                                 }
+                                // Track the checkout so the Payment Status screen
+                                // can poll for confirmation when the browser closes
+                                PendingPaymentTracker.pending = PendingPaymentTracker.PendingCheckout(
+                                    invoiceIds = ids,
+                                    batchId = batchId.ifBlank { null },
+                                    total = total
+                                )
                                 ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                Toast.makeText(ctx, "Opening PayFast checkout for ${ids.size} invoices (R${"%.0f".format(total)})", Toast.LENGTH_LONG).show()
+                                onOpenPaymentStatus()
                             } else {
                                 Toast.makeText(ctx, "Online payments are not available right now. Please pay each invoice individually or contact the office.", Toast.LENGTH_LONG).show()
                             }

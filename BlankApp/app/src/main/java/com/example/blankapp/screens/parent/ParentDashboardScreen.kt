@@ -38,6 +38,7 @@ fun ParentDashboardScreen(
     var showPasswordReset by remember { mutableStateOf(false) }
     var showSecurity by remember { mutableStateOf(false) }
     var showNotificationPrefs by remember { mutableStateOf(false) }
+    var showPaymentStatus by remember { mutableStateOf(false) }
 
     // Gate: Require at least one registered child
     com.example.blankapp.navigation.RequireRegisteredChild(
@@ -63,6 +64,12 @@ fun ParentDashboardScreen(
 
     if (showNotificationPrefs) {
         NotificationPreferencesScreen(onBack = { showNotificationPrefs = false })
+        return@RequireRegisteredChild
+    }
+
+    // Payment confirmation after returning from a PayFast checkout
+    if (showPaymentStatus) {
+        PaymentSuccessScreen(onBackClick = { showPaymentStatus = false })
         return@RequireRegisteredChild
     }
 
@@ -147,7 +154,8 @@ fun ParentDashboardScreen(
                     onChildClick = onNavigateToChildProfile
                 )
                 ParentTab.FINANCE -> ParentFinanceScreen(
-                    onNavigateToPayment = onNavigateToFinancePayment
+                    onNavigateToPayment = onNavigateToFinancePayment,
+                    onOpenPaymentStatus = { showPaymentStatus = true }
                 )
                 ParentTab.MESSAGES -> ParentMessagesScreen()
                 ParentTab.PROFILE -> ParentProfileScreen(
