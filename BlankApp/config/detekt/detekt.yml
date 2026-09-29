@@ -1,9 +1,9 @@
 # Detekt configuration for A+ Study House (BlankApp)
-# Run: ./gradlew detekt  (writes detekt-baseline.xml on first run)
+# Run: ./gradlew detekt  (baseline at app/detekt-baseline.xml)
 # Quality gate is advisory only — it does NOT fail the release build.
 
 build:
-  maxIssues: 100000
+  maxIssues: 0
   weights:
     complexity: 2
     LongParameterList: 1

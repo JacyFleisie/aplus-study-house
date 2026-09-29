@@ -1,0 +1,826 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:ParentChildrenScreen.kt$student.allergies.isNotEmpty() || student.asthma || student.epilepsy || student.diabetic</ID>
+    <ID>ComplexCondition:ParentHomeScreen.kt$student.allergies.isNotEmpty() || student.asthma || student.epilepsy || student.diabetic</ID>
+    <ID>ConstructorParameterNaming:AppUpdater.kt$Asset$val browser_download_url: String = ""</ID>
+    <ID>ConstructorParameterNaming:AppUpdater.kt$GithubRelease$val html_url: String = ""</ID>
+    <ID>ConstructorParameterNaming:AppUpdater.kt$GithubRelease$val tag_name: String = ""</ID>
+    <ID>CyclomaticComplexMethod:AdminCards.kt$@Composable fun ApplicationCard( application: MockApplication, onClick: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:AdminCards.kt$@Composable fun StudentCard( student: MockStudent, onClick: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:AdminDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminDashboardScreen( onLogout: () -&gt; Unit, onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToStudent: (String) -&gt; Unit = {}, onNavigateToFinance: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:AdminFinancePaymentScreen.kt$@Composable fun BatchPaymentsTab()</ID>
+    <ID>CyclomaticComplexMethod:AdminFinancePaymentScreen.kt$@Composable fun OutstandingInvoiceCard( invoice: MockInvoice, studentName: String, parentName: String, parentPhone: String = "", isSelected: Boolean = false, onSelectionChange: (Boolean) -&gt; Unit = {}, onMarkAsSent: () -&gt; Unit = {}, isSent: Boolean = false )</ID>
+    <ID>CyclomaticComplexMethod:AdminFinancePaymentScreen.kt$@Composable fun OutstandingPaymentsTab()</ID>
+    <ID>CyclomaticComplexMethod:AdminFinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminFinancePaymentScreen( paymentId: String? = null, onBack: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:AdminSettingsTab.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminParentProfileScreen( parentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminStudentProfileScreen( studentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:AppNavigation.kt$@Composable fun AppNavigation( navController: NavHostController, startDestination: String = Screen.Splash.route )</ID>
+    <ID>CyclomaticComplexMethod:ApplicationReviewScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ApplicationReviewScreen( applicationId: String, onBackClick: () -&gt; Unit, onDecisionMade: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:AttendanceScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AttendanceScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:AuthRepository.kt$AuthRepository$private suspend fun signInWithSupabase( email: String, password: String ): AuthResult</ID>
+    <ID>CyclomaticComplexMethod:ChildProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ChildProfileScreen( studentId: String, onBackClick: () -&gt; Unit, onOpenDocuments: () -&gt; Unit = {}, onOpenFinance: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:CollectionTransportScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CollectionTransportScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( collectionPerson1: String, contact1: String, vehicleReg1: String, collectionPerson2: String, contact2: String, vehicleReg2: String, transportRequired: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:CreateAccountScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateAccountScreen( onBackClick: () -&gt; Unit, onCreateAccountClick: (fullName: String, email: String, phone: String, password: String) -&gt; Unit, onLoginClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:CreatePermissionScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreatePermissionScreen( onBack: () -&gt; Unit, onCreate: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:FinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FinancePaymentScreen( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:LoginScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LoginScreen( onLoginClick: (email: String, password: String, role: UserRole) -&gt; Unit, onCreateAccountClick: () -&gt; Unit, onForgotPasswordClick: () -&gt; Unit, viewModel: AuthViewModel = hiltViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:ParentChildrenScreen.kt$@Composable fun ChildCard( student: MockStudent, onClick: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:ParentDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDashboardScreen( onLogout: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, onNavigateToChildProfile: (String) -&gt; Unit = {}, onNavigateToFinancePayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; } )</ID>
+    <ID>CyclomaticComplexMethod:ParentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( motherName: String, motherSurname: String, motherId: String, motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String, fatherName: String, fatherSurname: String, fatherId: String, fatherEmployer: String, fatherWorkPhone: String, fatherCell: String, fatherEmail: String ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:ParentFinanceScreen.kt$@Composable fun InvoiceCard( invoice: MockInvoice, students: List&lt;MockStudent&gt;, onClick: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:ParentFinanceScreen.kt$@Composable fun ParentFinanceScreen( onNavigateToPayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; }, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:ParentHomeScreen.kt$@Composable fun ParentHomeScreen( onNavigateToChildren: () -&gt; Unit, onNavigateToFinance: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, viewModel: ParentHomeViewModel = hiltViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:ParentMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAdminChatScreen(onBack: () -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
+    <ID>CyclomaticComplexMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:RegistrationViewModel.kt$RegistrationViewModel$fun validateCurrentStep(): Boolean</ID>
+    <ID>CyclomaticComplexMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun createStudentFromApplication(applicationId: String): Boolean</ID>
+    <ID>EmptyCatchBlock:AdminFinancePaymentScreen.kt${ }</ID>
+    <ID>ForbiddenComment:AdminFinancePaymentScreen.kt$// TODO: implement delete</ID>
+    <ID>ForbiddenComment:AdminFinancePaymentScreen.kt$// TODO: open edit dialog</ID>
+    <ID>FunctionNaming:AdminApplicationsTab.kt$@Composable fun AdminApplicationsTab(onNavigateToApplication: (String) -&gt; Unit = {})</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun AdminStatCard( title: String, value: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun ApplicationCard( application: MockApplication, onClick: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun FamilyBalanceCard( parentName: String, studentCount: Int, balance: Double )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun InvoiceRow(invoice: MockInvoice)</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun PipelineStage( label: String, count: Int, color: Color, isLast: Boolean = false )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun SettingsItem( icon: ImageVector, title: String, subtitle: String, onClick: (() -&gt; Unit)? = null )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun StatRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:AdminCards.kt$@Composable fun StudentCard( student: MockStudent, onClick: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminDashboardScreen( onLogout: () -&gt; Unit, onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToStudent: (String) -&gt; Unit = {}, onNavigateToFinance: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun BatchPaymentsTab()</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun DetailRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun OutstandingInvoiceCard( invoice: MockInvoice, studentName: String, parentName: String, parentPhone: String = "", isSelected: Boolean = false, onSelectionChange: (Boolean) -&gt; Unit = {}, onMarkAsSent: () -&gt; Unit = {}, isSent: Boolean = false )</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun OutstandingPaymentsTab()</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun PaymentCard( payment: MockPayment, onVerify: () -&gt; Unit, onReject: () -&gt; Unit, onViewProof: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun PendingPaymentsTab( onVerify: (MockPayment) -&gt; Unit, onReject: (MockPayment) -&gt; Unit, onViewProof: (MockPayment) -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun RecordCashTab(onRecordCash: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun VerifiedPaymentCard(payment: MockPayment)</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@Composable fun VerifiedPaymentsTab()</ID>
+    <ID>FunctionNaming:AdminFinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminFinancePaymentScreen( paymentId: String? = null, onBack: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminFinanceTab.kt$@Composable fun AdminFinanceTab(onNavigateToFinance: () -&gt; Unit = {})</ID>
+    <ID>FunctionNaming:AdminHomeTab.kt$@Composable fun AdminHomeTab( onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToAttendance: () -&gt; Unit = {}, viewModel: AdminHomeViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:AdminMessagesScreen.kt$@Composable fun MessageBubble( message: MockMessage, isFromAdmin: Boolean )</ID>
+    <ID>FunctionNaming:AdminMessagesScreen.kt$@Composable fun ParentContactItem( parent: MockUser, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminMessagesScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:AdminMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ChatView( parent: MockUser, onBack: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminSettingsTab.kt$@Composable fun AdminSettingsTab( onLogout: () -&gt; Unit, onNavigateToCrashLogs: () -&gt; Unit = {}, onNavigateToAbout: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:AdminSettingsTab.kt$@Composable fun InfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:AdminSettingsTab.kt$@Composable fun InfoSection( title: String, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminSettingsTab.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:AdminStudentProfileScreen.kt$@Composable fun ProfileInfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:AdminStudentProfileScreen.kt$@Composable fun ProfileSection( title: String, icon: ImageVector, color: Color, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminStudentProfileScreen.kt$@Composable fun QuickAction( icon: ImageVector, label: String, color: Color, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminParentProfileScreen( parentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminStudentProfileScreen( studentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AdminStudentsTab.kt$@Composable fun AdminStudentsTab(onNavigateToStudent: (String) -&gt; Unit = {})</ID>
+    <ID>FunctionNaming:AppNavigation.kt$@Composable fun AppNavigation( navController: NavHostController, startDestination: String = Screen.Splash.route )</ID>
+    <ID>FunctionNaming:ApplicationReviewScreen.kt$@Composable fun DecisionDialog( title: String, message: String, confirmText: String, confirmColor: Color, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ApplicationReviewScreen.kt$@Composable fun InfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:ApplicationReviewScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ApplicationReviewScreen( applicationId: String, onBackClick: () -&gt; Unit, onDecisionMade: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AttendanceScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AttendanceScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ChildProfileScreen.kt$@Composable fun ProfileInfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:ChildProfileScreen.kt$@Composable fun ProfileSection( title: String, icon: ImageVector, color: androidx.compose.ui.graphics.Color, actionText: String? = null, onActionClick: (() -&gt; Unit)? = null, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:ChildProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ChildProfileScreen( studentId: String, onBackClick: () -&gt; Unit, onOpenDocuments: () -&gt; Unit = {}, onOpenFinance: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:CollectionTransportScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CollectionTransportScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( collectionPerson1: String, contact1: String, vehicleReg1: String, collectionPerson2: String, contact2: String, vehicleReg2: String, transportRequired: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:ConsentSignatureScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ConsentSignatureScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (photoConsent: Boolean, parentSignature: String) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:CrashLogScreen.kt$@Composable private fun CrashReportCard( report: CrashReport, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CrashLogScreen.kt$@Composable private fun CrashTab( crashLogs: List&lt;CrashReport&gt;, selectedReport: CrashReport?, onSelectReport: (CrashReport) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CrashLogScreen.kt$@Composable private fun EventsTab(context: android.content.Context)</ID>
+    <ID>FunctionNaming:CrashLogScreen.kt$@Composable private fun ExceptionsTab(context: android.content.Context)</ID>
+    <ID>FunctionNaming:CrashLogScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CrashLogScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:CreateAccountScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateAccountScreen( onBackClick: () -&gt; Unit, onCreateAccountClick: (fullName: String, email: String, phone: String, password: String) -&gt; Unit, onLoginClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreatePermissionScreen.kt$@Composable fun SectionHeader( number: String, title: String )</ID>
+    <ID>FunctionNaming:CreatePermissionScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreatePermissionScreen( onBack: () -&gt; Unit, onCreate: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:DatePickerDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DatePickerDialog( onDismiss: () -&gt; Unit, onDateSelected: (LocalDate?) -&gt; Unit, initialDate: LocalDate )</ID>
+    <ID>FunctionNaming:ErrorStates.kt$@Composable fun EmptyStateWithError( isEmpty: Boolean, error: String?, emptyTitle: String = "No data", emptySubtitle: String = "There's nothing to show here yet.", onRetry: (() -&gt; Unit)? = null, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ErrorStates.kt$@Composable fun ErrorCard( message: String, onRetry: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ErrorStates.kt$@Composable fun ErrorScreen( message: String, title: String = "Something went wrong", onRetry: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ErrorStates.kt$@Composable fun LoadingWithError( isLoading: Boolean, error: String?, onRetry: (() -&gt; Unit)? = null, loadingMessage: String = "Loading...", content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ErrorStates.kt$@Composable fun NetworkErrorSnackbar( message: String, onDismiss: () -&gt; Unit, onRetry: (() -&gt; Unit)? = null )</ID>
+    <ID>FunctionNaming:FinancePaymentScreen.kt$@Composable fun InfoRow( icon: androidx.compose.ui.graphics.vector.ImageVector, text: String )</ID>
+    <ID>FunctionNaming:FinancePaymentScreen.kt$@Composable fun PaymentOptionCard( title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:FinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FinancePaymentScreen( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ForgotPasswordScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ForgotPasswordScreen( onBackClick: () -&gt; Unit, onSubmitClick: (email: String) -&gt; Unit, onLoginClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun FullScreenLoading(message: String = "Loading...")</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun LoadingIndicator( modifier: Modifier = Modifier, message: String = "Loading..." )</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun SimulatedLoading( delayMs: Long = 800L, content: @Composable (isLoaded: Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun SkeletonCard( modifier: Modifier = Modifier, height: Int = 120 )</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun SkeletonList( modifier: Modifier = Modifier, count: Int = 3 )</ID>
+    <ID>FunctionNaming:LoadingStates.kt$@Composable fun SkeletonStatRow(modifier: Modifier = Modifier)</ID>
+    <ID>FunctionNaming:LoginScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LoginScreen( onLoginClick: (email: String, password: String, role: UserRole) -&gt; Unit, onCreateAccountClick: () -&gt; Unit, onForgotPasswordClick: () -&gt; Unit, viewModel: AuthViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:MedicalInfoScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MedicalInfoScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( doctorName: String, doctorLocation: String, doctorContact: String, medicalPlan: String, medicalAidNumber: String, allergies: String, epilepsy: Boolean, diabetic: Boolean, asthma: Boolean, noseBleeder: Boolean, hasAllergies: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:ParentChildrenScreen.kt$@Composable fun ChildCard( student: MockStudent, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParentChildrenScreen.kt$@Composable fun InfoChip( icon: androidx.compose.ui.graphics.vector.ImageVector, label: String )</ID>
+    <ID>FunctionNaming:ParentChildrenScreen.kt$@OptIn(ExperimentalMaterialApi::class) @Composable fun ParentChildrenScreen(onChildClick: (String) -&gt; Unit = {})</ID>
+    <ID>FunctionNaming:ParentDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDashboardScreen( onLogout: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, onNavigateToChildProfile: (String) -&gt; Unit = {}, onNavigateToFinancePayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; } )</ID>
+    <ID>FunctionNaming:ParentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( motherName: String, motherSurname: String, motherId: String, motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String, fatherName: String, fatherSurname: String, fatherId: String, fatherEmployer: String, fatherWorkPhone: String, fatherCell: String, fatherEmail: String ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:ParentFinanceScreen.kt$@Composable fun CategorySummaryChip( label: String, amount: Double, color: androidx.compose.ui.graphics.Color )</ID>
+    <ID>FunctionNaming:ParentFinanceScreen.kt$@Composable fun FinanceActionButton( icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, color: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ParentFinanceScreen.kt$@Composable fun InvoiceCard( invoice: MockInvoice, students: List&lt;MockStudent&gt;, onClick: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ParentFinanceScreen.kt$@Composable fun ParentFinanceScreen( onNavigateToPayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; }, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ParentHomeScreen.kt$@Composable fun ActivityItem( icon: ImageVector, title: String, subtitle: String, time: String, color: androidx.compose.ui.graphics.Color )</ID>
+    <ID>FunctionNaming:ParentHomeScreen.kt$@Composable fun ParentHomeScreen( onNavigateToChildren: () -&gt; Unit, onNavigateToFinance: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, viewModel: ParentHomeViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:ParentHomeScreen.kt$@Composable fun QuickActionButton( icon: ImageVector, label: String, color: androidx.compose.ui.graphics.Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ParentMessagesScreen.kt$@Composable fun ParentMessageBubble( message: MockMessage, isMine: Boolean )</ID>
+    <ID>FunctionNaming:ParentMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAdminChatScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ParentMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentMessagesScreen()</ID>
+    <ID>FunctionNaming:ParentNotificationsScreen.kt$@Composable fun NotificationCard( notification: MockNotification, onMarkRead: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParentNotificationsScreen.kt$@Composable fun PreferenceToggle( title: String, subtitle: String, checked: Boolean, onCheckedChange: (Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParentNotificationsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NotificationPreferencesScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ParentNotificationsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentNotificationsScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ParentProfileScreen.kt$@Composable fun InfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:ParentProfileScreen.kt$@Composable fun InfoSection( title: String, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParentProfileScreen.kt$@Composable fun ParentProfileScreen( onLogout: () -&gt; Unit, onNavigateToAbout: () -&gt; Unit = {}, onNavigateToNotifications: () -&gt; Unit = {}, onChangePassword: () -&gt; Unit = {}, onOpenPrivacySecurity: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ParentProfileScreen.kt$@Composable fun SettingsItem( icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun BankDetailRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun FormInfoItem(text: String)</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun InfoBullet(text: String)</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun NextStepItem( step: String, text: String, color: Color )</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun RegistrationStepItem( stepNumber: Int, title: String, description: String, icon: ImageVector, color: Color )</ID>
+    <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun SummaryItem( label: String, value: String, valueColor: Color )</ID>
+    <ID>FunctionNaming:RegistrationGate.kt$@Composable fun RegistrationRequiredScreen(onRegisterChild: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:RegistrationGate.kt$@Composable fun RequireRegisteredChild( onRegisterChild: () -&gt; Unit, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationGate.kt$@Composable private fun FeatureChip( icon: androidx.compose.ui.graphics.vector.ImageVector, label: String )</ID>
+    <ID>FunctionNaming:RegistrationGate.kt$@Composable private fun InfoItem(text: String)</ID>
+    <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@Composable private fun Bullet(text: String)</ID>
+    <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@Composable private fun PolicySection( icon: androidx.compose.ui.graphics.vector.ImageVector, iconTint: androidx.compose.ui.graphics.Color, title: String, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationInfoAckScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationInfoAckScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onAcknowledged: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:RegistrationStartScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationStartScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
+    <ID>FunctionNaming:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>FunctionNaming:RouteGuard.kt$@Composable fun AccessDeniedScreen( requiredRole: String, actualRole: String, onGoBack: () -&gt; Unit, onGoHome: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RouteGuard.kt$@Composable fun RequireAdmin( navController: androidx.navigation.NavHostController, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RouteGuard.kt$@Composable fun RequireAuth( navController: androidx.navigation.NavHostController, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RouteGuard.kt$@Composable fun RequireParent( navController: androidx.navigation.NavHostController, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:RouteGuard.kt$@Composable fun UnauthorizedScreen(onLogin: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable fun AdminProfileScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable fun ChangePasswordScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable fun PrivacySecurityScreen(onBack: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable private fun BulletPoint(text: String)</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable private fun InfoCard( title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@Composable private fun InfoRow( label: String, value: String )</ID>
+    <ID>FunctionNaming:SettingsScreens.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun SettingsSubScreen( title: String, onBack: () -&gt; Unit, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>FunctionNaming:SplashScreen.kt$@Composable fun SplashScreen(onSplashComplete: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SportsActivitiesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SportsActivitiesScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (sports: List&lt;String&gt;) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:StationeryListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StationeryListScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun AplusStudyHouseTheme( darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionOnlyReturningConstant:MockData.kt$fun toUserFriendlyMessage(): String</ID>
+    <ID>FunctionOnlyReturningConstant:PayFastRepository.kt$PayFastRepository$internal fun buildQueryString(data: JSONObject): String</ID>
+    <ID>ImplicitDefaultLocale:AuthRepository.kt$AuthRepository$String.format("%03d", mockUsers.filter { it.role == UserRole.PARENT }.size + 1)</ID>
+    <ID>ImplicitDefaultLocale:StudentDetailsScreen.kt$String.format("%02d/%02d/%04d", localDate.dayOfMonth, localDate.monthValue, localDate.year)</ID>
+    <ID>LargeClass:SupabaseRepository.kt$SupabaseRepository</ID>
+    <ID>LongMethod:AdminApplicationsTab.kt$@Composable fun AdminApplicationsTab(onNavigateToApplication: (String) -&gt; Unit = {})</ID>
+    <ID>LongMethod:AdminCards.kt$@Composable fun ApplicationCard( application: MockApplication, onClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminCards.kt$@Composable fun StudentCard( student: MockStudent, onClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminDashboardScreen( onLogout: () -&gt; Unit, onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToStudent: (String) -&gt; Unit = {}, onNavigateToFinance: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun BatchPaymentsTab()</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun OutstandingInvoiceCard( invoice: MockInvoice, studentName: String, parentName: String, parentPhone: String = "", isSelected: Boolean = false, onSelectionChange: (Boolean) -&gt; Unit = {}, onMarkAsSent: () -&gt; Unit = {}, isSent: Boolean = false )</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun OutstandingPaymentsTab()</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun PaymentCard( payment: MockPayment, onVerify: () -&gt; Unit, onReject: () -&gt; Unit, onViewProof: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun PendingPaymentsTab( onVerify: (MockPayment) -&gt; Unit, onReject: (MockPayment) -&gt; Unit, onViewProof: (MockPayment) -&gt; Unit )</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun RecordCashTab(onRecordCash: () -&gt; Unit)</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@Composable fun VerifiedPaymentCard(payment: MockPayment)</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminFinancePaymentScreen( paymentId: String? = null, onBack: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminFinancePaymentScreen.kt$private fun buildStatementText( template: String, studentName: String, parentName: String, invoice: MockInvoice ): String</ID>
+    <ID>LongMethod:AdminFinanceTab.kt$@Composable fun AdminFinanceTab(onNavigateToFinance: () -&gt; Unit = {})</ID>
+    <ID>LongMethod:AdminHomeTab.kt$@Composable fun AdminHomeTab( onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToAttendance: () -&gt; Unit = {}, viewModel: AdminHomeViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:AdminMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminMessagesScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:AdminMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ChatView( parent: MockUser, onBack: () -&gt; Unit )</ID>
+    <ID>LongMethod:AdminSettingsTab.kt$@Composable fun AdminSettingsTab( onLogout: () -&gt; Unit, onNavigateToCrashLogs: () -&gt; Unit = {}, onNavigateToAbout: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AdminSettingsTab.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminParentProfileScreen( parentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:AdminStudentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminStudentProfileScreen( studentId: String, onBackClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:AdminStudentsTab.kt$@Composable fun AdminStudentsTab(onNavigateToStudent: (String) -&gt; Unit = {})</ID>
+    <ID>LongMethod:AppNavigation.kt$@Composable fun AppNavigation( navController: NavHostController, startDestination: String = Screen.Splash.route )</ID>
+    <ID>LongMethod:ApplicationReviewScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ApplicationReviewScreen( applicationId: String, onBackClick: () -&gt; Unit, onDecisionMade: () -&gt; Unit )</ID>
+    <ID>LongMethod:AttendanceScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AttendanceScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>LongMethod:AuthRepository.kt$AuthRepository$private suspend fun signInWithSupabase( email: String, password: String ): AuthResult</ID>
+    <ID>LongMethod:ChildProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ChildProfileScreen( studentId: String, onBackClick: () -&gt; Unit, onOpenDocuments: () -&gt; Unit = {}, onOpenFinance: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:CollectionTransportScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CollectionTransportScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( collectionPerson1: String, contact1: String, vehicleReg1: String, collectionPerson2: String, contact2: String, vehicleReg2: String, transportRequired: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:ConsentSignatureScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ConsentSignatureScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (photoConsent: Boolean, parentSignature: String) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:CrashLogScreen.kt$@Composable private fun CrashTab( crashLogs: List&lt;CrashReport&gt;, selectedReport: CrashReport?, onSelectReport: (CrashReport) -&gt; Unit )</ID>
+    <ID>LongMethod:CrashLogScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CrashLogScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>LongMethod:CreateAccountScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateAccountScreen( onBackClick: () -&gt; Unit, onCreateAccountClick: (fullName: String, email: String, phone: String, password: String) -&gt; Unit, onLoginClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:CreatePermissionScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreatePermissionScreen( onBack: () -&gt; Unit, onCreate: () -&gt; Unit )</ID>
+    <ID>LongMethod:ErrorStates.kt$@Composable fun ErrorScreen( message: String, title: String = "Something went wrong", onRetry: (() -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:FinancePaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FinancePaymentScreen( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ForgotPasswordScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ForgotPasswordScreen( onBackClick: () -&gt; Unit, onSubmitClick: (email: String) -&gt; Unit, onLoginClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:LoadingStates.kt$@Composable fun SkeletonCard( modifier: Modifier = Modifier, height: Int = 120 )</ID>
+    <ID>LongMethod:LoginScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LoginScreen( onLoginClick: (email: String, password: String, role: UserRole) -&gt; Unit, onCreateAccountClick: () -&gt; Unit, onForgotPasswordClick: () -&gt; Unit, viewModel: AuthViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:MedicalInfoScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MedicalInfoScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( doctorName: String, doctorLocation: String, doctorContact: String, medicalPlan: String, medicalAidNumber: String, allergies: String, epilepsy: Boolean, diabetic: Boolean, asthma: Boolean, noseBleeder: Boolean, hasAllergies: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:ParentChildrenScreen.kt$@Composable fun ChildCard( student: MockStudent, onClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:ParentChildrenScreen.kt$@OptIn(ExperimentalMaterialApi::class) @Composable fun ParentChildrenScreen(onChildClick: (String) -&gt; Unit = {})</ID>
+    <ID>LongMethod:ParentDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDashboardScreen( onLogout: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, onNavigateToChildProfile: (String) -&gt; Unit = {}, onNavigateToFinancePayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; } )</ID>
+    <ID>LongMethod:ParentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( motherName: String, motherSurname: String, motherId: String, motherEmployer: String, motherWorkPhone: String, motherCell: String, motherEmail: String, fatherName: String, fatherSurname: String, fatherId: String, fatherEmployer: String, fatherWorkPhone: String, fatherCell: String, fatherEmail: String ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:ParentFinanceScreen.kt$@Composable fun InvoiceCard( invoice: MockInvoice, students: List&lt;MockStudent&gt;, onClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ParentFinanceScreen.kt$@Composable fun ParentFinanceScreen( onNavigateToPayment: (String, Double, String, String) -&gt; Unit = { _, _, _, _ -&gt; }, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ParentHomeScreen.kt$@Composable fun ParentHomeScreen( onNavigateToChildren: () -&gt; Unit, onNavigateToFinance: () -&gt; Unit, onNavigateToRegistration: () -&gt; Unit = {}, onNavigateToStationery: () -&gt; Unit = {}, viewModel: ParentHomeViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:ParentMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAdminChatScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:ParentMessagesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentMessagesScreen()</ID>
+    <ID>LongMethod:ParentNotificationsScreen.kt$@Composable fun NotificationCard( notification: MockNotification, onMarkRead: () -&gt; Unit )</ID>
+    <ID>LongMethod:ParentNotificationsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NotificationPreferencesScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:ParentNotificationsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentNotificationsScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:ParentProfileScreen.kt$@Composable fun ParentProfileScreen( onLogout: () -&gt; Unit, onNavigateToAbout: () -&gt; Unit = {}, onNavigateToNotifications: () -&gt; Unit = {}, onChangePassword: () -&gt; Unit = {}, onOpenPrivacySecurity: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>LongMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
+    <ID>LongMethod:RegistrationGate.kt$@Composable fun RegistrationRequiredScreen(onRegisterChild: () -&gt; Unit)</ID>
+    <ID>LongMethod:RegistrationInfoAckScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationInfoAckScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onAcknowledged: () -&gt; Unit )</ID>
+    <ID>LongMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null )</ID>
+    <ID>LongMethod:RegistrationStartScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationStartScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
+    <ID>LongMethod:RegistrationSubmitScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationSubmitScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>LongMethod:RouteGuard.kt$@Composable fun AccessDeniedScreen( requiredRole: String, actualRole: String, onGoBack: () -&gt; Unit, onGoHome: () -&gt; Unit )</ID>
+    <ID>LongMethod:RouteGuard.kt$@Composable fun UnauthorizedScreen(onLogin: () -&gt; Unit)</ID>
+    <ID>LongMethod:SettingsScreens.kt$@Composable fun ChangePasswordScreen(onBack: () -&gt; Unit)</ID>
+    <ID>LongMethod:SplashScreen.kt$@Composable fun SplashScreen(onSplashComplete: () -&gt; Unit)</ID>
+    <ID>LongMethod:SportsActivitiesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SportsActivitiesScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (sports: List&lt;String&gt;) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:StationeryListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StationeryListScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>LongMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun createStudentFromApplication(applicationId: String): Boolean</ID>
+    <ID>LongMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun getAllParents(): List&lt;MockUser&gt;</ID>
+    <ID>LongMethod:SupabaseRepository.kt$fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject</ID>
+    <ID>LongParameterList:AdminFinancePaymentScreen.kt$( invoice: MockInvoice, studentName: String, parentName: String, parentPhone: String = "", isSelected: Boolean = false, onSelectionChange: (Boolean) -&gt; Unit = {}, onMarkAsSent: () -&gt; Unit = {}, isSent: Boolean = false )</ID>
+    <ID>LongParameterList:ApplicationReviewScreen.kt$( title: String, message: String, confirmText: String, confirmColor: Color, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:ChildProfileScreen.kt$( title: String, icon: ImageVector, color: androidx.compose.ui.graphics.Color, actionText: String? = null, onActionClick: (() -&gt; Unit)? = null, content: @Composable ColumnScope.() -&gt; Unit )</ID>
+    <ID>LongParameterList:ErrorStates.kt$( isEmpty: Boolean, error: String?, emptyTitle: String = "No data", emptySubtitle: String = "There's nothing to show here yet.", onRetry: (() -&gt; Unit)? = null, content: @Composable () -&gt; Unit )</ID>
+    <ID>LongParameterList:FinancePaymentScreen.kt$( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:RegistrationComponents.kt$( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
+    <ID>LongParameterList:RegistrationStartScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
+    <ID>LongParameterList:RegistrationSubmitScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.example.blankapp.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null )</ID>
+    <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String?, batchId: String? )</ID>
+    <ID>MagicNumber:AdminFinancePaymentScreen.kt$20</ID>
+    <ID>MagicNumber:AdminFinancePaymentScreen.kt$3</ID>
+    <ID>MagicNumber:AdminFinancePaymentScreen.kt$4</ID>
+    <ID>MagicNumber:AdminFinancePaymentScreen.kt$8</ID>
+    <ID>MagicNumber:AdminFinanceTab.kt$5</ID>
+    <ID>MagicNumber:AdminHomeViewModel.kt$AdminHomeViewModel$5</ID>
+    <ID>MagicNumber:AdminMessagesScreen.kt$10000</ID>
+    <ID>MagicNumber:AdminMessagesScreen.kt$50</ID>
+    <ID>MagicNumber:AdminSettingsTab.kt$0.95f</ID>
+    <ID>MagicNumber:AdminSettingsTab.kt$100</ID>
+    <ID>MagicNumber:AdminSettingsTab.kt$1024.0</ID>
+    <ID>MagicNumber:AdminStudentProfileScreen.kt$3</ID>
+    <ID>MagicNumber:AppNavigation.kt$300</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$0.05f</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$0.1f</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$0.7f</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$0.8f</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$100</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$1024</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$120</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$30</ID>
+    <ID>MagicNumber:AppUpdater.kt$AppUpdater$8192</ID>
+    <ID>MagicNumber:AttendanceScreen.kt$100.0</ID>
+    <ID>MagicNumber:ChildProfileScreen.kt$3</ID>
+    <ID>MagicNumber:Color.kt$0xFF0D9488</ID>
+    <ID>MagicNumber:Color.kt$0xFF14B8A6</ID>
+    <ID>MagicNumber:Color.kt$0xFF16A34A</ID>
+    <ID>MagicNumber:Color.kt$0xFF1A1215</ID>
+    <ID>MagicNumber:Color.kt$0xFF2D1E00</ID>
+    <ID>MagicNumber:Color.kt$0xFF2D1E22</ID>
+    <ID>MagicNumber:Color.kt$0xFF3B82F6</ID>
+    <ID>MagicNumber:Color.kt$0xFF3D0F1A</ID>
+    <ID>MagicNumber:Color.kt$0xFF4A1320</ID>
+    <ID>MagicNumber:Color.kt$0xFF5C4400</ID>
+    <ID>MagicNumber:Color.kt$0xFF6B1D2A</ID>
+    <ID>MagicNumber:Color.kt$0xFF6B5A60</ID>
+    <ID>MagicNumber:Color.kt$0xFF8B2E3C</ID>
+    <ID>MagicNumber:Color.kt$0xFFB08A2A</ID>
+    <ID>MagicNumber:Color.kt$0xFFCCFBF1</ID>
+    <ID>MagicNumber:Color.kt$0xFFD4A843</ID>
+    <ID>MagicNumber:Color.kt$0xFFD4C5CA</ID>
+    <ID>MagicNumber:Color.kt$0xFFDBEAFE</ID>
+    <ID>MagicNumber:Color.kt$0xFFDC2626</ID>
+    <ID>MagicNumber:Color.kt$0xFFDCFCE7</ID>
+    <ID>MagicNumber:Color.kt$0xFFE8C56A</ID>
+    <ID>MagicNumber:Color.kt$0xFFEDE5E8</ID>
+    <ID>MagicNumber:Color.kt$0xFFF2AAB7</ID>
+    <ID>MagicNumber:Color.kt$0xFFF59E0B</ID>
+    <ID>MagicNumber:Color.kt$0xFFF5D5D9</ID>
+    <ID>MagicNumber:Color.kt$0xFFF5F0ED</ID>
+    <ID>MagicNumber:Color.kt$0xFFFAF7F5</ID>
+    <ID>MagicNumber:Color.kt$0xFFFEE2E2</ID>
+    <ID>MagicNumber:Color.kt$0xFFFEF3C7</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFF8E7</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:CrashReporter.kt$CrashReporter$1024</ID>
+    <ID>MagicNumber:CrashReporter.kt$CrashReporter$5</ID>
+    <ID>MagicNumber:CrashReporter.kt$CrashReporter$500</ID>
+    <ID>MagicNumber:CreateAccountScreen.kt$3</ID>
+    <ID>MagicNumber:CreateAccountScreen.kt$4</ID>
+    <ID>MagicNumber:CreateAccountScreen.kt$8</ID>
+    <ID>MagicNumber:InputSanitizer.kt$InputSanitizer$7</ID>
+    <ID>MagicNumber:LoadingStates.kt$0.4f</ID>
+    <ID>MagicNumber:LoadingStates.kt$0.6f</ID>
+    <ID>MagicNumber:LoadingStates.kt$0.7f</ID>
+    <ID>MagicNumber:LoadingStates.kt$0.9f</ID>
+    <ID>MagicNumber:LoadingStates.kt$1200</ID>
+    <ID>MagicNumber:ParentFinanceScreen.kt$5</ID>
+    <ID>MagicNumber:ParentMessagesScreen.kt$10000</ID>
+    <ID>MagicNumber:ParentMessagesScreen.kt$50</ID>
+    <ID>MagicNumber:ParentProfileScreen.kt$0.9f</ID>
+    <ID>MagicNumber:ParentProfileScreen.kt$100</ID>
+    <ID>MagicNumber:ParentProfileScreen.kt$1024.0</ID>
+    <ID>MagicNumber:PayFastRepository.kt$PayFastRepository$30</ID>
+    <ID>MagicNumber:PayFastRepository.kt$PayFastRepository$60</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFF2196F3</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFF4CAF50</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFF607D8B</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFF9E9E9E</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFFF44336</ID>
+    <ID>MagicNumber:PermissionHelpers.kt$0xFFFF9800</ID>
+    <ID>MagicNumber:RegistrationComponents.kt$3</ID>
+    <ID>MagicNumber:RegistrationComponents.kt$4</ID>
+    <ID>MagicNumber:RegistrationComponents.kt$5</ID>
+    <ID>MagicNumber:RegistrationComponents.kt$6</ID>
+    <ID>MagicNumber:RegistrationComponents.kt$7</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$3</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$4</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$5</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$6</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$7</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$8</ID>
+    <ID>MagicNumber:RegistrationStartScreen.kt$9</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$1000</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$3</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$4</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$5</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$6</ID>
+    <ID>MagicNumber:RegistrationViewModel.kt$RegistrationViewModel$7</ID>
+    <ID>MagicNumber:RouteGuard.kt$100</ID>
+    <ID>MagicNumber:SplashScreen.kt$100</ID>
+    <ID>MagicNumber:SplashScreen.kt$800</ID>
+    <ID>MagicNumber:SupabaseConfig.kt$SupabaseConfig$200</ID>
+    <ID>MagicNumber:SupabaseConfig.kt$SupabaseConfig$30</ID>
+    <ID>MagicNumber:SupabaseRealtime.kt$SupabaseRealtime$1000</ID>
+    <ID>MagicNumber:SupabaseRealtime.kt$SupabaseRealtime$15</ID>
+    <ID>MagicNumber:SupabaseRealtime.kt$SupabaseRealtime$20</ID>
+    <ID>MagicNumber:SupabaseRealtime.kt$SupabaseRealtime$3</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$3</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$4</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$500.00</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$120</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$1650.00</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$1700.00</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$30</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$380.00</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$4</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$500.00</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$6</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$7</ID>
+    <ID>MagicNumber:SupabaseRepository.kt$SupabaseRepository$9</ID>
+    <ID>MatchingDeclarationName:AdminDashboardScreen.kt$AdminTab</ID>
+    <ID>MatchingDeclarationName:ParentDashboardScreen.kt$ParentTab</ID>
+    <ID>MatchingDeclarationName:RouteGuard.kt$AuthState</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$"Pay online: open the A+ Study House app → Finance → Pay Now (secure PayFast checkout: card, EFT or instant payment)"</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$if (payment.status == PaymentStatus.VERIFIED) Icons.Filled.CheckCircle else Icons.Filled.Schedule</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$outstandingInvoices = allInvoices.filter { it.status == InvoiceStatus.OVERDUE || it.status == InvoiceStatus.PENDING }</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$selectedInvoices = if (selected) selectedInvoices + invoice.id else selectedInvoices - invoice.id</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$text = "${batches.size} batch payment${if (batches.size == 1) "" else "s"} — one PayFast checkout per family"</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$text = "${overdueInvoices.size} Overdue Invoice${if (overdueInvoices.size != 1) "s" else ""}"</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$text = "A batch is created when a parent pays all their pending invoices in one PayFast checkout."</ID>
+    <ID>MaxLineLength:AdminFinancePaymentScreen.kt$text = "Current: ${student?.let { "${it.firstName} ${it.lastName}" } ?: "Unknown"} — R${currentInvoice.amount.toInt()}"</ID>
+    <ID>MaxLineLength:AdminFinanceTab.kt$it.studentId in familyStudentIds &amp;&amp; (it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE)</ID>
+    <ID>MaxLineLength:AdminSettingsTab.kt$SettingsItem</ID>
+    <ID>MaxLineLength:AdminSettingsTab.kt$text = "A+ Study House is an aftercare, tutoring and study centre dedicated to helping students achieve their academic potential."</ID>
+    <ID>MaxLineLength:AdminStudentProfileScreen.kt$"Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers."</ID>
+    <ID>MaxLineLength:AdminStudentProfileScreen.kt$text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}"</ID>
+    <ID>MaxLineLength:AppUpdater.kt$AppUpdater$android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES or android.content.pm.PackageManager.GET_SIGNATURES</ID>
+    <ID>MaxLineLength:ApplicationReviewScreen.kt$approvalError = "Approved, but failed to create student profile. Please check the student list later."</ID>
+    <ID>MaxLineLength:ApplicationReviewScreen.kt$if</ID>
+    <ID>MaxLineLength:ApplicationReviewScreen.kt$message = "Are you sure you want to approve this application? This will also mark the registration fee as paid and create the student profile."</ID>
+    <ID>MaxLineLength:AttendanceScreen.kt$text = "Daily fee: R${dailyRate.toInt()} per attended day. Mark each child's attendance daily — absent days are not billed. At month end, tap \"Generate Invoice\" to bill the attended days."</ID>
+    <ID>MaxLineLength:ChildProfileScreen.kt$"Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers."</ID>
+    <ID>MaxLineLength:CollectionTransportScreen.kt$"Stationery: Parents purchase stationery from the attached list. No stationery fee charged."</ID>
+    <ID>MaxLineLength:CollectionTransportScreen.kt$"Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers."</ID>
+    <ID>MaxLineLength:ConsentSignatureScreen.kt$"Do you grant permission for photos and videos of your child to be used on the A+ Study House website, social media, and promotional materials?"</ID>
+    <ID>MaxLineLength:CreateAccountScreen.kt$contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"</ID>
+    <ID>MaxLineLength:FinancePaymentScreen.kt$"Online payments are not set up yet. Please pay by cash at the office or contact us."</ID>
+    <ID>MaxLineLength:FinancePaymentScreen.kt$text = "You'll be redirected to PayFast's secure checkout where you can pay by credit/debit card, EFT or instant payment. A payment record is created immediately and marked as pending until PayFast confirms it."</ID>
+    <ID>MaxLineLength:ForgotPasswordScreen.kt$text = "Click the link in your email to reset your password. If you don't see the email, check your spam folder."</ID>
+    <ID>MaxLineLength:ForgotPasswordScreen.kt$text = "No worries! Enter your email address and we'll send you a link to reset your password."</ID>
+    <ID>MaxLineLength:LoginScreen.kt$val role = if (user?.role == com.example.blankapp.data.UserRole.ADMIN) UserRole.ADMIN else UserRole.PARENT</ID>
+    <ID>MaxLineLength:MedicalInfoScreen.kt$onContinue(doctorName, doctorLocation, doctorContact, medicalPlan, medicalAidNumber, allergies, epilepsy, diabetic, asthma, noseBleeder, hasAllergies)</ID>
+    <ID>MaxLineLength:NetworkResult.kt$NetworkResult$Error : NetworkResult</ID>
+    <ID>MaxLineLength:ParentFinanceScreen.kt$"Online payments are not available right now. Please pay each invoice individually or contact the office."</ID>
+    <ID>MaxLineLength:ParentFinanceScreen.kt$text = "Need more time? Arrangements can be made for fees due by 30 September. Contact the office to set up a payment plan."</ID>
+    <ID>MaxLineLength:ParentFinanceScreen.kt$val pendingInvoices = allInvoices.filter { it.status == InvoiceStatus.PENDING || it.status == InvoiceStatus.OVERDUE }</ID>
+    <ID>MaxLineLength:ParentHomeScreen.kt$if</ID>
+    <ID>MaxLineLength:ParentProfileScreen.kt$text = "A+ Study House is an aftercare, tutoring and study centre dedicated to helping students achieve their academic potential."</ID>
+    <ID>MaxLineLength:PaymentSuccessScreen.kt$"If you completed the payment, it will appear in your Payment History once PayFast confirms it."</ID>
+    <ID>MaxLineLength:PaymentSuccessScreen.kt$"Your payment may still be processing. Check Payment History in a few minutes — if the payment went through, the invoices will show as PAID there."</ID>
+    <ID>MaxLineLength:PaymentSuccessScreen.kt$text = "${remaining.size} invoice${if (remaining.size == 1) "" else "s"} not part of this payment remain outstanding."</ID>
+    <ID>MaxLineLength:RegistrationGate.kt$// Also check for approved/payment_verified applications (in case student creation failed but app is approved)</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$"One Friday in September, A+ Study House will close at 16h00, as all staff members will be attending a church conference that weekend"</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$"Using recycled materials to build projects — sourcing the required recycled materials and completing the messy construction work at A+ Study House"</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "A stationery list is available in the app for your convenience (Home → Stationery List). Please note: stationery is non-refundable and will not be returned if the contract is terminated or at the end of the academic year."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "A+ Study House does not serve lunch. Parents are requested to pack a sealed lunch and a water bottle/cup for their child every day."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "I have read and understood the Lunch &amp; Meals, Operating Hours, Stationery and School Projects policies above."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "If Roodebeeck Primary closes earlier than usual for any reason, such as a departmental meeting, water interruption, or any other unforeseen circumstance, A+ Study House will arrange to fetch the children accordingly."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "Please note: We only assist with school projects that contribute towards a scholar's report card or academic assessment. If a school initiative is simply intended to encourage a dress-up day, themed day or similar activity, we do not assist with these activities, as they remain the parents' responsibility."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "Please read each section carefully. You must acknowledge that you have read and understood these policies before you can continue with registration."</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "We assist scholars with academic school projects that contribute towards their report card or academic assessment. Our project support includes:"</ID>
+    <ID>MaxLineLength:RegistrationInfoAckScreen.kt$text = "We can heat pre-cooked, sealed food. 2-Minute Noodles: please ensure that 2-minute noodles are already cooked before being sent to aftercare. We only heat up pre-cooked food and do not cook or prepare meals at A+ Study House."</ID>
+    <ID>MaxLineLength:RegistrationPaymentScreen.kt$"Online payments are not set up yet. Please pay by cash at the office or contact us."</ID>
+    <ID>MaxLineLength:RegistrationPaymentScreen.kt$"Payment is only required after your application is approved. Choose how you'd like to pay once you receive approval — secure online via PayFast, or cash at the office."</ID>
+    <ID>MaxLineLength:RegistrationPaymentScreen.kt$"Please note: payment is only due once your application is approved. Reference: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "REG-[YourSurname]"}"</ID>
+    <ID>MaxLineLength:RegistrationPaymentScreen.kt$"You'll be redirected to PayFast's secure checkout where you can pay by credit/debit card, EFT or instant payment. Once paid, our team verifies the payment against your application."</ID>
+    <ID>MaxLineLength:RegistrationSubmitScreen.kt$"Application ID: ${registrationDraft?.studentName?.replace(" ", "_")?.uppercase() ?: "PENDING"}"</ID>
+    <ID>MaxLineLength:RegistrationSubmitScreen.kt$"I confirm that all information provided is accurate and I agree to the terms and conditions of A+ Study House."</ID>
+    <ID>MaxLineLength:RegistrationSubmitScreen.kt$"We could not submit your application — please check your connection and try again. Your answers have been saved."</ID>
+    <ID>MaxLineLength:RegistrationSubmitScreen.kt$"Your application has been submitted successfully. You will be notified once it's reviewed."</ID>
+    <ID>MaxLineLength:SettingsScreens.kt$"Name, phone and email changes are handled by the office to keep records consistent. Contact us if any detail here is incorrect."</ID>
+    <ID>MaxLineLength:SettingsScreens.kt$"Under South Africa's Protection of Personal Information Act (POPIA), you may request a copy of the personal information the school holds about your family, ask for corrections, or withdraw consent (such as photo/video consent) at any time by contacting the office."</ID>
+    <ID>MaxLineLength:SettingsScreens.kt$"Your card details are entered on PayFast's secure checkout — they never touch this app or the school's servers."</ID>
+    <ID>MaxLineLength:SportsActivitiesScreen.kt$selectedSports = if (sport in selectedSports) selectedSports - sport else selectedSports + sport</ID>
+    <ID>MaxLineLength:StationeryListScreen.kt$text = "Everything your child needs per grade phase. Stationery is non-refundable and will not be returned if the contract is terminated or at the end of the academic year."</ID>
+    <ID>MaxLineLength:StationeryListScreen.kt$text = "Please note: Stationery is non-refundable and will not be returned if the contract is terminated or at the end of the academic year."</ID>
+    <ID>MaxLineLength:StudentDetailsScreen.kt$dob = String.format("%02d/%02d/%04d", localDate.dayOfMonth, localDate.monthValue, localDate.year)</ID>
+    <ID>MaxLineLength:StudentDetailsScreen.kt$onContinue("$firstName $lastName", grade.toIntOrNull() ?: 1, school, dob, address, gender, classNr, teacherName, lsen)</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$"parent_chat exception=${e.javaClass.simpleName} msg=${e.message ?: "null"} cause=${e.cause?.javaClass?.simpleName ?: "null"} stack=${e.stackTrace?.take(4)?.joinToString("|") ?: "null"}"</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$appObj.optString("student_lsen").equals("true", ignoreCase = true) || appObj.optString("student_lsen") == "Yes"</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$query = "email=eq.admin@aplusstudy.co.za&amp;select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at"</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$query = "role=eq.admin&amp;select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&amp;order=created_at.desc"</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$query = "role=eq.parent&amp;select=id,full_name,email,phone,surname,id_number,employer,work_phone,created_at,updated_at&amp;order=created_at.desc"</ID>
+    <ID>MaxLineLength:SupabaseRepository.kt$SupabaseRepository$query = "student_id=eq.$studentId&amp;attendance_date=gte.$from&amp;attendance_date=lte.$to&amp;select=attendance_date,status"</ID>
+    <ID>ReturnCount:AdminDashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AdminDashboardScreen( onLogout: () -&gt; Unit, onNavigateToApplication: (String) -&gt; Unit = {}, onNavigateToStudent: (String) -&gt; Unit = {}, onNavigateToFinance: () -&gt; Unit = {} )</ID>
+    <ID>ReturnCount:AdminSettingsTab.kt$@Composable fun AdminSettingsTab( onLogout: () -&gt; Unit, onNavigateToCrashLogs: () -&gt; Unit = {}, onNavigateToAbout: () -&gt; Unit = {} )</ID>
+    <ID>ReturnCount:AppUpdater.kt$AppUpdater$private fun verifyApkSignature( context: Context, apkFile: File ): Boolean</ID>
+    <ID>ReturnCount:AuthRepository.kt$AuthRepository$private suspend fun createAccountWithSupabase( fullName: String, email: String, phone: String, password: String ): AuthResult</ID>
+    <ID>ReturnCount:AuthRepository.kt$AuthRepository$private suspend fun refreshAccessToken(refreshToken: String): Boolean</ID>
+    <ID>ReturnCount:AuthRepository.kt$AuthRepository$private suspend fun signInWithSupabase( email: String, password: String ): AuthResult</ID>
+    <ID>ReturnCount:NetworkUtils.kt$NetworkUtils$fun isNetworkAvailable(context: Context): Boolean</ID>
+    <ID>ReturnCount:NetworkUtils.kt$NetworkUtils$fun isWifiConnected(context: Context): Boolean</ID>
+    <ID>ReturnCount:SessionStore.kt$SessionStore$fun getCachedUser(context: Context): MockUser?</ID>
+    <ID>ReturnCount:SupabaseRealtime.kt$SupabaseRealtime$private fun handleMessage(text: String)</ID>
+    <ID>SwallowedException:AdminApplicationsTab.kt$e: Exception</ID>
+    <ID>SwallowedException:AdminFinancePaymentScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:AdminFinanceTab.kt$e: Exception</ID>
+    <ID>SwallowedException:AdminHomeViewModel.kt$AdminHomeViewModel$e: Exception</ID>
+    <ID>SwallowedException:AdminMessagesScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:AdminMessagesScreen.kt$e: kotlinx.coroutines.CancellationException</ID>
+    <ID>SwallowedException:AdminStudentProfileScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:AdminStudentsTab.kt$e: Exception</ID>
+    <ID>SwallowedException:ApplicationReviewScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:AuthRepository.kt$AuthRepository$e: Exception</ID>
+    <ID>SwallowedException:ChildProfileScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:CrashReporter.kt$CrashReporter$e: Exception</ID>
+    <ID>SwallowedException:CreatePermissionScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:NetworkUtils.kt$NetworkUtils$e: Exception</ID>
+    <ID>SwallowedException:ParentHomeViewModel.kt$ParentHomeViewModel$e: Exception</ID>
+    <ID>SwallowedException:ParentMessagesScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:ParentMessagesScreen.kt$e: kotlinx.coroutines.CancellationException</ID>
+    <ID>SwallowedException:ParentNotificationsScreen.kt$e: Exception</ID>
+    <ID>SwallowedException:SessionStore.kt$SessionStore$e: Exception</ID>
+    <ID>SwallowedException:SupabaseConfig.kt$SupabaseConfig$e: Exception</ID>
+    <ID>SwallowedException:SupabaseRepository.kt$SupabaseRepository$e: Exception</ID>
+    <ID>ThrowsCount:AppUpdater.kt$AppUpdater$fun installApk( context: Context, apkFile: File )</ID>
+    <ID>TooGenericExceptionCaught:AdminApplicationsTab.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminFinancePaymentScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminFinanceTab.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminHomeViewModel.kt$AdminHomeViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminMessagesScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminSettingsTab.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminStudentProfileScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AdminStudentsTab.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AppUpdater.kt$AppUpdater$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ApplicationReviewScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AttendanceScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AuthRepository.kt$AuthRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BaseViewModel.kt$BaseViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ChildProfileScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CrashReporter.kt$CrashReporter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CreatePermissionScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NetworkUtils.kt$NetworkUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentChildrenScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentFinanceScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentHomeViewModel.kt$ParentHomeViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentMessagesScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentNotificationsScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ParentProfileScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PayFastRepository.kt$PayFastRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RegistrationDraftStore.kt$RegistrationDraftStore$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RegistrationGate.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SessionStore.kt$SessionStore$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SupabaseConfig.kt$SupabaseConfig$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SupabaseRepository.kt$SupabaseRepository$e: Exception</ID>
+    <ID>TooManyFunctions:AdminFinancePaymentScreen.kt$com.example.blankapp.screens.admin.AdminFinancePaymentScreen.kt</ID>
+    <ID>TooManyFunctions:AuthRepository.kt$AuthRepository</ID>
+    <ID>TooManyFunctions:CrashReporter.kt$CrashReporter</ID>
+    <ID>TooManyFunctions:InputSanitizer.kt$InputSanitizer</ID>
+    <ID>TooManyFunctions:MockData.kt$com.example.blankapp.data.MockData.kt</ID>
+    <ID>TooManyFunctions:RegistrationViewModel.kt$RegistrationViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:SupabaseRealtime.kt$SupabaseRealtime</ID>
+    <ID>TooManyFunctions:SupabaseRepository.kt$SupabaseRepository</ID>
+    <ID>UnusedParameter:AdminFinancePaymentScreen.kt$paymentId: String? = null</ID>
+    <ID>UnusedParameter:AdminMessagesScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedParameter:CrashLogScreen.kt$selectedReport: CrashReport?</ID>
+    <ID>UnusedParameter:FinancePaymentScreen.kt$studentName: String = ""</ID>
+    <ID>UnusedParameter:PayFastRepository.kt$PayFastRepository$data: JSONObject</ID>
+    <ID>UnusedParameter:RegistrationComponents.kt$icon: ImageVector = Icons.Filled.Check</ID>
+    <ID>UnusedParameter:RegistrationComponents.kt$stepNumber: Int</ID>
+    <ID>UnusedParameter:Theme.kt$darkTheme: Boolean = isSystemInDarkTheme()</ID>
+    <ID>UnusedPrivateClass:StationeryListScreen.kt$StationeryItem</ID>
+    <ID>UnusedPrivateMember:AppUpdater.kt$AppUpdater$private fun sha256(file: File): String</ID>
+    <ID>UnusedPrivateProperty:ApplicationReviewScreen.kt$val intent = android.content.Intent( android.content.Intent.ACTION_VIEW, android.net.Uri.parse(application.paymentProofUrl) )</ID>
+    <ID>UnusedPrivateProperty:ApplicationReviewScreen.kt$var student by remember { mutableStateOf&lt;MockStudent?&gt;(null) }</ID>
+    <ID>UnusedPrivateProperty:SplashScreen.kt$val coroutineScope = rememberCoroutineScope()</ID>
+    <ID>UseCheckOrError:AppUpdater.kt$AppUpdater$throw IllegalStateException("APK signature verification failed. Update aborted for security.")</ID>
+    <ID>UseCheckOrError:AppUpdater.kt$AppUpdater$throw IllegalStateException("Download failed (HTTP ${resp.code})")</ID>
+    <ID>UseCheckOrError:AppUpdater.kt$AppUpdater$throw IllegalStateException("Download failed (no body)")</ID>
+    <ID>UseCheckOrError:AppUpdater.kt$AppUpdater$throw IllegalStateException("Update file is missing or empty.")</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminApplicationsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminCards.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import com.example.blankapp.screens.admin.tabs.*</ID>
+    <ID>WildcardImport:AdminDashboardScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminFinancePaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.screens.admin.components.*</ID>
+    <ID>WildcardImport:AdminFinanceTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.screens.admin.components.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.ui.components.*</ID>
+    <ID>WildcardImport:AdminHomeTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminHomeViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminMessagesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminSettingsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminStudentProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:AdminStudentsTab.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.admin.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.auth.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.parent.*</ID>
+    <ID>WildcardImport:AppNavigation.kt$import com.example.blankapp.screens.parent.registration.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ApplicationReviewScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ApplicationSubmitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AttendanceScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:AuthRepositoryErrorTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:AuthRepositoryTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ChildProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CollectionTransportScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ConsentSignatureScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CrashLogScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CreateAccountScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:CreatePermissionScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:DataModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ErrorStateHolder.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ErrorStates.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:FinancePaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ForgotPasswordScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:InputSanitizerTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import androidx.compose.animation.core.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:LoadingStates.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MedicalInfoScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:MockDataTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.ui.components.*</ID>
+    <ID>WildcardImport:ParentChildrenScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentChildrenViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentDashboardScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentDetailsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.ui.components.*</ID>
+    <ID>WildcardImport:ParentFinanceScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentFinanceViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material.icons.outlined.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.ui.components.*</ID>
+    <ID>WildcardImport:ParentHomeScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentHomeViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentMessagesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:ParentNotificationsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ParentProfileScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:PayFastRepositoryTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PaymentSuccessScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PaymentSuccessScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:PermissionHelpers.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationComponents.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationComponents.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:RegistrationGate.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:RegistrationInfoAckScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:RegistrationPaymentScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationStartScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationStartScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:RegistrationSubmitScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RegistrationViewModel.kt$import com.example.blankapp.data.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:RouteGuard.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:RouteGuardTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:RouteTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SettingsScreens.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import androidx.compose.animation.core.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SplashScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SportsActivitiesScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:StationeryListScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:StudentDetailsScreen.kt$import com.example.blankapp.ui.theme.*</ID>
+    <ID>WildcardImport:SupabaseConfigTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:SupabaseRepositoryErrorTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:SupabaseRepositoryTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
