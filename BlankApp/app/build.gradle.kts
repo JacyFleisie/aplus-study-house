@@ -33,12 +33,19 @@ tasks.register("checkVersionBump") {
             return regex.find(output)?.groupValues?.get(1)?.toIntOrNull()
                 ?: parseVersionCodeFallback(output)
         }
-        val tags =
+        val tagsAll =
             providers.exec {
                 commandLine("git", "tag", "-l", "v*")
             }.standardOutput.asText.get().trim().lines().filter { it.isNotBlank() }
+        // Exclude tags pointing at the commit being built: a tagged release
+        // commit legitimately has the same versionCode as its own tag.
+        val headTags =
+            providers.exec {
+                commandLine("git", "tag", "--points-at", "HEAD")
+            }.standardOutput.asText.get().trim().lines().filter { it.isNotBlank() }.toSet()
+        val tags = tagsAll.filter { it !in headTags }
         if (tags.isEmpty()) {
-            logger.lifecycle("checkVersionBump: no v* tags found, skipping")
+            logger.lifecycle("checkVersionBump: no prior v* tags to compare against, skipping")
             return@doLast
         }
 
@@ -102,8 +109,8 @@ if (supabasePropertiesFile.exists()) {
 // latest GitHub release tag, so these MUST be bumped together on every
 // release. Bump appVersionCode by 1 and appVersionName to the tag name
 // (without the leading 'v').
-val appVersionCode = 40
-val appVersionName = "1.6.12"
+val appVersionCode = 41
+val appVersionName = "1.6.13"
 
 android {
     namespace = "com.example.blankapp"

@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.13] — 2026-09-29
+
+### Added
+- Payment Successful screen: polls invoices after PayFast checkout and confirms payment with total and remaining balance
+- Admin Batches tab: Pay-All batch payments grouped by family with expandable invoice detail
+- CI: build + unit tests on every push, signed release APK attached to GitHub Releases on version tags
+- Detekt zero-issue quality gate (baseline absorbs pre-existing complexity debt) and ktlint formatting across the codebase
+
+### Fixed
+- Auto-updater: single-source version in `app/build.gradle.kts` plus `checkVersionBump` guard so tagged builds can never drift behind the updater
+- **Security**: PayFast verification RPCs locked down — they required a shared verify token and are no longer callable by clients (a parent could previously mark an invoice paid without paying)
+- PayFast ITN webhook: batch payments no longer return 500 on success; uses service-role client
+- `notification_preferences` RLS: parents can only read/write their own preferences
+
 ## [1.6.11] — 2026-09-21
 
 ### Added
