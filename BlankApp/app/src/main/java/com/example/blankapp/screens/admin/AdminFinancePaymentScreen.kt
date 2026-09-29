@@ -101,6 +101,12 @@ fun AdminFinancePaymentScreen(
                     text = { Text("Outstanding") },
                     icon = { Icon(Icons.Filled.Warning, contentDescription = null) }
                 )
+                Tab(
+                    selected = selectedTab == 4,
+                    onClick = { selectedTab = 4 },
+                    text = { Text("Batches") },
+                    icon = { Icon(Icons.Filled.Layers, contentDescription = null) }
+                )
             }
             
             when (selectedTab) {
@@ -126,6 +132,7 @@ fun AdminFinancePaymentScreen(
                     }
                 )
                 3 -> OutstandingPaymentsTab()
+                4 -> BatchPaymentsTab()
             }
         }
     }
@@ -650,6 +657,201 @@ fun OutstandingPaymentsTab() {
                 TextButton(onClick = { showBulkSendDialog = false }) { Text("Cancel") }
             }
         )
+    }
+}
+
+@Composable
+fun BatchPaymentsTab() {
+    var batches by remember { mutableStateOf<List<Pair<String, List<MockPayment>>>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var expandedBatch by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        batches = try {
+            SupabaseRepository.getAllPayments()
+                .filter { it.batchId != null }
+                .groupBy { it.batchId!! }
+                .map { (batchId, payments) -> batchId to payments.sortedByDescending { it.paymentDate } }
+                .sortedByDescending { it.second.firstOrNull()?.paymentDate ?: "" }
+        } catch (_: Exception) {
+            emptyList()
+        } finally {
+            isLoading = false
+        }
+    }
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        if (batches.isEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Surface)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        Icons.Filled.Layers,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = OnSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "No Batch Payments",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = OnBackground
+                    )
+                    Text(
+                        text = "Pay-All checkouts will appear here grouped by family",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "A batch is created when a parent pays all their pending invoices in one PayFast checkout.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = "${batches.size} batch payment${if (batches.size == 1) "" else "s"} — one PayFast checkout per family",
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            batches.forEach { (batchId, payments) ->
+                val batchTotal = payments.sumOf { it.amount }
+                val verifiedCount = payments.count { it.status == PaymentStatus.VERIFIED }
+                val isExpanded = expandedBatch == batchId
+                val parentName = payments.firstOrNull()?.parentName ?: ""
+                val parentId = payments.firstOrNull()?.parentId ?: ""
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .clickable { expandedBatch = if (isExpanded) null else batchId },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Filled.Layers,
+                                contentDescription = null,
+                                tint = Primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = if (parentName.isNotBlank()) parentName else "Family",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnBackground
+                                )
+                                Text(
+                                    text = "${payments.size} invoices · ${verifiedCount}/${payments.size} verified",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = OnSurfaceVariant
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = "R${"%.2f".format(batchTotal)}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnBackground
+                                )
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = when {
+                                        verifiedCount == payments.size -> SuccessContainer
+                                        verifiedCount > 0 -> WarningContainer
+                                        else -> WarningContainer
+                                    }
+                                ) {
+                                    Text(
+                                        text = if (verifiedCount == payments.size) "PAID" else "PENDING",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (verifiedCount == payments.size) Success else Warning,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (isExpanded) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            HorizontalDivider()
+                            Spacer(modifier = Modifier.height(8.dp))
+                            payments.forEach { payment ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        if (payment.status == PaymentStatus.VERIFIED) Icons.Filled.CheckCircle else Icons.Filled.Schedule,
+                                        contentDescription = null,
+                                        tint = if (payment.status == PaymentStatus.VERIFIED) Success else Warning,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = payment.description.ifBlank { "Invoice" },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = OnBackground,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "R${"%.2f".format(payment.amount)}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = OnBackground
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Batch ref: ${batchId.take(20)}…",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = OnSurfaceVariant
+                            )
+                            if (parentId.isNotBlank()) {
+                                Text(
+                                    text = "Parent ID: ${parentId.take(8)}…",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = OnSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

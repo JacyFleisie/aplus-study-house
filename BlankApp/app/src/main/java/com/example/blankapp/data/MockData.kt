@@ -324,11 +324,13 @@ data class MockPayment(
     val description: String = "",
     val date: String = paymentDate,
     val reference: String = id,
-    val type: String = paymentMethod.name
+    val type: String = paymentMethod.name,
+    /** Pay-All: payments from one checkout share this batch reference ("batch_<uuid>"). */
+    val batchId: String? = null
 )
 
 enum class PaymentMethod {
-    EFT, CASH, CARD
+    EFT, CASH, CARD, PAYFAST
 }
 
 enum class PaymentStatus {

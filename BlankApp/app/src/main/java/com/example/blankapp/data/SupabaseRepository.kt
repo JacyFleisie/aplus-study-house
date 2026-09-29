@@ -241,14 +241,19 @@ object SupabaseRepository {
                         parentName = "",
                         amount = obj.optDouble("amount", 0.0),
                         paymentDate = obj.optString("payment_date", ""),
-                        paymentMethod = if (obj.optString("payment_method") == "cash") PaymentMethod.CASH else PaymentMethod.EFT,
+                        paymentMethod = when (obj.optString("payment_method")) {
+                            "cash" -> PaymentMethod.CASH
+                            "payfast" -> PaymentMethod.PAYFAST
+                            else -> PaymentMethod.EFT
+                        },
                         status = when (obj.optString("status")) {
                             "verified" -> PaymentStatus.VERIFIED
                             "rejected" -> PaymentStatus.REJECTED
                             else -> PaymentStatus.PENDING
                         },
                         proofUrl = obj.optString("proof_url", ""),
-                        notes = obj.optString("admin_notes", "")
+                        notes = obj.optString("admin_notes", ""),
+                        batchId = obj.optString("batch_id", "").ifBlank { null }
                     )
                 )
             }
