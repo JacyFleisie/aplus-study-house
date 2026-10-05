@@ -2,6 +2,7 @@ package com.aplusstudyhouse.app.data
 
 import android.util.Log
 import com.aplusstudyhouse.app.utils.InputSanitizer
+import com.aplusstudyhouse.app.utils.InputSanitizer.sanitizeVehicleReg
 import com.aplusstudyhouse.app.utils.PhotoPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -2106,8 +2107,25 @@ object SupabaseRepository {
             lsen = obj.optBoolean("lsen", false),
             photoConsent = obj.optBoolean("photo_consent", false),
             signatureData = obj.optStringOrNullSafe("signature_data"),
-            photoPath = obj.optStringOrNullSafe("photo_path")
+            photoPath = obj.optStringOrNullSafe("photo_path"),
+            vehicleRegistration =
+                firstOf(
+                    obj.optStringOrNullSafe("vehicle_registration"),
+                    obj.optStringOrNullSafe("vehicle_registration_1"),
+                    obj.optStringOrNullSafe("collection_vehicle_1"),
+                    obj.optStringOrNullSafe("vehicle_registration_primary")
+                ).let { candidate ->
+                    if (candidate != null) sanitizeVehicleReg(candidate) else ""
+                }
         )
+    }
+
+    private fun firstOf(vararg candidates: String?): String? {
+        for (c in candidates) {
+            val trimmed = c?.trim()
+            if (trimmed != null && trimmed.isNotBlank()) return trimmed
+        }
+        return null
     }
 
     private fun parseMedical(obj: JSONObject): MockMedical {

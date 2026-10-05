@@ -69,6 +69,7 @@ data class MockStudent(
     val collectionPerson: String? = null,
     val collectionContact: String? = null,
     val vehicleReg1: String = "",
+    val vehicleRegistration: String = "",
     val collectionPerson2: String? = null,
     val collectionContact2: String? = null,
     val vehicleReg2: String = "",

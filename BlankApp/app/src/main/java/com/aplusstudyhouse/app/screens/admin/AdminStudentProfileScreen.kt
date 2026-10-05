@@ -290,6 +290,38 @@ fun AdminStudentProfileScreen(
             ) {
                 ProfileInfoRow("Collection Person", student.collectionPerson ?: "Not specified")
                 ProfileInfoRow("Contact", student.collectionContact ?: "Not specified")
+                if (student.vehicleRegistration.isNotBlank()) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
+                    Text(
+                        "Eligible vehicle — the registered car that may collect this child:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = OnPrimary.copy(alpha = 0.12f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Filled.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = OnPrimary
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = student.vehicleRegistration,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = OnPrimary
+                            )
+                        }
+                    }
+                }
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = OutlineVariant)
                 Text(
                     "Transport: A+ Study House does not offer transport services. We can refer parents to PDP registered transport drivers.",

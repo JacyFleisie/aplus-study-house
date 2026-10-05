@@ -328,6 +328,33 @@ fun StudentCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = OnSurfaceVariant
                 )
+                if (student.vehicleRegistration.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = OnPrimary.copy(alpha = 0.12f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Filled.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = OnPrimary
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = student.vehicleRegistration,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnPrimary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
             }
 
             Surface(

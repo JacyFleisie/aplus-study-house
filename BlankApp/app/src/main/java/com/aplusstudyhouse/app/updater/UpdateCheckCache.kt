@@ -10,6 +10,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import com.aplusstudyhouse.app.updater.UpdateInfo
 
 /**
  * Caches the result of the latest update check so the app can surface an
@@ -41,7 +42,18 @@ object UpdateCheckCache {
         val downloadUrl: String?,
         val apkSizeBytes: Long,
         val notes: String
-    )
+    ) {
+        /** Converts back to the [UpdateInfo] the rest of the app consumes. */
+        fun toUpdateInfo(): UpdateInfo = UpdateInfo(
+            available = available,
+            currentVersion = currentVersion,
+            latestVersion = latestVersion,
+            releaseUrl = releaseUrl,
+            downloadUrl = downloadUrl,
+            apkSizeBytes = apkSizeBytes,
+            notes = notes
+        )
+    }
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -75,8 +87,8 @@ object UpdateCheckCache {
     suspend fun clear(context: Context) =
         withContext(Dispatchers.IO) { prefs(context).edit().clear().apply() }
 
-    fun isStale(checkedAtMs: Long, nowMs: Long = System.currentTimeMillis()): Boolean =
-        checkedAtMs <= 0L || nowMs - checkedAtMs >= MAX_AGE_MS
+    fun isStale(checkedAtMs: Long, nowMs: Long = System.currentTimeMillis()): Boolean
+        = checkedAtMs <= 0L || nowMs - checkedAtMs >= MAX_AGE_MS
 
     private fun UpdateInfo.toCached() =
         CachedUpdate(
@@ -89,15 +101,3 @@ object UpdateCheckCache {
             notes = notes
         )
 }
-
-/** Converts a cached result back into the [UpdateInfo] the UI consumes. */
-internal fun UpdateCheckCache.CachedUpdate.toUpdateInfo() =
-    UpdateInfo(
-        available = available,
-        currentVersion = currentVersion,
-        latestVersion = latestVersion,
-        releaseUrl = releaseUrl,
-        downloadUrl = downloadUrl,
-        apkSizeBytes = apkSizeBytes,
-        notes = notes
-    )

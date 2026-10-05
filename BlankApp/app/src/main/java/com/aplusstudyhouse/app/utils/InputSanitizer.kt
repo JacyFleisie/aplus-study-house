@@ -98,10 +98,9 @@ object InputSanitizer {
     }
 
     /**
-     * Sanitize vehicle registration (e.g., ABC123GP).
+     * Sanitize vehicle registration (e.g., ABC123GP). Kept member-accessible
+     * from SupabaseRepository (used in the application->student copy path).
      */
-    fun sanitizeVehicleReg(reg: String): String {
-        return reg.trim().uppercase()
-            .replace(Regex("[^A-Z0-9]"), "")
-    }
+    fun sanitizeVehicleReg(reg: String): String =
+        reg.trim().uppercase().replace(Regex("[^A-Z0-9]"), "")
 }

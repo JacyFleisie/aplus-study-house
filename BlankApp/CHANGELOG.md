@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.18] — 2026-10-05
+
+### Added
+- Vehicle registration number shown prominently on the child profile for staff, and on student cards in the admin list — so the adult collecting a child can be verified instantly
+- Registration photos now also appear in the admin application review (in addition to the child profile, children list and parent profile)
+- Photo removal: parents can clear a child's photo from the child profile; the stored image object is deleted, not just unlinked
+- A startup photo-cleanup sweep (throttled to once per 24 h) deletes orphaned photos from rejected applications while never touching any photo a student row still references
+- The photo picked during registration is cached in internal storage so an app restart mid-registration does not force the parent to re-pick
+
+### Changed
+- Admin student profile and cards now display a photo or initialise-style avatar (using the shared `StudentAvatar` component) instead of always showing initials
+
+### Fixed
+- Update-check cache import error that could break compile on a clean build
+
 ## [1.6.17] — 2026-10-05
 
 ### Added

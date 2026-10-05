@@ -24,7 +24,6 @@ import com.aplusstudyhouse.app.data.AuthRepository
 import com.aplusstudyhouse.app.ui.theme.*
 import com.aplusstudyhouse.app.updater.AppUpdater
 import com.aplusstudyhouse.app.updater.UpdateCheckCache
-import com.aplusstudyhouse.app.updater.toUpdateInfo
 import com.aplusstudyhouse.app.updater.UpdateInfo
 import kotlinx.coroutines.launch
 
