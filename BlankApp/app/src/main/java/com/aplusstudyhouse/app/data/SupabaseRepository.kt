@@ -562,6 +562,24 @@ object SupabaseRepository {
             }
         }
 
+    /**
+     * Fetch all school fee values from app_config (migration 013).
+     * Returns [FeeConfig] with hardcoded fallbacks when the backend is
+     * unreachable or a key is missing, so invoicing never breaks entirely.
+     */
+    suspend fun getFeeConfig(): FeeConfig =
+        withContext(Dispatchers.IO) {
+            FeeConfig(
+                registrationFee = getAppConfig("registration_fee")?.toDoubleOrNull() ?: DEFAULT_REGISTRATION_FEE,
+                monthlyFeeFirstChild =
+                    getAppConfig("monthly_fee_first_child")?.toDoubleOrNull() ?: DEFAULT_MONTHLY_FEE_FIRST_CHILD,
+                monthlyFeeSibling =
+                    getAppConfig("monthly_fee_sibling")?.toDoubleOrNull() ?: DEFAULT_MONTHLY_FEE_SIBLING,
+                projectFeeGrade6 =
+                    getAppConfig("project_fee_grade_6")?.toDoubleOrNull() ?: DEFAULT_PROJECT_FEE_GRADE_6
+            )
+        }
+
     // ============================================
     // ATTENDANCE + DAILY FEES
     // ============================================
@@ -1513,6 +1531,7 @@ object SupabaseRepository {
         withContext(Dispatchers.IO) {
             if (!isUsingBackend()) return@withContext 0
             try {
+                val fees = getFeeConfig()
                 // Get all active students
                 val studentsResult =
                     SupabaseConfig.supabaseGet(
@@ -1546,8 +1565,8 @@ object SupabaseRepository {
                             put("student_id", studentId)
                             put(
                                 "amount",
-                                if (i == 0) 1700.00 else 1650.00
-                            ) // Monthly school fee: R1700 first child, R1650 siblings
+                                if (i == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling
+                            ) // Monthly school fee from app_config: first child vs sibling
                             put("description", "Monthly School Fee")
                             put("status", "pending")
                             put("category", "registration")
@@ -1874,13 +1893,15 @@ object SupabaseRepository {
 
                 if (studentId.isNotBlank()) {
                     attachApplicationPhoto(appObj.optString("student_photo_path"), parentId, studentId)
-                    // Generate registration fee invoice (R500) — due_date is a real date column,
-                    // so compute the ISO date client-side instead of sending SQL expressions
+                    val fees = getFeeConfig()
+                    // Generate registration fee invoice (configurable via app_config)
+                    // due_date is a real date column, so compute the ISO date client-side
+                    // instead of sending SQL expressions
                     val dueIn30Days = java.time.LocalDate.now().plusDays(30).toString()
                     val registrationInvoice =
                         JSONObject().apply {
                             put("student_id", studentId)
-                            put("amount", 500.00)
+                            put("amount", fees.registrationFee)
                             put("description", "Registration Fee")
                             put("status", "pending")
                             put("category", "registration")
@@ -1897,7 +1918,7 @@ object SupabaseRepository {
                         "studentId=$studentId type=registration result=${regResult != null}"
                     )
 
-                    // Auto-generate Project Fee (R380) for Grade 6 students in Q3
+                    // Auto-generate Project Fee (configurable via app_config) for Grade 6 students in Q3
                     val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
                     val isQ3 = currentMonth in 7..9
                     val isGrade6 = appObj.optInt("student_grade", 0) == 6
@@ -1905,7 +1926,7 @@ object SupabaseRepository {
                         val projectInvoice =
                             JSONObject().apply {
                                 put("student_id", studentId)
-                                put("amount", 380.00)
+                                put("amount", fees.projectFeeGrade6)
                                 put("description", "Project Fee — Q3 2026 (Grade 6)")
                                 put("status", "pending")
                                 put("category", "project")
@@ -2324,6 +2345,21 @@ object SupabaseRepository {
 }
 
 /**
+ * Normalize a DOB string: empty/blank → JSON NULL, dd/MM/yyyy → ISO yyyy-MM-dd.
+ */
+private fun normalizeDob(dob: String): Any {
+    val clean = InputSanitizer.sanitizeText(dob)
+    if (clean.isBlank()) return JSONObject.NULL
+    val parts = clean.split("/")
+    val iso = if (parts.size == 3 && parts[2].length == 4) {
+        "%04d-%02d-%02d".format(parts[2].toInt(), parts[1].toInt(), parts[0].toInt())
+    } else {
+        clean
+    }
+    return iso
+}
+
+/**
  * Build the JSON body for an applications insert from a [RegistrationDraft],
  * mapping the collected UI fields onto the real database columns.
  * `child_first_name`/`child_last_name` are included so the app's status screen
@@ -2332,7 +2368,8 @@ object SupabaseRepository {
  */
 fun RegistrationDraft.toApplicationJson(
     parentId: String,
-    studentPhotoPath: String = ""
+    studentPhotoPath: String = "",
+    registrationFee: Double = DEFAULT_REGISTRATION_FEE
 ): JSONObject {
     val parts = studentName.trim().split(Regex("\\s+"), limit = 2)
     val first = InputSanitizer.sanitizeName(parts.firstOrNull() ?: "")
@@ -2344,22 +2381,7 @@ fun RegistrationDraft.toApplicationJson(
         put("child_first_name", first)
         put("child_last_name", last)
         put("student_grade", InputSanitizer.sanitizeGrade(grade) ?: grade)
-        // student_dob is a DATE column: send JSON null when unknown (an empty
-        // string is rejected with `invalid input syntax for type date`), and
-        // normalise dd/MM/yyyy from the date picker to ISO yyyy-MM-dd.
-        val dobClean = InputSanitizer.sanitizeText(dob)
-        if (dobClean.isBlank()) {
-            put("student_dob", JSONObject.NULL)
-        } else {
-            val dobParts = dobClean.split("/")
-            val dobIso =
-                if (dobParts.size == 3 && dobParts[2].length == 4) {
-                    "%04d-%02d-%02d".format(dobParts[2].toInt(), dobParts[1].toInt(), dobParts[0].toInt())
-                } else {
-                    dobClean
-                }
-            put("student_dob", dobIso)
-        }
+        put("student_dob", normalizeDob(dob))
         put("student_school", InputSanitizer.sanitizeText(school))
         put("student_address", InputSanitizer.sanitizeText(address))
         put("student_gender", gender)
@@ -2404,10 +2426,24 @@ fun RegistrationDraft.toApplicationJson(
         put("photo_consent", photoConsent)
         put("signature_data", InputSanitizer.sanitizeName(parentSignature))
         put("payment_method", paymentMethod)
-        put("payment_amount", 500.00)
+        put("payment_amount", registrationFee)
         put("status", "submitted")
     }
 }
+
+/** Default fee values (R) — used as fallbacks when app_config is unavailable. */
+private const val DEFAULT_REGISTRATION_FEE = 500.0
+private const val DEFAULT_MONTHLY_FEE_FIRST_CHILD = 1700.0
+private const val DEFAULT_MONTHLY_FEE_SIBLING = 1650.0
+private const val DEFAULT_PROJECT_FEE_GRADE_6 = 380.0
+
+/** School fees fetched from app_config with safe fallbacks (see migration 013_fee_config.sql). */
+data class FeeConfig(
+    val registrationFee: Double = DEFAULT_REGISTRATION_FEE,
+    val monthlyFeeFirstChild: Double = DEFAULT_MONTHLY_FEE_FIRST_CHILD,
+    val monthlyFeeSibling: Double = DEFAULT_MONTHLY_FEE_SIBLING,
+    val projectFeeGrade6: Double = DEFAULT_PROJECT_FEE_GRADE_6
+)
 
 /** Result of generateAttendanceInvoice. */
 data class AttendanceInvoiceResult(

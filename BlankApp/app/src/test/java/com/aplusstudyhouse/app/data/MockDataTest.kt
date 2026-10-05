@@ -196,11 +196,14 @@ class MockDataTest {
     }
 
     @Test
-    fun `registration fee invoices are R500`() {
-        val regFee = 500.00
+    fun `registration fee invoices match FeeConfig default`() {
+        val regFee = FeeConfig().registrationFee
         val registrationInvoices = mockInvoices.filter { it.category == InvoiceCategory.REGISTRATION }
         registrationInvoices.forEach { invoice ->
-            assertEquals("Registration invoice ${invoice.id} should be R500", regFee, invoice.amount, 0.01)
+            assertEquals(
+                "Registration fee should be R${regFee.toInt()}",
+                regFee, invoice.amount, 0.01
+            )
         }
     }
 
@@ -359,11 +362,11 @@ class MockDataTest {
     }
 
     @Test
-    fun `registration fee is R500`() {
-        val regFee = 500.00
+    fun `registration fee matches FeeConfig default`() {
+        val regFee = FeeConfig().registrationFee
         val registrationInvoices = mockInvoices.filter { it.category == InvoiceCategory.REGISTRATION }
         registrationInvoices.forEach { invoice ->
-            assertEquals("Registration fee should be R500", regFee, invoice.amount, 0.01)
+            assertEquals("Registration fee should be R${regFee.toInt()}", regFee, invoice.amount, 0.01)
         }
     }
 }

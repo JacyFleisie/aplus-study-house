@@ -94,4 +94,38 @@ class SupabaseRepositoryTest {
             assertTrue("P001 sees the student", p001.any { it.id == "S_TEST" })
             assertTrue("P002 sees no student", p002.isEmpty())
         }
+
+    // ============================================
+    // FEE CONFIG
+    // ============================================
+
+    @Test
+    fun `getFeeConfig returns defaults in mock mode`() =
+        kotlinx.coroutines.runBlocking {
+            val fees = SupabaseRepository.getFeeConfig()
+            assertEquals(
+                "Registration fee default should match FeeConfig default",
+                FeeConfig().registrationFee,
+                fees.registrationFee,
+                0.01
+            )
+            assertEquals(
+                "Monthly first-child fee default should match FeeConfig default",
+                FeeConfig().monthlyFeeFirstChild,
+                fees.monthlyFeeFirstChild,
+                0.01
+            )
+            assertEquals(
+                "Monthly sibling fee default should match FeeConfig default",
+                FeeConfig().monthlyFeeSibling,
+                fees.monthlyFeeSibling,
+                0.01
+            )
+            assertEquals(
+                "Project fee default should match FeeConfig default",
+                FeeConfig().projectFeeGrade6,
+                fees.projectFeeGrade6,
+                0.01
+            )
+        }
 }

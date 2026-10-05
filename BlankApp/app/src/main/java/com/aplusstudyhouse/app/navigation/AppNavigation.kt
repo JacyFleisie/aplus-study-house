@@ -523,7 +523,10 @@ fun AppNavigation(
                                 submitSucceeded = false
                                 return@launch
                             }
-                            val draftJson = registrationDraft.toApplicationJson(parentId, photoKey.orEmpty())
+                            val fees = SupabaseRepository.getFeeConfig()
+                            val draftJson = registrationDraft.toApplicationJson(
+                                parentId, photoKey.orEmpty(), fees.registrationFee
+                            )
                             AuditLogger.log("registration_submit_start", "parentId=$parentId photoKey=$photoKey")
                             val created =
                                 SupabaseRepository.createApplication(
