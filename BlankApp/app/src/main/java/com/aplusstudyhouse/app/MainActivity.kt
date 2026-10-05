@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.aplusstudyhouse.app.navigation.AppNavigation
 import com.aplusstudyhouse.app.ui.theme.AplusStudyHouseTheme
 import com.aplusstudyhouse.app.updater.UpdateStartupChecker
+import com.aplusstudyhouse.app.utils.PhotoCleanup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,6 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         UpdateStartupChecker.schedule(this)
+        PhotoCleanup.schedule(this)
         setContent {
             AplusStudyHouseTheme {
                 val navController = rememberNavController()

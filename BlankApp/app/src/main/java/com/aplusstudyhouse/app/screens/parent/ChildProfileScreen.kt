@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.*
 import com.aplusstudyhouse.app.ui.components.StudentAvatar
@@ -568,6 +569,26 @@ fun ChildProfileScreen(
         }
     }
 
+    // Parents can withdraw a photo they no longer want stored (the student keeps
+    // working with initials).
+    val removePhoto: () -> Unit = {
+        val path = student.photoPath
+        if (path.isNotBlank()) {
+            photoUploadState = PhotoUploadState.Uploading
+            scope.launch {
+                if (SupabaseRepository.setStudentPhotoPath(studentId, "")) {
+                    SupabaseRepository.deletePhoto(path)
+                    studentState = student.copy(photoPath = "")
+                    pendingPhoto = null
+                    photoSheetVisible = false
+                    photoUploadState = PhotoUploadState.Saved
+                } else {
+                    photoUploadState = PhotoUploadState.Failed
+                }
+            }
+        }
+    }
+
     if (photoSheetVisible) {
         ModalBottomSheet(onDismissRequest = { photoSheetVisible = false }) {
             Column(
@@ -611,6 +632,23 @@ fun ChildProfileScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
                     Text("Save photo", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                }
+
+                if (student.photoPath.isNotBlank() && pendingPhoto == null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = removePhoto,
+                        enabled = photoUploadState != PhotoUploadState.Uploading,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Remove photo", color = Error, fontWeight = FontWeight.SemiBold)
+                    }
+                    Text(
+                        "Removing deletes the stored image. Staff will see initials again.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }

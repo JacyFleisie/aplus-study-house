@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.*
+import com.aplusstudyhouse.app.ui.components.StudentAvatar
 import com.aplusstudyhouse.app.ui.theme.*
 
 // ============================================
@@ -117,20 +118,12 @@ fun AdminStudentProfileScreen(
                             .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(80.dp)
-                                .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = OnPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    StudentAvatar(
+                        student = student,
+                        size = 96.dp,
+                        background = OnPrimary.copy(alpha = 0.2f),
+                        foreground = OnPrimary
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "${student.firstName} ${student.lastName}",
@@ -581,20 +574,12 @@ fun AdminParentProfileScreen(
                                     .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(40.dp)
-                                        .background(PrimaryContainer, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Primary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                            StudentAvatar(
+                                student = student,
+                                size = 40.dp,
+                                background = PrimaryContainer,
+                                foreground = Primary
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(

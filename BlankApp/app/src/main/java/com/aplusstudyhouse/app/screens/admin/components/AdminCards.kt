@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.*
+import com.aplusstudyhouse.app.ui.components.StudentAvatar
 import com.aplusstudyhouse.app.ui.theme.*
 
 // ============================================
@@ -296,32 +297,22 @@ fun StudentCard(
                     .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(48.dp)
-                        .background(
-                            when (student.status) {
-                                StudentStatus.ACTIVE -> PrimaryContainer
-                                StudentStatus.PENDING -> WarningContainer
-                                StudentStatus.INACTIVE -> ErrorContainer
-                            },
-                            CircleShape
-                        ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color =
-                        when (student.status) {
-                            StudentStatus.ACTIVE -> Primary
-                            StudentStatus.PENDING -> Warning
-                            StudentStatus.INACTIVE -> Error
-                        },
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            StudentAvatar(
+                student = student,
+                size = 48.dp,
+                background =
+                    when (student.status) {
+                        StudentStatus.ACTIVE -> PrimaryContainer
+                        StudentStatus.PENDING -> WarningContainer
+                        StudentStatus.INACTIVE -> ErrorContainer
+                    },
+                foreground =
+                    when (student.status) {
+                        StudentStatus.ACTIVE -> Primary
+                        StudentStatus.PENDING -> Warning
+                        StudentStatus.INACTIVE -> Error
+                    }
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 

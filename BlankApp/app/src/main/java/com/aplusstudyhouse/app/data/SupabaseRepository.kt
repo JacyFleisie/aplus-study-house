@@ -190,19 +190,42 @@ object SupabaseRepository {
     }
 
     /** Best-effort removal of a superseded photo object. */
-    suspend fun deletePhoto(photoPath: String): Boolean {
-        if (photoPath.isBlank() || !isUsingBackend()) return false
-        return try {
-            SupabaseConfig.supabaseStorageDelete(
-                bucket = PhotoPolicy.BUCKET,
-                path = photoPath,
-                authToken = authToken()
-            )
-        } catch (e: IOException) {
-            Log.w(TAG, "Photo delete failed: ${e.message}")
+    suspend fun deletePhoto(photoPath: String): Boolean =
+        if (photoPath.isBlank() || !isUsingBackend()) {
             false
+        } else {
+            try {
+                SupabaseConfig.supabaseStorageDelete(
+                    bucket = PhotoPolicy.BUCKET,
+                    path = photoPath,
+                    authToken = authToken()
+                )
+            } catch (e: IOException) {
+                Log.w(TAG, "Photo delete failed: ${e.message}")
+                false
+            }
         }
-    }
+
+    /** Clear the photo reference on a rejected application (housekeeping). */
+    suspend fun setApplicationPhotoPath(
+        applicationId: String,
+        photoPath: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                val body = JSONObject().put("student_photo_path", photoPath).toString()
+                SupabaseConfig.supabasePatch(
+                    table = "applications",
+                    body = body,
+                    query = "id=eq.$applicationId",
+                    authToken = authToken()
+                ) != null
+            } catch (e: IOException) {
+                recordError("Application photo update", e)
+                false
+            }
+        }
 
     // ============================================
     // APPLICATIONS

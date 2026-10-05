@@ -13,6 +13,7 @@ import com.aplusstudyhouse.app.data.AuditLogger
 import com.aplusstudyhouse.app.data.AuthRepository
 import com.aplusstudyhouse.app.data.RegistrationDraft
 import com.aplusstudyhouse.app.data.RegistrationDraftStore
+import com.aplusstudyhouse.app.data.RegistrationPhotoStore
 import com.aplusstudyhouse.app.data.SupabaseRepository
 import com.aplusstudyhouse.app.data.UserRole
 import com.aplusstudyhouse.app.data.toApplicationJson
@@ -30,10 +31,19 @@ fun AppNavigation(
 ) {
     val registrationDraft = remember { RegistrationDraft() }
     var createdApplication by remember { mutableStateOf<com.aplusstudyhouse.app.data.MockApplication?>(null) }
-    // Child photo picked during registration. Held as compressed JPEG bytes in
-    // memory only — it is uploaded on submit, so a resumed draft asks again.
+    // Child photo picked during registration. Mirrored into internal storage
+    // (RegistrationPhotoStore) so a killed app does not force a re-pick.
     var registrationPhoto by remember { mutableStateOf<ByteArray?>(null) }
     val ctx = LocalContext.current
+    val registrationScope = rememberCoroutineScope()
+
+    // Restore a photo that was picked before the app was killed.
+    LaunchedEffect(Unit) {
+        val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
+        if (uid.isNotBlank() && registrationPhoto == null) {
+            registrationPhoto = RegistrationPhotoStore.load(ctx, uid)
+        }
+    }
 
     // Persist the in-progress registration draft to disk so it survives restarts.
     val saveDraft: () -> Unit = {
@@ -215,8 +225,14 @@ fun AppNavigation(
                         val existing = savedDraft
                         if (existing != null) {
                             registrationDraft.apply { copyFrom(existing) }
+                            registrationScope.launch {
+                                registrationPhoto = RegistrationPhotoStore.load(ctx, uid)
+                            }
                         } else {
+                            // Starting over: drop any photo left from a previous attempt.
                             registrationDraft.apply { copyFrom(RegistrationDraft()) }
+                            registrationPhoto = null
+                            registrationScope.launch { RegistrationPhotoStore.clear(ctx, uid) }
                         }
                         navController.navigate(Screen.RegistrationInfoAck.route)
                     },
@@ -226,6 +242,9 @@ fun AppNavigation(
                         val existing = savedDraft
                         if (existing != null) {
                             registrationDraft.apply { copyFrom(existing) }
+                            registrationScope.launch {
+                                registrationPhoto = RegistrationPhotoStore.load(ctx, uid)
+                            }
                             navController.navigate(Screen.RegistrationStudentDetails.route)
                         }
                     },
@@ -278,7 +297,13 @@ fun AppNavigation(
                     },
                     draft = registrationDraft,
                     photoBytes = registrationPhoto,
-                    onPhotoPicked = { bytes -> registrationPhoto = bytes }
+                    onPhotoPicked = { bytes ->
+                        registrationPhoto = bytes
+                        val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
+                        if (uid.isNotBlank()) {
+                            registrationScope.launch { RegistrationPhotoStore.save(ctx, uid, bytes) }
+                        }
+                    }
                 )
             }
         }
@@ -510,6 +535,7 @@ fun AppNavigation(
                                 registrationPhoto = null
                                 val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
                                 RegistrationDraftStore.clear(ctx, uid)
+                                RegistrationPhotoStore.clear(ctx, uid)
                             } else {
                                 AuditLogger.log("registration_submit_fail", "parentId=$parentId")
                             }

@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.17] — 2026-10-05
+
+### Added
+- Photos in the remaining places staff look: admin student profile and the admin student cards
+- Parents can remove a child's photo from the child profile; the stored image is deleted, not just hidden
+- Photo housekeeping: a throttled startup sweep (once per 6 hours) deletes the photo of a rejected application, but never a photo a student row still points at
+- The photo picked during registration is now kept in internal storage, so an app restart mid-registration no longer forces the parent to pick it again
+
+### Changed
+- Adaptive launcher icon (API 26+) built from the existing brand art, so launchers no longer shrink the logo
+- Launch theme renamed from the Android Studio template default `Theme.BlankApp` to `Theme.APlusStudyHouse`, and the window/splash colours changed from template purple to the brand maroon
+
 ## [1.6.16] — 2026-10-05
 
 ### Added
