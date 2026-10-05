@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.6.16] — 2026-10-05
+
+### Added
+- **Child profile photos**: a photo is now required when registering a child (camera or gallery) and is stored in a private Supabase Storage bucket
+- Photo shown on the child's profile, on the parent's children list, and next to the application in the admin review screen
+- Parents can add or replace a child's photo at any time from the child profile ("Profile Photo" → Update)
+- Photos are downscaled to 1024 px and re-encoded as JPEG under 2 MB before upload; photos stay private (RLS scopes reads and writes to the owning parent's folder plus admins)
+
+### Changed
+- Registration cannot be submitted without a child photo — a failed photo upload blocks the submission instead of silently sending an application with no photo
+- Database migration `012_student_profile_photos.sql`: `students.photo_path`, `applications.student_photo_path`, private `photos` bucket limited to JPEG/PNG/WebP at 2 MB
+
 ## [1.6.15] — 2026-09-29
 
 ### Changed

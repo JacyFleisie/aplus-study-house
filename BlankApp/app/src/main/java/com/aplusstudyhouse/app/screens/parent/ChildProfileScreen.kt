@@ -17,7 +17,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.*
+import com.aplusstudyhouse.app.ui.components.StudentAvatar
+import com.aplusstudyhouse.app.ui.components.StudentPhotoPicker
 import com.aplusstudyhouse.app.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +39,10 @@ fun ChildProfileScreen(
     var studentSports by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var editNoteVisible by remember { mutableStateOf(false) }
+    var photoSheetVisible by remember { mutableStateOf(false) }
+    var pendingPhoto by remember { mutableStateOf<ByteArray?>(null) }
+    var photoUploadState by remember { mutableStateOf<PhotoUploadState>(PhotoUploadState.Idle) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(studentId) {
         try {
@@ -124,20 +131,14 @@ fun ChildProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Avatar
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(80.dp)
-                                .background(OnPrimary.copy(alpha = 0.2f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = OnPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    StudentAvatar(
+                        firstName = student.firstName,
+                        lastName = student.lastName,
+                        photoPath = student.photoPath,
+                        size = 96.dp,
+                        background = OnPrimary.copy(alpha = 0.2f),
+                        foreground = OnPrimary
+                    )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -180,6 +181,30 @@ fun ChildProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
+
+            // Profile Photo Section
+            ProfileSection(
+                title = "Profile Photo",
+                icon = Icons.Filled.PhotoCamera,
+                color = Primary,
+                actionText = "Update",
+                onActionClick = { photoSheetVisible = true }
+            ) {
+                ProfileInfoRow(
+                    "Photo",
+                    when {
+                        photoUploadState == PhotoUploadState.Uploading -> "Saving…"
+                        student.photoPath.isNotBlank() -> "Uploaded"
+                        else -> "Not uploaded"
+                    }
+                )
+                ProfileInfoRow(
+                    "Used for",
+                    "Staff identification at drop-off and collection"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Personal Information Section
             ProfileSection(
@@ -519,6 +544,79 @@ fun ChildProfileScreen(
         }
     }
 
+    // Child photo replacement. The object key changes on every upload so a new
+    // photo is always fetched instead of a cached bitmap.
+    val uploadPhoto: () -> Unit = {
+        val bytes = pendingPhoto
+        if (bytes != null) {
+            photoUploadState = PhotoUploadState.Uploading
+            scope.launch {
+                val parentId = AuthRepository.getCurrentUser()?.id.orEmpty()
+                val previousPath = student.photoPath
+                val newPath = SupabaseRepository.uploadStudentPhoto(parentId, studentId, bytes)
+                if (newPath == null || !SupabaseRepository.setStudentPhotoPath(studentId, newPath)) {
+                    if (newPath != null) SupabaseRepository.deletePhoto(newPath)
+                    photoUploadState = PhotoUploadState.Failed
+                } else {
+                    if (previousPath.isNotBlank()) SupabaseRepository.deletePhoto(previousPath)
+                    studentState = student.copy(photoPath = newPath)
+                    pendingPhoto = null
+                    photoSheetVisible = false
+                    photoUploadState = PhotoUploadState.Saved
+                }
+            }
+        }
+    }
+
+    if (photoSheetVisible) {
+        ModalBottomSheet(onDismissRequest = { photoSheetVisible = false }) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Update photo",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = OnBackground
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                StudentPhotoPicker(
+                    firstName = student.firstName,
+                    lastName = student.lastName,
+                    previewPhotoPath = student.photoPath,
+                    previewPhotoBytes = pendingPhoto,
+                    validationMessage =
+                        when (photoUploadState) {
+                            PhotoUploadState.Failed -> "We could not save that photo. Please try again."
+                            else -> null
+                        },
+                    onPhotoPicked = { bytes ->
+                        pendingPhoto = bytes
+                        photoUploadState = PhotoUploadState.Idle
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = uploadPhoto,
+                    enabled = pendingPhoto != null && photoUploadState != PhotoUploadState.Uploading,
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
+                ) {
+                    Text("Save photo", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+
     // Edit pencil: profile data comes from the approved registration application.
     // Changes must go through the office so records stay auditable.
     if (editNoteVisible) {
@@ -537,6 +635,14 @@ fun ChildProfileScreen(
             }
         )
     }
+}
+
+/** Upload lifecycle for the child's profile photo. */
+private enum class PhotoUploadState {
+    Idle,
+    Uploading,
+    Saved,
+    Failed
 }
 
 @Composable

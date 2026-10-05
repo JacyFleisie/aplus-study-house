@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.*
+import com.aplusstudyhouse.app.ui.components.StudentAvatar
 import com.aplusstudyhouse.app.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -196,6 +197,28 @@ fun ApplicationReviewScreen(
 
                     InfoRow("Name", "${application.studentFirstName} ${application.studentLastName}")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = OutlineVariant)
+                    if (application.studentPhotoPath.isNotBlank()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            StudentAvatar(
+                                firstName = application.studentFirstName,
+                                lastName = application.studentLastName,
+                                photoPath = application.studentPhotoPath,
+                                size = 72.dp,
+                                background = PrimaryContainer,
+                                foreground = Primary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = "Photo supplied with the application — compare it with the child at sign-in.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = OnSurfaceVariant
+                            )
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = OutlineVariant)
+                    }
                     InfoRow("Grade Applied", "Grade ${application.studentGrade}")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = OutlineVariant)
                     InfoRow("Submitted", application.submittedDate)

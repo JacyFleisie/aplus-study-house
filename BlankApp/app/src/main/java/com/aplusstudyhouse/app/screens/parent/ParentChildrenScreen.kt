@@ -250,32 +250,22 @@ fun ChildCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Avatar
-                Box(
-                    modifier =
-                        Modifier
-                            .size(56.dp)
-                            .background(
-                                when (student.status) {
-                                    StudentStatus.ACTIVE -> PrimaryContainer
-                                    StudentStatus.PENDING -> WarningContainer
-                                    StudentStatus.INACTIVE -> ErrorContainer
-                                },
-                                CircleShape
-                            ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "${student.firstName.firstOrNull() ?: ""}${student.lastName.firstOrNull() ?: ""}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color =
-                            when (student.status) {
-                                StudentStatus.ACTIVE -> Primary
-                                StudentStatus.PENDING -> Warning
-                                StudentStatus.INACTIVE -> Error
-                            },
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                StudentAvatar(
+                    student = student,
+                    size = 56.dp,
+                    background =
+                        when (student.status) {
+                            StudentStatus.ACTIVE -> PrimaryContainer
+                            StudentStatus.PENDING -> WarningContainer
+                            StudentStatus.INACTIVE -> ErrorContainer
+                        },
+                    foreground =
+                        when (student.status) {
+                            StudentStatus.ACTIVE -> Primary
+                            StudentStatus.PENDING -> Warning
+                            StudentStatus.INACTIVE -> Error
+                        }
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 

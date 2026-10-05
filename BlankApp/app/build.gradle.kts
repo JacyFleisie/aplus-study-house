@@ -109,8 +109,8 @@ if (supabasePropertiesFile.exists()) {
 // latest GitHub release tag, so these MUST be bumped together on every
 // release. Bump appVersionCode by 1 and appVersionName to the tag name
 // (without the leading 'v').
-val appVersionCode = 43
-val appVersionName = "1.6.15"
+val appVersionCode = 44
+val appVersionName = "1.6.16"
 
 android {
     namespace = "com.aplusstudyhouse.app"
@@ -233,6 +233,9 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // EXIF orientation for child profile photos taken with the camera
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.50")

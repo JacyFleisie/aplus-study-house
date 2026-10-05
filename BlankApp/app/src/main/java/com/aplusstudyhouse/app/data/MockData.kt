@@ -63,6 +63,8 @@ data class MockStudent(
     val teacherName: String = "",
     val lsen: Boolean = false,
     val signatureData: String = "",
+    /** Storage key in the private 'photos' bucket, e.g. "<parentUid>/<studentUid>.jpg". */
+    val photoPath: String = "",
     val sports: List<String> = emptyList(),
     val collectionPerson: String? = null,
     val collectionContact: String? = null,
@@ -159,6 +161,8 @@ data class MockApplication(
     val doctorName: String = "",
     val medicalAidName: String = "",
     val photoConsent: Boolean = false,
+    /** Storage key in the private 'photos' bucket, captured during registration. */
+    val studentPhotoPath: String = "",
     val paymentAmount: Double = 500.0,
     val paymentProofUrl: String? = null
 )

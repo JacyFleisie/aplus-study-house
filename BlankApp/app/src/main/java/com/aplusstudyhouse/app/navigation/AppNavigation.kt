@@ -30,6 +30,9 @@ fun AppNavigation(
 ) {
     val registrationDraft = remember { RegistrationDraft() }
     var createdApplication by remember { mutableStateOf<com.aplusstudyhouse.app.data.MockApplication?>(null) }
+    // Child photo picked during registration. Held as compressed JPEG bytes in
+    // memory only — it is uploaded on submit, so a resumed draft asks again.
+    var registrationPhoto by remember { mutableStateOf<ByteArray?>(null) }
     val ctx = LocalContext.current
 
     // Persist the in-progress registration draft to disk so it survives restarts.
@@ -273,7 +276,9 @@ fun AppNavigation(
                         saveDraft()
                         navController.navigate(Screen.RegistrationSportsActivities.route)
                     },
-                    draft = registrationDraft
+                    draft = registrationDraft,
+                    photoBytes = registrationPhoto,
+                    onPhotoPicked = { bytes -> registrationPhoto = bytes }
                 )
             }
         }
@@ -476,8 +481,25 @@ fun AppNavigation(
                     },
                     onSubmit = { parentId ->
                         scope.launch {
-                            val draftJson = registrationDraft.toApplicationJson(parentId)
-                            AuditLogger.log("registration_submit_start", "parentId=$parentId draftJson=$draftJson")
+                            val photoBytes = registrationPhoto
+                            val photoKey =
+                                if (photoBytes == null) {
+                                    null
+                                } else {
+                                    SupabaseRepository.uploadStudentPhoto(
+                                        parentId = parentId,
+                                        ownerId = "registration_${System.currentTimeMillis()}",
+                                        bytes = photoBytes
+                                    )
+                                }
+                            if (photoKey == null) {
+                                // A child's photo is mandatory — never submit without it.
+                                AuditLogger.log("registration_submit_fail", "child photo missing or upload failed")
+                                submitSucceeded = false
+                                return@launch
+                            }
+                            val draftJson = registrationDraft.toApplicationJson(parentId, photoKey.orEmpty())
+                            AuditLogger.log("registration_submit_start", "parentId=$parentId photoKey=$photoKey")
                             val created =
                                 SupabaseRepository.createApplication(
                                     draftJson,
@@ -485,6 +507,7 @@ fun AppNavigation(
                                 )
                             if (created != null) {
                                 AuditLogger.log("registration_submit_ok", "appId=${created.id}")
+                                registrationPhoto = null
                                 val uid = AuthRepository.getCurrentUser()?.id.orEmpty()
                                 RegistrationDraftStore.clear(ctx, uid)
                             } else {

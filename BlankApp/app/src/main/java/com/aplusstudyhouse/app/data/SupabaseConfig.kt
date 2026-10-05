@@ -296,4 +296,64 @@ object SupabaseConfig {
                 null
             }
         }
+
+    /**
+     * Download a file from a private Supabase Storage bucket.
+     *
+     * The auth token matters: RLS decides whether the caller may read the object,
+     * so a parent can only fetch photos from their own folder.
+     *
+     * @param bucket e.g. "photos"
+     * @param path   object path inside the bucket, e.g. "{parentId}/{studentId}.jpg"
+     * @return the raw bytes, or null when the object is missing or not readable.
+     */
+    suspend fun supabaseStorageDownload(
+        bucket: String,
+        path: String,
+        authToken: String? = null
+    ): ByteArray? =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "$SUPABASE_URL/storage/v1/object/$bucket/$path"
+                val builder =
+                    Request.Builder()
+                        .url(url)
+                        .get()
+                        .addHeader("apikey", SUPABASE_ANON_KEY)
+                        .addHeader("Authorization", "Bearer ${authToken ?: SUPABASE_ANON_KEY}")
+                        .addHeader("Accept", "image/jpeg, image/png, image/webp")
+
+                val response = httpClient.newCall(builder.build()).execute()
+                if (response.isSuccessful) response.body?.bytes() else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    /**
+     * Delete an object from a private storage bucket (used to drop a child's
+     * previous photo after a replacement was stored).
+     *
+     * @return true when the object is gone (or already was).
+     */
+    suspend fun supabaseStorageDelete(
+        bucket: String,
+        path: String,
+        authToken: String? = null
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "$SUPABASE_URL/storage/v1/object/$bucket/$path"
+                val builder =
+                    Request.Builder()
+                        .url(url)
+                        .delete()
+                        .addHeader("apikey", SUPABASE_ANON_KEY)
+                        .addHeader("Authorization", "Bearer ${authToken ?: SUPABASE_ANON_KEY}")
+
+                httpClient.newCall(builder.build()).execute().isSuccessful
+            } catch (e: Exception) {
+                false
+            }
+        }
 }

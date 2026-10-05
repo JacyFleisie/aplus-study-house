@@ -39,7 +39,7 @@
     <ID>CyclomaticComplexMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>CyclomaticComplexMethod:RegistrationPaymentScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationPaymentScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null )</ID>
     <ID>CyclomaticComplexMethod:RegistrationViewModel.kt$RegistrationViewModel$fun validateCurrentStep(): Boolean</ID>
-    <ID>CyclomaticComplexMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>CyclomaticComplexMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null, photoBytes: ByteArray? = null, onPhotoPicked: (ByteArray) -&gt; Unit = {} )</ID>
     <ID>CyclomaticComplexMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun createStudentFromApplication(applicationId: String): Boolean</ID>
     <ID>EmptyCatchBlock:AdminFinancePaymentScreen.kt${ }</ID>
     <ID>ForbiddenComment:AdminFinancePaymentScreen.kt$// TODO: implement delete</ID>
@@ -141,6 +141,7 @@
     <ID>FunctionNaming:ParentProfileScreen.kt$@Composable fun SettingsItem( icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
     <ID>FunctionNaming:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:PhotoPicker.kt$@Composable fun StudentPhotoPicker( firstName: String, lastName: String, onPhotoPicked: (ByteArray) -&gt; Unit, modifier: Modifier = Modifier, previewPhotoPath: String = "", previewPhotoBytes: ByteArray? = null, avatarSize: Dp = 120.dp, validationMessage: String? = null )</ID>
     <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun BankDetailRow( label: String, value: String )</ID>
     <ID>FunctionNaming:RegistrationComponents.kt$@Composable fun FormInfoItem(text: String)</ID>
@@ -173,7 +174,9 @@
     <ID>FunctionNaming:SplashScreen.kt$@Composable fun SplashScreen(onSplashComplete: () -&gt; Unit)</ID>
     <ID>FunctionNaming:SportsActivitiesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SportsActivitiesScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (sports: List&lt;String&gt;) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
     <ID>FunctionNaming:StationeryListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StationeryListScreen(onBackClick: () -&gt; Unit)</ID>
-    <ID>FunctionNaming:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>FunctionNaming:StudentAvatar.kt$@Composable fun StudentAvatar( firstName: String, lastName: String, modifier: Modifier = Modifier, photoPath: String = "", size: Dp = 80.dp, background: Color = AvatarBackground, foreground: Color = AvatarForeground )</ID>
+    <ID>FunctionNaming:StudentAvatar.kt$@Composable fun StudentAvatar( student: MockStudent, modifier: Modifier = Modifier, size: Dp = 80.dp, background: Color = AvatarBackground, foreground: Color = AvatarForeground )</ID>
+    <ID>FunctionNaming:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null, photoBytes: ByteArray? = null, onPhotoPicked: (ByteArray) -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:Theme.kt$@Composable fun AplusStudyHouseTheme( darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -&gt; Unit )</ID>
     <ID>FunctionOnlyReturningConstant:MockData.kt$fun toUserFriendlyMessage(): String</ID>
     <ID>FunctionOnlyReturningConstant:PayFastRepository.kt$PayFastRepository$internal fun buildQueryString(data: JSONObject): String</ID>
@@ -234,6 +237,7 @@
     <ID>LongMethod:ParentProfileScreen.kt$@Composable fun ParentProfileScreen( onLogout: () -&gt; Unit, onNavigateToAbout: () -&gt; Unit = {}, onNavigateToNotifications: () -&gt; Unit = {}, onChangePassword: () -&gt; Unit = {}, onOpenPrivacySecurity: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:ParentProfileScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ParentAboutScreen(onBack: () -&gt; Unit)</ID>
     <ID>LongMethod:PaymentSuccessScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PaymentSuccessScreen(onBackClick: () -&gt; Unit)</ID>
+    <ID>LongMethod:PhotoPicker.kt$@Composable fun StudentPhotoPicker( firstName: String, lastName: String, onPhotoPicked: (ByteArray) -&gt; Unit, modifier: Modifier = Modifier, previewPhotoPath: String = "", previewPhotoBytes: ByteArray? = null, avatarSize: Dp = 120.dp, validationMessage: String? = null )</ID>
     <ID>LongMethod:RegistrationComponents.kt$@Composable fun ApplicationTimelineStep( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>LongMethod:RegistrationGate.kt$@Composable fun RegistrationRequiredScreen(onRegisterChild: () -&gt; Unit)</ID>
     <ID>LongMethod:RegistrationInfoAckScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RegistrationInfoAckScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onAcknowledged: () -&gt; Unit )</ID>
@@ -246,18 +250,21 @@
     <ID>LongMethod:SplashScreen.kt$@Composable fun SplashScreen(onSplashComplete: () -&gt; Unit)</ID>
     <ID>LongMethod:SportsActivitiesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SportsActivitiesScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: (sports: List&lt;String&gt;) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
     <ID>LongMethod:StationeryListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StationeryListScreen(onBackClick: () -&gt; Unit)</ID>
-    <ID>LongMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null )</ID>
+    <ID>LongMethod:StudentDetailsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StudentDetailsScreen( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null, photoBytes: ByteArray? = null, onPhotoPicked: (ByteArray) -&gt; Unit = {} )</ID>
     <ID>LongMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun createStudentFromApplication(applicationId: String): Boolean</ID>
     <ID>LongMethod:SupabaseRepository.kt$SupabaseRepository$suspend fun getAllParents(): List&lt;MockUser&gt;</ID>
-    <ID>LongMethod:SupabaseRepository.kt$fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject</ID>
+    <ID>LongMethod:SupabaseRepository.kt$fun RegistrationDraft.toApplicationJson( parentId: String, studentPhotoPath: String = "" ): JSONObject</ID>
     <ID>LongParameterList:AdminFinancePaymentScreen.kt$( invoice: MockInvoice, studentName: String, parentName: String, parentPhone: String = "", isSelected: Boolean = false, onSelectionChange: (Boolean) -&gt; Unit = {}, onMarkAsSent: () -&gt; Unit = {}, isSent: Boolean = false )</ID>
     <ID>LongParameterList:ApplicationReviewScreen.kt$( title: String, message: String, confirmText: String, confirmColor: Color, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongParameterList:ChildProfileScreen.kt$( title: String, icon: ImageVector, color: androidx.compose.ui.graphics.Color, actionText: String? = null, onActionClick: (() -&gt; Unit)? = null, content: @Composable ColumnScope.() -&gt; Unit )</ID>
     <ID>LongParameterList:ErrorStates.kt$( isEmpty: Boolean, error: String?, emptyTitle: String = "No data", emptySubtitle: String = "There's nothing to show here yet.", onRetry: (() -&gt; Unit)? = null, content: @Composable () -&gt; Unit )</ID>
     <ID>LongParameterList:FinancePaymentScreen.kt$( invoiceId: String, amount: Double, description: String, studentName: String = "", onBackClick: () -&gt; Unit, onPaymentComplete: () -&gt; Unit, onOpenPaymentStatus: () -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:PhotoPicker.kt$( firstName: String, lastName: String, onPhotoPicked: (ByteArray) -&gt; Unit, modifier: Modifier = Modifier, previewPhotoPath: String = "", previewPhotoBytes: ByteArray? = null, avatarSize: Dp = 120.dp, validationMessage: String? = null )</ID>
     <ID>LongParameterList:RegistrationComponents.kt$( stepNumber: Int, title: String, subtitle: String, date: String, isCompleted: Boolean, isCurrent: Boolean, isError: Boolean = false, isLast: Boolean = false, icon: ImageVector = Icons.Filled.Check )</ID>
     <ID>LongParameterList:RegistrationStartScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onStartRegistration: () -&gt; Unit, onLogout: () -&gt; Unit, onResumeDraft: (() -&gt; Unit)? = null, hasSavedDraft: () -&gt; Boolean = { false } )</ID>
     <ID>LongParameterList:RegistrationSubmitScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onSubmit: (parentId: String) -&gt; Unit, onContinue: () -&gt; Unit, registrationDraft: com.aplusstudyhouse.app.data.RegistrationDraft? = null, submitSucceeded: Boolean? = null )</ID>
+    <ID>LongParameterList:StudentAvatar.kt$( firstName: String, lastName: String, modifier: Modifier = Modifier, photoPath: String = "", size: Dp = 80.dp, background: Color = AvatarBackground, foreground: Color = AvatarForeground )</ID>
+    <ID>LongParameterList:StudentDetailsScreen.kt$( onBackClick: () -&gt; Unit, onExitFlow: () -&gt; Unit, onContinue: ( studentName: String, grade: Int, school: String, dob: String, address: String, gender: String, classNr: String, teacherName: String, lsen: Boolean ) -&gt; Unit, draft: RegistrationDraft? = null, photoBytes: ByteArray? = null, onPhotoPicked: (ByteArray) -&gt; Unit = {} )</ID>
     <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String? = null )</ID>
     <ID>LongParameterList:SupabaseRepository.kt$SupabaseRepository$( invoiceId: String, studentId: String, parentId: String, amount: Double, paymentMethod: String, proofUrl: String?, batchId: String? )</ID>
     <ID>MagicNumber:AdminFinancePaymentScreen.kt$20</ID>
@@ -362,6 +369,8 @@
     <ID>MagicNumber:RouteGuard.kt$100</ID>
     <ID>MagicNumber:SplashScreen.kt$100</ID>
     <ID>MagicNumber:SplashScreen.kt$800</ID>
+    <ID>MagicNumber:StudentAvatar.kt$0xFF3730A3</ID>
+    <ID>MagicNumber:StudentAvatar.kt$0xFFE0E7FF</ID>
     <ID>MagicNumber:SupabaseConfig.kt$SupabaseConfig$200</ID>
     <ID>MagicNumber:SupabaseConfig.kt$SupabaseConfig$30</ID>
     <ID>MagicNumber:SupabaseRealtime.kt$SupabaseRealtime$1000</ID>

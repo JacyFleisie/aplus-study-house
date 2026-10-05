@@ -2,11 +2,13 @@ package com.aplusstudyhouse.app.data
 
 import android.util.Log
 import com.aplusstudyhouse.app.utils.InputSanitizer
+import com.aplusstudyhouse.app.utils.PhotoPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.IOException
 
 /**
  * Supabase Data Repository
@@ -109,6 +111,98 @@ object SupabaseRepository {
                 mockStudents.find { it.id == studentId }
             }
         }
+
+    // ============================================
+    // STUDENT PROFILE PHOTOS
+    // ============================================
+
+    /**
+     * Upload a child's photo into the private 'photos' bucket.
+     *
+     * [parentId] must be the uploader's auth uid: the storage RLS policies only
+     * allow writes inside the caller's own folder.
+     *
+     * @return the stored object key ("<parentUid>/<ownerId>.jpg") or null on failure.
+     */
+    suspend fun uploadStudentPhoto(
+        parentId: String,
+        ownerId: String,
+        bytes: ByteArray
+    ): String? =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext null
+            val path = PhotoPolicy.objectPath(parentId, "$ownerId-${System.currentTimeMillis()}")
+            try {
+                val stored =
+                    SupabaseConfig.supabaseStorageUpload(
+                        bucket = PhotoPolicy.BUCKET,
+                        path = path,
+                        bytes = bytes,
+                        contentType = "image/jpeg",
+                        authToken = authToken()
+                    )
+                AuditLogger.log("uploadStudentPhoto_${if (stored != null) "ok" else "fail"}", "path=$path")
+                stored
+            } catch (e: IOException) {
+                recordError("Student photo upload", e)
+                null
+            }
+        }
+
+    /** Point a student row at its stored photo. */
+    suspend fun setStudentPhotoPath(
+        studentId: String,
+        photoPath: String
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUsingBackend()) return@withContext false
+            try {
+                val body = JSONObject().put("photo_path", photoPath).toString()
+                val result =
+                    SupabaseConfig.supabasePatch(
+                        table = "students",
+                        body = body,
+                        query = "id=eq.$studentId",
+                        authToken = authToken()
+                    )
+                val ok = result != null
+                AuditLogger.log("setStudentPhotoPath_${if (ok) "ok" else "fail"}", "studentId=$studentId")
+                ok
+            } catch (e: IOException) {
+                recordError("Student photo update", e)
+                false
+            }
+        }
+
+    /** Download a stored photo. Returns null when the object is missing or not readable. */
+    suspend fun getPhotoBytes(photoPath: String): ByteArray? {
+        if (photoPath.isBlank() || !isUsingBackend()) return null
+        return try {
+            SupabaseConfig.supabaseStorageDownload(
+                bucket = PhotoPolicy.BUCKET,
+                path = photoPath,
+                authToken = authToken()
+            )
+        } catch (e: IOException) {
+            Log.w(TAG, "Photo download failed: ${e.message}")
+            null
+        }
+    }
+
+    /** Best-effort removal of a superseded photo object. */
+    suspend fun deletePhoto(photoPath: String): Boolean {
+        if (photoPath.isBlank() || !isUsingBackend()) return false
+        return try {
+            SupabaseConfig.supabaseStorageDelete(
+                bucket = PhotoPolicy.BUCKET,
+                path = photoPath,
+                authToken = authToken()
+            )
+        } catch (e: IOException) {
+            Log.w(TAG, "Photo delete failed: ${e.message}")
+            false
+        }
+    }
 
     // ============================================
     // APPLICATIONS
@@ -1755,6 +1849,7 @@ object SupabaseRepository {
                 AuditLogger.log("createStudentFromApplication_ok", "appId=$applicationId studentId=$studentId")
 
                 if (studentId.isNotBlank()) {
+                    attachApplicationPhoto(appObj.optString("student_photo_path"), parentId, studentId)
                     // Generate registration fee invoice (R500) — due_date is a real date column,
                     // so compute the ISO date client-side instead of sending SQL expressions
                     val dueIn30Days = java.time.LocalDate.now().plusDays(30).toString()
@@ -1947,6 +2042,24 @@ object SupabaseRepository {
     // JSON PARSERS
     // ============================================
 
+    /**
+     * Move the photo captured at registration onto the student's own storage key
+     * ("<parentUid>/<studentUid>.jpg") so later replacements overwrite one
+     * predictable object. Falls back to the application key if the copy fails.
+     */
+    private suspend fun attachApplicationPhoto(
+        applicationPhotoPath: String,
+        parentId: String,
+        studentId: String
+    ) {
+        if (applicationPhotoPath.isBlank()) return
+        val copied = getPhotoBytes(applicationPhotoPath)?.let { uploadStudentPhoto(parentId, studentId, it) }
+        val photoPath = copied ?: applicationPhotoPath
+        if (!setStudentPhotoPath(studentId, photoPath)) {
+            Log.w(TAG, "Could not attach registration photo to student $studentId")
+        }
+    }
+
     private fun parseStudent(obj: JSONObject): MockStudent {
         return MockStudent(
             id = obj.optString("id"),
@@ -1969,7 +2082,8 @@ object SupabaseRepository {
             teacherName = obj.optStringOrNullSafe("teacher_name"),
             lsen = obj.optBoolean("lsen", false),
             photoConsent = obj.optBoolean("photo_consent", false),
-            signatureData = obj.optStringOrNullSafe("signature_data")
+            signatureData = obj.optStringOrNullSafe("signature_data"),
+            photoPath = obj.optStringOrNullSafe("photo_path")
         )
     }
 
@@ -2044,6 +2158,7 @@ object SupabaseRepository {
             studentClassNumber = obj.optStringOrNullSafe("student_class_number"),
             studentTeacherName = obj.optStringOrNullSafe("student_teacher_name"),
             studentLsen = obj.optStringOrNullSafe("student_lsen"),
+            studentPhotoPath = obj.optStringOrNullSafe("student_photo_path"),
             paymentProofUrl = obj.optStringOrNullSafe("payment_proof_url").ifBlank { null }
         )
     }
@@ -2174,7 +2289,10 @@ object SupabaseRepository {
  * (which reads those columns) displays the name; the DB trigger keeps them in
  * sync with `student_first_name`/`student_last_name`.
  */
-fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
+fun RegistrationDraft.toApplicationJson(
+    parentId: String,
+    studentPhotoPath: String = ""
+): JSONObject {
     val parts = studentName.trim().split(Regex("\\s+"), limit = 2)
     val first = InputSanitizer.sanitizeName(parts.firstOrNull() ?: "")
     val last = InputSanitizer.sanitizeName(parts.getOrNull(1) ?: "")
@@ -2207,6 +2325,8 @@ fun RegistrationDraft.toApplicationJson(parentId: String): JSONObject {
         put("student_class_number", InputSanitizer.sanitizeText(classNr))
         put("student_teacher_name", InputSanitizer.sanitizeName(teacherName))
         put("student_lsen", lsen)
+        // Storage key of the child's photo in the private 'photos' bucket.
+        if (studentPhotoPath.isNotBlank()) put("student_photo_path", studentPhotoPath)
         put("sports", sports.joinToString(","))
         put("collection_person_1", InputSanitizer.sanitizeName(collectionPerson1))
         put("collection_contact_1", InputSanitizer.sanitizePhone(contact1))

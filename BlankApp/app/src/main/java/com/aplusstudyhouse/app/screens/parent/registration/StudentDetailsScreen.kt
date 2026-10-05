@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.data.RegistrationDraft
+import com.aplusstudyhouse.app.ui.components.StudentPhotoPicker
 import com.aplusstudyhouse.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +37,9 @@ fun StudentDetailsScreen(
         teacherName: String,
         lsen: Boolean
     ) -> Unit,
-    draft: RegistrationDraft? = null
+    draft: RegistrationDraft? = null,
+    photoBytes: ByteArray? = null,
+    onPhotoPicked: (ByteArray) -> Unit = {}
 ) {
     var firstName by rememberSaveable { mutableStateOf(draft?.studentName?.substringBefore(" ") ?: "") }
     var lastName by rememberSaveable { mutableStateOf(draft?.studentName?.substringAfter(" ", "") ?: "") }
@@ -53,11 +56,18 @@ fun StudentDetailsScreen(
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
     val canContinue = firstName.isNotBlank() && lastName.isNotBlank() && grade.isNotBlank() && school.isNotBlank()
+    val hasPhoto = photoBytes != null
     val showFirstNameError = attemptedContinue && firstName.isBlank()
     val showLastNameError = attemptedContinue && lastName.isBlank()
     val showGradeError = attemptedContinue && grade.isBlank()
     val showSchoolError = attemptedContinue && school.isBlank()
     val showGenderError = attemptedContinue && gender.isBlank()
+    val photoValidationMessage =
+        if (attemptedContinue && !hasPhoto) {
+            "A photo of your child is required before you can continue."
+        } else {
+            null
+        }
 
     Scaffold(
         topBar = {
@@ -110,6 +120,18 @@ fun StudentDetailsScreen(
                         fontWeight = FontWeight.Bold,
                         color = OnBackground
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    StudentPhotoPicker(
+                        firstName = firstName.ifBlank { "Child" },
+                        lastName = lastName,
+                        previewPhotoBytes = photoBytes,
+                        validationMessage = photoValidationMessage,
+                        onPhotoPicked = onPhotoPicked
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = OutlineVariant)
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
@@ -337,7 +359,7 @@ fun StudentDetailsScreen(
             Button(
                 onClick = {
                     attemptedContinue = true
-                    if (canContinue && gender.isNotBlank()) {
+                    if (canContinue && gender.isNotBlank() && hasPhoto) {
                         onContinue("$firstName $lastName", grade.toIntOrNull() ?: 1, school, dob, address, gender, classNr, teacherName, lsen)
                     }
                 },
