@@ -160,5 +160,25 @@ REVOKE ALL ON FUNCTION public.verify_payfast_payment(TEXT, TEXT, NUMERIC, TEXT)
 REVOKE ALL ON FUNCTION public.verify_payfast_batch_payment(TEXT, TEXT, NUMERIC, TEXT)
   FROM public, anon, authenticated;
 
+-- ---------- set_payfast_verify_token: SECURITY DEFINER RPC to set the
+-- token without requiring superuser (service_role key can call this).
+-- Used by migration 015 to set app.payfast_verify_token when the
+-- service_role key cannot ALTER DATABASE SET directly.
+CREATE OR REPLACE FUNCTION public.set_payfast_verify_token(p_token TEXT)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    ALTER DATABASE postgres SET app.payfast_verify_token = p_token;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.set_payfast_verify_token(TEXT)
+  FROM public, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.set_payfast_verify_token(TEXT)
+  TO service_role;
+
 -- The payfast-itn edge function authenticates with the service_role key
 -- (bypasses RLS and has blanket EXECUTE), so no further grant is needed.

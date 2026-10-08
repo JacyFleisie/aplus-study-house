@@ -22,26 +22,26 @@
 --    as the edge function secret PAYFAST_VERIFY_TOKEN so the edge function
 --    can read it via Deno.env.get("PAYFAST_VERIFY_TOKEN").
 --
---    Set it via:
---      supabase secrets set PAYFAST_VERIFY_TOKEN=<random-token>
+--    The DB value is set via the set_payfast_verify_token RPC (created
+--    in migration 011), which runs as SECURITY DEFINER and can set the
+--    parameter despite the service_role key not being a superuser.
 --
---    Then set the DB value to match:
---      ALTER DATABASE postgres SET app.payfast_verify_token = '<same-token>';
+--    To apply: call the RPC with the real token as the argument.
+--      curl -X POST .../rest/v1/rpc/set_payfast_verify_token \
+--        -H "apikey: <SERVICE_ROLE_KEY>" \
+--        -H "Authorization: Bearer <SERVICE_ROLE_KEY>" \
+--        -H "Content-Type: application/json" \
+--        -d '{"token": "<the-same-token-as-PAYFAST_VERIFY_TOKEN-secret>"}'
+--
+--    ALSO set the edge function secret:
+--      supabase secrets set PAYFAST_VERIFY_TOKEN=<same-token>
 --
 -- 2. A comment on the payments.batch_id column documenting its purpose.
 
--- Generate a token yourself (e.g. a UUID) and substitute below. Do NOT
--- commit a real token to version control — keep it as a secret.
--- The DO block below is a no-op placeholder; replace the literal with
--- the real token value when applying, or set via psql / dashboard.
-DO $$
-BEGIN
-    -- Set the shared verify token at the database level.
-    -- The edge function reads the SAME value from PAYFAST_VERIFY_TOKEN.
-    IF current_setting('app.payfast_verify_token', true) IS NULL THEN
-        ALTER DATABASE postgres SET app.payfast_verify_token = 'REPLACE_WITH_REAL_TOKEN_BEFORE_DEPLOY';
-    END IF;
-END $$;
+-- Set the shared verify token at the database level via the SECURITY
+-- DEFINER RPC created in migration 011. The service_role key can call
+-- this RPC but cannot ALTER DATABASE SET directly.
+CALL public.set_payfast_verify_token('REPLACE_WITH_REAL_TOKEN_BEFORE_DEPLOY');
 
 -- Document the column (cosmetic; helps anyone inspecting the schema).
 COMMENT ON COLUMN payments.batch_id IS
