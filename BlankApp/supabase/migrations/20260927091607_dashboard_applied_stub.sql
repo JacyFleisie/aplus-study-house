@@ -1,0 +1,1 @@
+-- applied via Supabase dashboard on 20260927091607 (stub to align migration history; no-op)
