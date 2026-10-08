@@ -155,10 +155,23 @@ END;
 $$;
 
 -- ---------- Grants: no direct PostgREST access at all ----------
-REVOKE ALL ON FUNCTION public.verify_payfast_payment(TEXT, TEXT, NUMERIC, TEXT)
+-- NOTE the argument order: the 4-arg verify_payfast_payment is
+-- (p_verify_token, p_m_payment_id, p_pf_payment_id, p_amount)
+-- = (TEXT, TEXT, TEXT, NUMERIC) — amount is LAST.
+REVOKE ALL ON FUNCTION public.verify_payfast_payment(TEXT, TEXT, TEXT, NUMERIC)
   FROM public, anon, authenticated;
+-- The batch version is (p_verify_token, p_batch_id, p_amount, p_pf_payment_id)
+-- = (TEXT, TEXT, NUMERIC, TEXT) — amount is third.
 REVOKE ALL ON FUNCTION public.verify_payfast_batch_payment(TEXT, TEXT, NUMERIC, TEXT)
   FROM public, anon, authenticated;
+
+-- Drop the legacy 3-arg (no-token) overload from migration 008. Leaving it
+-- in place would keep the pre-token attack window open: any authenticated
+-- parent could still call it directly and mark invoices paid without paying.
+-- verify_payfast_batch_payment only ever existed with a token, so it has no
+-- legacy signature to drop.
+DROP FUNCTION IF EXISTS public.verify_payfast_payment(TEXT, TEXT, NUMERIC);
+
 
 -- ---------- set_payfast_verify_token: SECURITY DEFINER RPC to set the
 -- token without requiring superuser (service_role key can call this).
