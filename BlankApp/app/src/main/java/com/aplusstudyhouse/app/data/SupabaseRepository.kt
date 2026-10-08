@@ -10,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.time.Year
 
 /**
  * Supabase Data Repository
@@ -576,7 +577,9 @@ object SupabaseRepository {
                 monthlyFeeSibling =
                     getAppConfig("monthly_fee_sibling")?.toDoubleOrNull() ?: DEFAULT_MONTHLY_FEE_SIBLING,
                 projectFeeGrade6 =
-                    getAppConfig("project_fee_grade_6")?.toDoubleOrNull() ?: DEFAULT_PROJECT_FEE_GRADE_6
+                    getAppConfig("project_fee_grade_6")?.toDoubleOrNull() ?: DEFAULT_PROJECT_FEE_GRADE_6,
+                projectFeeQuarter =
+                    getAppConfig("project_fee_quarter")?.takeIf { it.isNotBlank() } ?: "Q3"
             )
         }
 
@@ -1547,6 +1550,8 @@ object SupabaseRepository {
                     val student = studentsArr.getJSONObject(i)
                     val studentId = student.optString("id")
                     val parentId = student.optString("parent_id")
+                    val firstName = InputSanitizer.sanitizeText(student.optString("first_name", ""))
+                    val lastName = InputSanitizer.sanitizeText(student.optString("last_name", ""))
 
                     // Check if invoice already exists for this month
                     val existingResult =
@@ -1568,6 +1573,7 @@ object SupabaseRepository {
                                 if (i == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling
                             ) // Monthly school fee from app_config: first child vs sibling
                             put("description", "Monthly School Fee")
+                            put("reference", buildInvoiceReference(firstName, lastName))
                             put("status", "pending")
                             put("category", "registration")
                             put("due_date", "now() + interval '30 days'")
@@ -1903,6 +1909,12 @@ object SupabaseRepository {
                             put("student_id", studentId)
                             put("amount", fees.registrationFee)
                             put("description", "Registration Fee")
+                            put("reference", buildInvoiceReference(
+                                appObj.optString("child_first_name", "").takeIf { it.isNotBlank() }
+                                    ?: InputSanitizer.sanitizeText(appObj.optString("student_first_name", "")),
+                                appObj.optString("child_last_name", "").takeIf { it.isNotBlank() }
+                                    ?: InputSanitizer.sanitizeText(appObj.optString("student_last_name", ""))
+                            ))
                             put("status", "pending")
                             put("category", "registration")
                             put("due_date", dueIn30Days)
@@ -1922,12 +1934,22 @@ object SupabaseRepository {
                     val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
                     val isQ3 = currentMonth in 7..9
                     val isGrade6 = appObj.optInt("student_grade", 0) == 6
+                    val projectRef = buildInvoiceReference(
+                        appObj.optString("child_first_name", "").takeIf { it.isNotBlank() }
+                            ?: InputSanitizer.sanitizeText(appObj.optString("student_first_name", "")),
+                        appObj.optString("child_last_name", "").takeIf { it.isNotBlank() }
+                            ?: InputSanitizer.sanitizeText(appObj.optString("student_last_name", ""))
+                    )
                     if (isQ3 && isGrade6) {
                         val projectInvoice =
                             JSONObject().apply {
                                 put("student_id", studentId)
                                 put("amount", fees.projectFeeGrade6)
-                                put("description", "Project Fee — Q3 2026 (Grade 6)")
+                                put(
+                                    "description",
+                                    "Project Fee — ${fees.projectFeeQuarter} ${invoiceYearSuffix} (Grade 6)"
+                                )
+                                put("reference", projectRef)
                                 put("status", "pending")
                                 put("category", "project")
                                 put("due_date", dueIn30Days)
@@ -2247,7 +2269,8 @@ object SupabaseRepository {
                     "stationery" -> InvoiceCategory.STATIONERY
                     "registration" -> InvoiceCategory.REGISTRATION
                     else -> InvoiceCategory.AFTERCARE
-                }
+                },
+            reference = obj.optString("reference", "")
         )
     }
 
@@ -2342,6 +2365,22 @@ object SupabaseRepository {
             relatedId = obj.optString("related_id", "")
         )
     }
+
+    /** Build a human-readable invoice reference from a student name using the school's
+     * app_config('reference_format') setting (migration 016 / app_config key added by
+     * migration 005). Falls back to "FirstName LastName" if the key is missing or blank.
+     * Must be called from a suspend context (reads app_config). */
+    private suspend fun buildInvoiceReference(firstName: String, lastName: String): String {
+        val fmt = getAppConfig("reference_format")?.takeIf { it.isNotBlank() } ?: "child_name_surname"
+        return when {
+            fmt == "surname_child_name" -> "$lastName, $firstName"
+            else -> "$firstName $lastName"
+        }
+    }
+
+    /** Year suffix for invoice descriptions, e.g. "2026" -> "26". */
+    private val invoiceYearSuffix: String
+        get() = Year.now().toString().takeLast(2)
 }
 
 /**
@@ -2442,7 +2481,9 @@ data class FeeConfig(
     val registrationFee: Double = DEFAULT_REGISTRATION_FEE,
     val monthlyFeeFirstChild: Double = DEFAULT_MONTHLY_FEE_FIRST_CHILD,
     val monthlyFeeSibling: Double = DEFAULT_MONTHLY_FEE_SIBLING,
-    val projectFeeGrade6: Double = DEFAULT_PROJECT_FEE_GRADE_6
+    val projectFeeGrade6: Double = DEFAULT_PROJECT_FEE_GRADE_6,
+    /** Default "Q3" — overridden by [getFeeConfig] when the backend is reachable. */
+    val projectFeeQuarter: String = "Q3"
 )
 
 /** Result of generateAttendanceInvoice. */

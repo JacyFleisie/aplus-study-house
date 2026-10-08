@@ -127,5 +127,10 @@ class SupabaseRepositoryTest {
                 fees.projectFeeGrade6,
                 0.01
             )
+            assertEquals(
+                "Project fee quarter default should be Q3 in mock mode",
+                FeeConfig().projectFeeQuarter,
+                fees.projectFeeQuarter
+            )
         }
 }
