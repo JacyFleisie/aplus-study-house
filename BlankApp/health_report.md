@@ -3,7 +3,7 @@
 **Date:** 2026-10-12
 **Version:** v1.6.21 / versionCode 49
 **Overall score:** **8.0 / 10** — release-ready with documented operational and testing debts
-**Latest maintenance pass:** CI JaCoCo artifact publication, focused fee/payload tests, updater deprecation cleanup, stale-report removal, and release runbook added; release APK rebuild remains guarded by the existing tag version policy.
+**Latest maintenance pass:** CI JaCoCo artifact publication, focused fee/payload and PayFast signature tests, updater deprecation cleanup, stale-report removal, and release runbook added; release APK rebuild remains guarded by the existing tag version policy.
 **Previous score:** 7.5 / 10 (v1.6.20); improved for verified signed publication, updater tests, and coverage reporting.
 
 ## 1. Verified state
@@ -48,7 +48,7 @@
 
 ### P1 — highest engineering value
 
-3. Raise coverage from **4.32% line** by covering PayFast verification, fee configuration, invoice generation, auth failure paths, and updater installation behavior. Focused fee/payload tests were added in this pass.
+3. Raise coverage from **4.32% line** by covering PayFast verification, fee configuration, invoice generation, auth failure paths, and updater installation behavior. Focused fee/payload and canonical PayFast signature tests were added in this pass.
 4. Introduce a gradual CI coverage floor after the new JaCoCo artifact baseline has been observed across several runs.
 5. Review remaining deprecation warnings and legacy style findings; updater certificate lookup now uses API-level-specific helpers and no longer falls back to the deprecated install action.
 

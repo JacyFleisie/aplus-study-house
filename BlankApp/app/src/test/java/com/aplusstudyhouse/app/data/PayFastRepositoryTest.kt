@@ -23,6 +23,20 @@ class PayFastRepositoryTest {
     }
 
     @Test
+    fun `generateSignature matches PayFast canonical input`() {
+        val data =
+            JSONObject().apply {
+                put("amount", "100.00")
+                put("merchant_id", "123456")
+                put("item_name", "Test Invoice")
+            }
+
+        val signature = PayFastRepository.generateSignature(data, "secret")
+
+        assertEquals("e0bf292e4fa22ed80acef4afad8ffb6c", signature)
+    }
+
+    @Test
     fun `generateSignature without passphrase produces valid hash`() {
         val data =
             JSONObject().apply {
