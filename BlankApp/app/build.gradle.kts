@@ -109,8 +109,8 @@ if (supabasePropertiesFile.exists()) {
 // latest GitHub release tag, so these MUST be bumped together on every
 // release. Bump appVersionCode by 1 and appVersionName to the tag name
 // (without the leading 'v').
-val appVersionCode = 47
-val appVersionName = "1.6.19"
+val appVersionCode = 48
+val appVersionName = "1.6.20"
 
 android {
     namespace = "com.aplusstudyhouse.app"
