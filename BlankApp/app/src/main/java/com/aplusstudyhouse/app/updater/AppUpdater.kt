@@ -3,6 +3,9 @@ package com.aplusstudyhouse.app.updater
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.PackageInfo
+import android.content.pm.Signature
+import android.content.ActivityNotFoundException
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
@@ -238,18 +241,9 @@ object AppUpdater {
             Log.d(TAG, "Activities that can handle install: ${activities.size}")
 
             if (activities.isEmpty()) {
-                // Fallback: try with ACTION_INSTALL_PACKAGE
-                Log.d(TAG, "No activities for ACTION_VIEW, trying ACTION_INSTALL_PACKAGE")
-                val fallbackIntent =
-                    Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                        data = uri
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                context.startActivity(fallbackIntent)
-            } else {
-                context.startActivity(intent)
+                throw ActivityNotFoundException("No activity can install APK files")
             }
+            context.startActivity(intent)
 
             Log.d(TAG, "Install intent launched successfully")
         } catch (e: Exception) {
@@ -265,71 +259,45 @@ object AppUpdater {
     internal fun verifyApkSignature(
         context: Context,
         apkFile: File
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             val pm = context.packageManager
-
-            // Get the APK's signing certificate
-            val apkCertInfo =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    pm.getPackageArchiveInfo(
-                        apkFile.absolutePath,
-                        android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES or android.content.pm.PackageManager.GET_SIGNATURES
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getPackageArchiveInfo(
-                        apkFile.absolutePath,
-                        android.content.pm.PackageManager.GET_SIGNATURES
-                    )
-                }
-
-            val apkSignatures =
-                apkCertInfo?.signingInfo?.apkContentsSigners
-                    ?: apkCertInfo?.signatures
-
-            val apkHasSignatures = !apkSignatures.isNullOrEmpty()
-            if (!apkHasSignatures) {
-                Log.e(TAG, "APK has no signatures")
-            }
-
-            // Get current app's signing certificate
-            val currentCertInfo =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    pm.getPackageInfo(
-                        context.packageName,
-                        android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES or android.content.pm.PackageManager.GET_SIGNATURES
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getPackageInfo(context.packageName, android.content.pm.PackageManager.GET_SIGNATURES)
-                }
-
-            val currentSignatures =
-                currentCertInfo?.signingInfo?.apkContentsSigners
-                    ?: currentCertInfo?.signatures
-
-            val currentHasSignatures = !currentSignatures.isNullOrEmpty()
-            if (!currentHasSignatures) {
-                Log.e(TAG, "Current app has no signatures")
-            }
-
-            // Compare certificates
-            val match =
-                if (apkHasSignatures && currentHasSignatures) {
-                    val apkCert = apkSignatures!![0]
-                    val currentCert = currentSignatures!![0]
+            val apkSignatures = packageSignatures(
+                pm.getPackageArchiveInfo(apkFile.absolutePath, signingInfoFlags())
+            )
+            val currentSignatures = packageSignatures(
+                pm.getPackageInfo(context.packageName, signingInfoFlags())
+            )
+            val match = apkSignatures?.firstOrNull()?.let { apkCert ->
+                currentSignatures?.firstOrNull()?.let { currentCert ->
                     apkCert.toByteArray().contentEquals(currentCert.toByteArray())
-                } else {
-                    false
                 }
+            } ?: false
+            if (!match) Log.e(TAG, "APK signature does not match installed app")
             Log.d(TAG, "Signature verification: $match")
             match
         } catch (e: Exception) {
             Log.e(TAG, "Signature verification failed", e)
             false
         }
-    }
+
+    private fun signingInfoFlags(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageManager.GET_SIGNING_CERTIFICATES
+        } else {
+            @Suppress("DEPRECATION")
+            PackageManager.GET_SIGNATURES
+        }
+
+    private fun packageSignatures(packageInfo: PackageInfo?): Array<Signature>? =
+        if (packageInfo == null) {
+            null
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.signingInfo?.apkContentsSigners
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.signatures
+        }
 
     /** SHA-256 hex of a file (for manual verification if needed). */
     private fun sha256(file: File): String {

@@ -88,7 +88,7 @@ tasks.register("checkVersionBump") {
     }
 }
 
-tasks.matching { it.name in setOf("assembleRelease", "assembleDebug") }.configureEach {
+tasks.matching { it.name == "assembleRelease" }.configureEach {
     dependsOn("checkVersionBump")
 }
 

@@ -26,15 +26,27 @@ jobs:
     - name: Setup Gradle
       uses: actions/setup-gradle@v3
 
-    - name: Build + unit tests
-      run: ./gradlew assembleDebug testDebugUnitTest --no-daemon --stacktrace
+    - name: Build + unit tests + coverage
+      working-directory: BlankApp
+      run: ./gradlew assembleDebug testDebugUnitTest jacocoTestReport --no-daemon --stacktrace
+
+    - name: Upload JaCoCo coverage
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-coverage
+        path: |
+          BlankApp/app/build/reports/jacoco/jacocoTestReport/
+          BlankApp/app/build/reports/tests/testDebugUnitTest/
+        retention-days: 14
+        if-no-files-found: warn
 
     - name: Upload test report on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: test-report-on-failure
-        path: app/build/reports/tests/testDebugUnitTest/
+        path: BlankApp/app/build/reports/tests/testDebugUnitTest/
         retention-days: 7
 
     - name: Upload test results
@@ -42,7 +54,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: app/build/test-results/testDebugUnitTest/
+        path: BlankApp/app/build/test-results/testDebugUnitTest/
         retention-days: 7
 
     - name: Upload test report
@@ -50,7 +62,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-report
-        path: app/build/reports/tests/testDebugUnitTest/
+        path: BlankApp/app/build/reports/tests/testDebugUnitTest/
         retention-days: 7
 
     - name: Upload release APK artifact
@@ -58,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
-        path: app/build/outputs/apk/release/app-release.apk
+        path: BlankApp/app/build/outputs/apk/release/app-release.apk
         retention-days: 7
 
   release:
