@@ -5,6 +5,53 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PayFastRepositoryTest {
+    @org.junit.Before
+    fun setUp() {
+        SupabaseConfig.forceMockMode = true
+        AuthRepository.signOut()
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        AuthRepository.signOut()
+    }
+
+    @Test
+    fun `isConfigured is false without an authenticated session`() =
+        kotlinx.coroutines.runBlocking {
+            assertFalse(PayFastRepository.isConfigured())
+        }
+
+    @Test
+    fun `payment creation is rejected before network when session token is missing`() =
+        kotlinx.coroutines.runBlocking {
+            val result =
+                PayFastRepository.buildPaymentData(
+                    invoiceId = "INV001",
+                    amount = 1700.0,
+                    itemName = "Monthly School Fee",
+                    parentEmail = "parent@example.com",
+                    parentId = "P001"
+                )
+
+            assertNull("Checkout must not start without an authenticated token", result)
+        }
+
+    @Test
+    fun `batch payment creation is rejected before network when session token is missing`() =
+        kotlinx.coroutines.runBlocking {
+            val result =
+                PayFastRepository.buildBatchPaymentData(
+                    invoiceIds = listOf("INV001", "INV002"),
+                    amount = 3350.0,
+                    itemName = "Monthly School Fees",
+                    parentEmail = "parent@example.com",
+                    parentId = "P001"
+                )
+
+            assertNull("Batch checkout must not start without an authenticated token", result)
+        }
+
     @Test
     fun `generateSignature produces valid MD5 hash`() {
         val data =

@@ -1566,19 +1566,11 @@ object SupabaseRepository {
 
                     // Create monthly school fee invoice
                     val body =
-                        JSONObject().apply {
-                            put("student_id", studentId)
-                            put(
-                                "amount",
-                                if (i == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling
-                            ) // Monthly school fee from app_config: first child vs sibling
-                            put("description", "Monthly School Fee")
-                            put("reference", buildInvoiceReference(firstName, lastName))
-                            put("status", "pending")
-                            put("category", "registration")
-                            put("due_date", "now() + interval '30 days'")
-                            put("created_at", "now()")
-                        }
+                        buildMonthlyInvoiceBody(
+                            studentId = studentId,
+                            amount = if (i == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling,
+                            reference = buildInvoiceReference(firstName, lastName)
+                        )
                     val result =
                         SupabaseConfig.supabasePost(
                             table = "invoices",
@@ -2377,6 +2369,26 @@ object SupabaseRepository {
             else -> "$firstName $lastName"
         }
     }
+
+    /**
+     * Build the stable payload used by monthly invoice generation.
+     * Kept separate from the network loop so its financial fields are directly testable.
+     */
+    internal fun buildMonthlyInvoiceBody(
+        studentId: String,
+        amount: Double,
+        reference: String
+    ): JSONObject =
+        JSONObject().apply {
+            put("student_id", studentId)
+            put("amount", amount)
+            put("description", "Monthly School Fee")
+            put("reference", reference)
+            put("status", "pending")
+            put("category", "registration")
+            put("due_date", "now() + interval '30 days'")
+            put("created_at", "now()")
+        }
 
     /** Year suffix for invoice descriptions, e.g. "2026" -> "26". */
     private val invoiceYearSuffix: String

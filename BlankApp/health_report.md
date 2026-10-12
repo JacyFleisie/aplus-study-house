@@ -3,7 +3,7 @@
 **Date:** 2026-10-12
 **Version:** v1.6.21 / versionCode 49
 **Overall score:** **8.0 / 10** — release-ready with documented operational and testing debts
-**Latest maintenance pass:** CI JaCoCo artifact publication, focused fee/payload, PayFast signature, and auth-state tests, updater deprecation cleanup, stale-report removal, and release runbook added; release APK rebuild remains guarded by the existing tag version policy.
+**Latest maintenance pass:** CI JaCoCo artifact publication, focused invoice-payload, PayFast authentication-gate, PayFast signature, and auth-state tests, updater deprecation cleanup, stale-report removal, and release runbook added; release APK rebuild remains guarded by the existing tag version policy.
 **Previous score:** 7.5 / 10 (v1.6.20); improved for verified signed publication, updater tests, and coverage reporting.
 
 ## 1. Verified state
@@ -11,12 +11,12 @@
 | Area | Current result | Evidence |
 |---|---|---|
 | Git | PASS — clean; `main` matches `origin/main` | `git status --short --branch` |
-| Release commit | PASS — `0538e8a` | `git log -1 --decorate` |
-| Release tag | PASS — `v1.6.21` points at `0538e8a` | `git log -1 --decorate` |
+| Release commit | PASS — `0592237` | `git log -1 --decorate` |
+| Release tag | PASS — `v1.6.21` remains the published release tag; latest main commit is `0592237` | `git log -1 --decorate` |
 | Local unit tests | PASS | `./gradlew testDebugUnitTest`; completed successfully |
 | Updater signature tests | PASS — matching, mismatched, and unsigned APK cases | `AppUpdaterSignatureTest` |
 | JaCoCo | PASS — XML and HTML reports generated | `./gradlew jacocoTestReport` |
-| Coverage | **4.41% line**, 4.06% branch, 8.37% method, 4.54% class | Fresh JaCoCo XML report from `testDebugUnitTest jacocoTestReport` |
+| Coverage | **4.52% line**, 4.13% branch, 8.52% method, 4.59% class | Fresh JaCoCo XML report from `testDebugUnitTest jacocoTestReport` |
 | Detekt | PASS | `./gradlew detekt` |
 | Ktlint | PASS as configured; task succeeds with `ignoreFailures=true`; legacy findings remain | `./gradlew ktlintCheck` |
 | Release build | PASS | `./gradlew assembleRelease` |
@@ -32,7 +32,7 @@
 
 - **Architecture: 8.0/10.** Clear Android/Supabase separation, Hilt, repositories, and a signed self-updater; still a large monolith with limited architecture decision records.
 - **Code quality: 7.5/10.** Detekt and the configured ktlint task pass, but existing compiler/deprecation warnings remain and ktlint is non-blocking.
-- **Testing: 6.0/10.** Unit tests and updater certificate cases pass, but JaCoCo shows only 4.36% line coverage; no instrumentation, live integration, or device tests.
+- **Testing: 6.0/10.** Unit tests and updater certificate cases pass, but JaCoCo shows only 4.52% line coverage; no instrumentation, live integration, or device tests.
 - **Security: 8.5/10.** Published APK signing and updater certificate comparison are verified; secret rotation is not documented and local credential files are plaintext but gitignored.
 - **Deployment: 9.0/10.** v1.6.21 is tagged, CI-built, signed, published, downloaded, and independently verified. Rollback and release-note automation remain undocumented.
 - **Documentation: 7.0/10.** README and changelog are current for v1.6.21, but this report had been stale and historical report files still clutter the project.
@@ -48,7 +48,7 @@
 
 ### P1 — highest engineering value
 
-3. Raise coverage from **4.41% line** by covering PayFast verification, fee configuration, invoice generation, auth failure paths, and updater installation behavior. Focused fee/payload, canonical PayFast signature, and mock-auth state tests were added in this pass.
+3. Raise coverage from **4.52% line** by covering PayFast verification, fee configuration, invoice generation, auth failure paths, and updater installation behavior. Focused invoice payload, PayFast authentication gates, canonical signature, and mock-auth state tests were added in this pass.
 4. Introduce a gradual CI coverage floor after the new JaCoCo artifact baseline has been observed across several runs.
 5. Review remaining deprecation warnings and legacy style findings; updater certificate lookup now uses API-level-specific helpers and no longer falls back to the deprecated install action.
 
@@ -77,7 +77,7 @@
 - Historical health reports and versioned JSON inputs were removed; `health_report.md` is now the sole authoritative root report.
 - Existing compiler/deprecation warnings are noisy.
 - Ktlint is configured with `ignoreFailures=true`, so style findings do not block CI.
-- JaCoCo is generated locally and uploaded by the main CI workflow, but coverage is currently very low and no floor is enforced yet.
+- JaCoCo is generated locally and uploaded by the main CI workflow, but coverage is currently very low and no floor is enforced yet; the latest local report is 4.52% line coverage.
 - No real-device, live-PayFast, or end-to-end updater verification has been completed.
 
 ## 5. Bottom line

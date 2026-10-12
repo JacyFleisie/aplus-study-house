@@ -100,6 +100,28 @@ class SupabaseRepositoryTest {
     // ============================================
 
     @Test
+    fun `monthly invoice body contains payable financial fields`() {
+        val body = SupabaseRepository.buildMonthlyInvoiceBody("S001", 1700.0, "Jane Doe")
+
+        assertEquals("S001", body.getString("student_id"))
+        assertEquals(1700.0, body.getDouble("amount"), 0.001)
+        assertEquals("Monthly School Fee", body.getString("description"))
+        assertEquals("Jane Doe", body.getString("reference"))
+        assertEquals("pending", body.getString("status"))
+        assertEquals("registration", body.getString("category"))
+        assertEquals("now() + interval '30 days'", body.getString("due_date"))
+        assertEquals("now()", body.getString("created_at"))
+    }
+
+    @Test
+    fun `monthly invoice body preserves sibling fee and surname reference`() {
+        val body = SupabaseRepository.buildMonthlyInvoiceBody("S002", 1650.0, "Doe, Jane")
+
+        assertEquals(1650.0, body.getDouble("amount"), 0.001)
+        assertEquals("Doe, Jane", body.getString("reference"))
+    }
+
+    @Test
     fun `getFeeConfig returns defaults in mock mode`() =
         kotlinx.coroutines.runBlocking {
             val fees = SupabaseRepository.getFeeConfig()
