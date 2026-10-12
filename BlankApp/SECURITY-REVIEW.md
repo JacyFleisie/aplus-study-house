@@ -1,6 +1,6 @@
 # Batch Payment Security Review — Pre-Launch
 
-**Date:** 2026-09-28 · **Scope:** Pay-All batch payment flow (SQL RPCs, RLS, edge functions) · **Reviewer:** Buffy (agent), evidence from live-project SQL probes in this session
+**Date:** 2026-09-28 · **Scope:** Pay-All batch payment flow (SQL RPCs, RLS, edge functions) · **Reviewer:** engineering review, evidence from live-project SQL probes
 
 ## Verdict: PASS (after fixes below were applied)
 

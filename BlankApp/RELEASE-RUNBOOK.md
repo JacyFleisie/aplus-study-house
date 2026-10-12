@@ -19,7 +19,7 @@
 2. Create and push an annotated `v<version>` tag.
 3. Monitor the tag workflow until both build and release jobs succeed.
 4. Verify the GitHub Release is public and contains `app-release.apk`.
-5. Download the published APK, verify its signature, and record its SHA-256 digest in the health report.
+5. Download the published APK, verify its signature, and record its SHA-256 digest in the release notes or CI artifact log.
 
 ## Rollback
 
@@ -33,7 +33,7 @@
 - Rotate Android signing credentials only with a planned migration; changing the signing certificate prevents updates over the existing install.
 - Rotate PayFast merchant credentials and `PAYFAST_VERIFY_TOKEN` in Supabase Edge Function secrets, then run a sandbox checkout and ITN verification before production use.
 - Never commit keystores, `keystore.properties`, Supabase properties, merchant keys, passphrases, or verify tokens.
-- After rotation, update the operational evidence in `SECURITY-REVIEW.md` and `health_report.md` without recording secret values.
+- After rotation, update the operational evidence in `SECURITY-REVIEW.md` or the release notes without recording secret values.
 
 ## Release notes
 
