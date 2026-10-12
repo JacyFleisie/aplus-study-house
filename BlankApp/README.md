@@ -102,10 +102,10 @@ A school management app for parents and administrators. Built with Kotlin, Jetpa
 
 | Fee Type | Amount | Frequency | Auto-Generated |
 |----------|--------|-----------|----------------|
-| Registration | R450 | One-time | ✅ On approval |
-| Transport | R600 | Monthly | ✅ On approval (if required) |
-| Aftercare | R350 | Monthly | ❌ Manual |
-| Stationery | R200 | Per term | ❌ Manual |
+| Registration | R450 (default; configurable) | One-time | ✅ On approval |
+| Transport | R600 (default; configurable) | Monthly | ✅ On approval (if required) |
+| Aftercare | R350 (default; configurable) | Monthly | ❌ Manual |
+| Stationery | R200 (default; configurable) | Per term | ❌ Manual |
 
 ## License
 

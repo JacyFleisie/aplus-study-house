@@ -262,7 +262,7 @@ object AppUpdater {
      * Verifies the APK signature matches the current app's signing certificate.
      * This prevents installing a compromised or tampered APK.
      */
-    private fun verifyApkSignature(
+    internal fun verifyApkSignature(
         context: Context,
         apkFile: File
     ): Boolean {
@@ -288,9 +288,9 @@ object AppUpdater {
                 apkCertInfo?.signingInfo?.apkContentsSigners
                     ?: apkCertInfo?.signatures
 
-            if (apkSignatures.isNullOrEmpty()) {
+            val apkHasSignatures = !apkSignatures.isNullOrEmpty()
+            if (!apkHasSignatures) {
                 Log.e(TAG, "APK has no signatures")
-                return false
             }
 
             // Get current app's signing certificate
@@ -309,16 +309,20 @@ object AppUpdater {
                 currentCertInfo?.signingInfo?.apkContentsSigners
                     ?: currentCertInfo?.signatures
 
-            if (currentSignatures.isNullOrEmpty()) {
+            val currentHasSignatures = !currentSignatures.isNullOrEmpty()
+            if (!currentHasSignatures) {
                 Log.e(TAG, "Current app has no signatures")
-                return false
             }
 
             // Compare certificates
-            val apkCert = apkSignatures[0]
-            val currentCert = currentSignatures[0]
-
-            val match = apkCert.toByteArray().contentEquals(currentCert.toByteArray())
+            val match =
+                if (apkHasSignatures && currentHasSignatures) {
+                    val apkCert = apkSignatures!![0]
+                    val currentCert = currentSignatures!![0]
+                    apkCert.toByteArray().contentEquals(currentCert.toByteArray())
+                } else {
+                    false
+                }
             Log.d(TAG, "Signature verification: $match")
             match
         } catch (e: Exception) {

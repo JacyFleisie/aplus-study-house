@@ -1,3 +1,4 @@
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -10,6 +11,7 @@ plugins {
     // Static analysis (restored — runs manually via `detekt` / `ktlintCheck`)
     id("io.gitlab.arturbosch.detekt")
     id("org.jlleitschuh.gradle.ktlint")
+    id("jacoco")
 }
 
 // ============================================
@@ -109,8 +111,8 @@ if (supabasePropertiesFile.exists()) {
 // latest GitHub release tag, so these MUST be bumped together on every
 // release. Bump appVersionCode by 1 and appVersionName to the tag name
 // (without the leading 'v').
-val appVersionCode = 48
-val appVersionName = "1.6.20"
+val appVersionCode = 49
+val appVersionName = "1.6.21"
 
 android {
     namespace = "com.aplusstudyhouse.app"
@@ -269,6 +271,26 @@ detekt {
     // Generate a baseline so pre-existing issues don't fail a first run.
     baseline = file("detekt-baseline.xml")
     config.setFrom("$rootDir/config/detekt/detekt.yml")
+}
+
+tasks.withType<Test>().configureEach {
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+    sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
+    classDirectories.setFrom(
+        fileTree("$buildDir/tmp/kotlin-classes/debug") {
+            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+        },
+    )
+    executionData.setFrom(fileTree(buildDir) { include("jacoco/testDebugUnitTest.exec") })
 }
 
 ktlint {

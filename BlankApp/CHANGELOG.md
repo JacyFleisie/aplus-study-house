@@ -1,3 +1,39 @@
+# A+ Study House — Changelog
+
+All notable changes to this project are documented in this file.
+
+## [1.6.21] — 2026-10-12
+
+### Fixed
+- Restored release APK signing after correcting the duplicate Android `defaultConfig` configuration.
+- Added the next version code so the release guard accepts the signed rebuild.
+
+## [1.6.20] — 2026-10-12
+
+### Added
+- PayFast support for the school's merchant account (`PAYFAST_MERCHANT_ID=23328942`): PayFast Pay-All batch checkout + ITN webhook verification
+
+### Added (migrations)
+- `014_batch_id_on_payments.sql`: `payments.batch_id TEXT` column for PayFast Pay-All batch checkout grouping (idempotent `ADD COLUMN IF NOT EXISTS`)
+- `015_payfast_verify_token_setup.sql`: no-op documentation migration; the verify token is stored in `private.payfast_settings` (migration 018) rather than a Postgres parameter, because `ALTER DATABASE SET` is not permitted for the postgres role on shared Supabase (returns 42501)
+- `016_invoice_reference.sql`: `invoices.reference TEXT` column so invoices carry a human-readable parent/student reference
+- `017_project_fee_quarter_config.sql`: no-op documentation migration ensuring `project_fee_quarter` exists in `app_config` on fresh environments
+- `018_payfast_verify_token_private_table.sql`: creates `private.payfast_settings` and rewrites both PayFast verify RPCs to read the shared verify token from there
+
+### Added (verify RPCs)
+- `011_lock_down_payfast_verification_rpcs.sql`: `verify_payfast_payment` and `verify_payfast_batch_payment` now require a shared `p_verify_token`; the legacy no-token 3-arg overload from migration 008 is dropped so no authenticated user can mark invoices paid without paying
+- `REVOKE` signatures corrected to match the actual function arg orders; `set_payfast_verify_token(TEXT)` RPC granted to `service_role`
+
+### Added (edge functions)
+- `payfast-create-payment`: builds the PayFast checkout URL from the merchant config (Deno env `PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, `PAYFAST_PASSPHRASE`, `PAYFAST_MODE`)
+- `payfast-itn`: PayFast ITN webhook callback — verifies the PayFast signature (MD5), checks the verify token, then calls the matching verify RPC to mark payments verified (and invoices paid for batch payments)
+
+### Added (secrets — live on the project)
+- `PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, `PAYFAST_PASSPHRASE`, `PAYFAST_MODE` (production), `PAYFAST_VERIFY_TOKEN` — set and confirmed; the verify token is also stored in `private.payfast_settings`
+
+### Remaining manual step
+- Set the PayFast dashboard ITN notify URL to `https://lhybcueknuarolxjuoqi.supabase.co/functions/v1/payfast-itn` (Settings → Integration) so completed payments actually mark invoices paid
+
 ## [1.6.19] — 2026-10-05
 
 ### Added
@@ -11,12 +47,5 @@
 
 ### Added (migration)
 - `013_fee_config.sql`: inserts the four fee keys into `app_config` with school-default values (idempotent `ON CONFLICT` upsert)
-
-### Added (PayFast — shipped after v1.6.19; all live on the main branch)
-- Migrations: `014_batch_id_on_payments.sql` (PayFast Pay-All `payments.batch_id`), `015_payfast_verify_token_setup.sql` (no-op documentation; token storage moved to 018), `016_invoice_reference.sql` (`invoices.reference TEXT`), `017_project_fee_quarter_config.sql` (no-op; ensures `project_fee_quarter` exists in `app_config`), `018_payfast_verify_token_private_table.sql` (stores the verify token in `private.payfast_settings` — the only viable path on shared Supabase since `ALTER DATABASE SET` returns 42501)
-- Verify RPCs (`011_lock_down_payfast_verification_rpcs.sql`): `verify_payfast_payment` and `verify_payfast_batch_payment` now require `p_verify_token`; the legacy no-token 3-arg overload from migration 008 is dropped so no authenticated user can mark invoices paid without paying
-- Edge functions: `payfast-create-payment` (builds the PayFast checkout URL) and `payfast-itn` (PayFast ITN callback — verifies signature, checks the verify token, marks invoices paid)
-- Secrets: all PayFast merchant credentials (`PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, `PAYFAST_PASSPHRASE`, `PAYFAST_MODE`, `PAYFAST_VERIFY_TOKEN`) are set — both the ITN function and the verify token in `private.payfast_settings` are live
-- Manual remaining step: set the PayFast dashboard ITN notify URL to `https://lhybcueknuarolxjuoqi.supabase.co/functions/v1/payfast-itn` so completed payments mark invoices paid
 
 ## [1.6.18] — 2026-10-05
