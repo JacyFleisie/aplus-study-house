@@ -127,6 +127,13 @@ android {
         buildConfigField("int", "VERSION_CODE", "$appVersionCode")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${supabaseProperties.getProperty("SUPABASE_URL", "")}\"")
+        buildConfigField(
+            "String",
+            "SUPABASE_ANON_KEY",
+            "\"${supabaseProperties.getProperty("SUPABASE_ANON_KEY", "")}\"",
+        )
     }
 
     signingConfigs {
@@ -168,15 +175,6 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
-    }
-
-    defaultConfig {
-        buildConfigField("String", "SUPABASE_URL", "\"${supabaseProperties.getProperty("SUPABASE_URL", "")}\"")
-        buildConfigField(
-            "String",
-            "SUPABASE_ANON_KEY",
-            "\"${supabaseProperties.getProperty("SUPABASE_ANON_KEY", "")}\"",
-        )
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
