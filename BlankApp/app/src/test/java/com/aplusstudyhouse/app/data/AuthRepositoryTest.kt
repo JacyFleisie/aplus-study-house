@@ -80,6 +80,38 @@ class AuthRepositoryTest {
             assertEquals(UserRole.PARENT, result.user?.role)
         }
 
+    @Test
+    fun `duplicate account email is rejected`() =
+        kotlinx.coroutines.runBlocking {
+            val email = "duplicate${System.currentTimeMillis()}@example.com"
+            val first = AuthRepository.createAccount("First Parent", email, "0821234567", "Password1")
+            val second = AuthRepository.createAccount("Second Parent", email, "0821234567", "Password1")
+
+            assertTrue(first.success)
+            assertFalse(second.success)
+            assertTrue(second.message.contains("already exists"))
+        }
+
+    @Test
+    fun `demo sign in rejects wrong password and accepts seeded admin`() {
+        val rejected = AuthRepository.demoSignIn("admin@aplusstudy.co.za", "wrong")
+        assertFalse(rejected.success)
+
+        val accepted = AuthRepository.demoSignIn("admin@aplusstudy.co.za", "Admin123")
+        assertTrue(accepted.success)
+        assertEquals(UserRole.ADMIN, accepted.user?.role)
+    }
+
+    @Test
+    fun `reset password returns useful result for known and unknown users`() =
+        kotlinx.coroutines.runBlocking {
+            val known = AuthRepository.resetPassword("admin@aplusstudy.co.za")
+            val unknown = AuthRepository.resetPassword("unknown${System.currentTimeMillis()}@example.com")
+
+            assertTrue(known.success)
+            assertFalse(unknown.success)
+        }
+
     // ============================================
     // SESSION / ROLE STATE
     // ============================================
