@@ -305,7 +305,8 @@ data class MockInvoice(
     val status: InvoiceStatus,
     val paidDate: String? = null,
     val category: InvoiceCategory = InvoiceCategory.AFTERCARE,
-    val reference: String = ""
+    val reference: String = "",
+    val billingPeriod: String? = null
 )
 
 enum class InvoiceStatus {

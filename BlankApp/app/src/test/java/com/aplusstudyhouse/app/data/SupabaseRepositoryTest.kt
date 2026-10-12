@@ -107,6 +107,7 @@ class SupabaseRepositoryTest {
         assertEquals(1700.0, body.getDouble("amount"), 0.001)
         assertEquals("Monthly School Fee", body.getString("description"))
         assertEquals("Jane Doe", body.getString("reference"))
+        assertEquals(java.time.YearMonth.now().toString(), body.getString("billing_period"))
         assertEquals("pending", body.getString("status"))
         assertEquals("registration", body.getString("category"))
         assertEquals("now() + interval '30 days'", body.getString("due_date"))
@@ -115,9 +116,10 @@ class SupabaseRepositoryTest {
 
     @Test
     fun `monthly invoice body preserves sibling fee and surname reference`() {
-        val body = SupabaseRepository.buildMonthlyInvoiceBody("S002", 1650.0, "Doe, Jane")
+        val body = SupabaseRepository.buildMonthlyInvoiceBody("S002", 1650.0, "Doe, Jane", "2026-10")
 
         assertEquals(1650.0, body.getDouble("amount"), 0.001)
+        assertEquals("2026-10", body.getString("billing_period"))
         assertEquals("Doe, Jane", body.getString("reference"))
     }
 

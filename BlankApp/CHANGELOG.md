@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Branded PDF invoice/receipt generation with Android share support.
+- Monthly invoice billing periods and a database uniqueness index to prevent duplicate generation.
+
+### Fixed
+- Monthly first-child versus sibling pricing is calculated per family rather than by global student order.
+
 ## [1.6.21] — 2026-10-12
 
 ### Fixed

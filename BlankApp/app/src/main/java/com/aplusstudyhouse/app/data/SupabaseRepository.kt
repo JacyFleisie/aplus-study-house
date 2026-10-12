@@ -11,6 +11,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.time.Year
+import java.time.YearMonth
 
 /**
  * Supabase Data Repository
@@ -1535,6 +1536,7 @@ object SupabaseRepository {
             if (!isUsingBackend()) return@withContext 0
             try {
                 val fees = getFeeConfig()
+                val billingPeriod = YearMonth.now().toString()
                 // Get all active students
                 val studentsResult =
                     SupabaseConfig.supabaseGet(
@@ -1545,19 +1547,22 @@ object SupabaseRepository {
 
                 val studentsArr = JSONArray(studentsResult)
                 var created = 0
+                val childOrdinalByParent = mutableMapOf<String, Int>()
 
                 for (i in 0 until studentsArr.length()) {
                     val student = studentsArr.getJSONObject(i)
                     val studentId = student.optString("id")
                     val parentId = student.optString("parent_id")
+                    val childOrdinal = childOrdinalByParent.getOrDefault(parentId, 0)
+                    childOrdinalByParent[parentId] = childOrdinal + 1
                     val firstName = InputSanitizer.sanitizeText(student.optString("first_name", ""))
                     val lastName = InputSanitizer.sanitizeText(student.optString("last_name", ""))
 
-                    // Check if invoice already exists for this month
+                    // Check this student's current billing period, not merely any pending invoice.
                     val existingResult =
                         SupabaseConfig.supabaseGet(
                             table = "invoices",
-                            query = "student_id=eq.$studentId&status=eq.pending&select=id",
+                            query = "student_id=eq.$studentId&billing_period=eq.$billingPeriod&category=eq.registration&select=id",
                             authToken = authToken()
                         )
 
@@ -1568,8 +1573,9 @@ object SupabaseRepository {
                     val body =
                         buildMonthlyInvoiceBody(
                             studentId = studentId,
-                            amount = if (i == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling,
-                            reference = buildInvoiceReference(firstName, lastName)
+                            amount = if (childOrdinal == 0) fees.monthlyFeeFirstChild else fees.monthlyFeeSibling,
+                            reference = buildInvoiceReference(firstName, lastName),
+                            billingPeriod = billingPeriod
                         )
                     val result =
                         SupabaseConfig.supabasePost(
@@ -2262,7 +2268,8 @@ object SupabaseRepository {
                     "registration" -> InvoiceCategory.REGISTRATION
                     else -> InvoiceCategory.AFTERCARE
                 },
-            reference = obj.optString("reference", "")
+            reference = obj.optString("reference", ""),
+            billingPeriod = obj.optString("billing_period", "").ifBlank { null }
         )
     }
 
@@ -2377,13 +2384,15 @@ object SupabaseRepository {
     internal fun buildMonthlyInvoiceBody(
         studentId: String,
         amount: Double,
-        reference: String
+        reference: String,
+        billingPeriod: String = YearMonth.now().toString()
     ): JSONObject =
         JSONObject().apply {
             put("student_id", studentId)
             put("amount", amount)
             put("description", "Monthly School Fee")
             put("reference", reference)
+            put("billing_period", billingPeriod)
             put("status", "pending")
             put("category", "registration")
             put("due_date", "now() + interval '30 days'")

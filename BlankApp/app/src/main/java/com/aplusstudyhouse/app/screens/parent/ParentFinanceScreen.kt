@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.aplusstudyhouse.app.R
 import com.aplusstudyhouse.app.data.*
 import com.aplusstudyhouse.app.ui.components.*
+import com.aplusstudyhouse.app.utils.FinancePdf
 import com.aplusstudyhouse.app.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -559,6 +560,7 @@ fun InvoiceCard(
 ) {
     val student = students.find { it.id == invoice.studentId }
     val isUnpaid = invoice.status == InvoiceStatus.PENDING || invoice.status == InvoiceStatus.OVERDUE
+    val context = LocalContext.current
 
     Card(
         modifier =
@@ -651,6 +653,17 @@ fun InvoiceCard(
                         fontWeight = FontWeight.Bold,
                         color = OnBackground
                     )
+                    if (!isUnpaid) {
+                        IconButton(
+                            onClick = {
+                                val uri = FinancePdf.invoice(context, invoice, student)
+                                FinancePdf.share(context, uri, "A+ Study House receipt")
+                            },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Filled.Share, contentDescription = "Share receipt", tint = Primary)
+                        }
+                    }
                     Surface(
                         shape = RoundedCornerShape(4.dp),
                         color =
